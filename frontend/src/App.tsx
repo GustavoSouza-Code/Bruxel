@@ -1,5 +1,9 @@
+import "./App.css";
+import { PortalHome } from "./pages/portal/Home";
+
 function App() {
-return <></>
+    // TODO: quando tiver rotas (react-router), trocar isso por <Routes>
+    return <PortalHome />;
 }
 
 export default App

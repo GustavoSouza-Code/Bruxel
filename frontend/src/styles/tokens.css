@@ -1,0 +1,34 @@
+:root {
+  /* Cores — estimadas a partir do Figma, ajuste fino quando tiver os hex reais */
+  --color-primary: #202a6e;
+  --color-primary-dark: #171f57;
+  --color-accent: #4f7df6;
+  --color-accent-light: #bfe4ff;
+  --color-store-button: #dcdcff;
+  --color-wave: #7b84e0;
+
+  --color-text: #1a1a2e;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-white: #ffffff;
+
+  /* Layout */
+  --max-width: 1560px;
+  /* gutter cresce suavemente com a tela: 1.25rem no celular até 4rem em monitor grande */
+  --gutter: clamp(1.25rem, 1rem + 3vw, 4rem);
+
+  /* Tipografia — TODO: trocar pela fonte real do Figma quando o nome chegar */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+
+  /* Todos os tamanhos usam clamp(mínimo, ideal-fluido, máximo) pra se
+     ajustarem à resolução sem quebrar em telas pequenas nem ficarem
+     minúsculos em monitores grandes */
+  --font-size-display: clamp(1.75rem, 1.1rem + 2.3vw, 2.75rem);
+  --font-size-hero-title: clamp(1.4rem, 1rem + 1.6vw, 2.1rem);
+  --font-size-h2: clamp(1.4rem, 1.1rem + 1vw, 2rem);
+  --font-size-body: clamp(1rem, 0.94rem + 0.2vw, 1.1rem);
+  --font-size-small: clamp(0.85rem, 0.8rem + 0.15vw, 0.95rem);
+
+  --space-section: clamp(2.5rem, 2rem + 2vw, 4.5rem);
+}

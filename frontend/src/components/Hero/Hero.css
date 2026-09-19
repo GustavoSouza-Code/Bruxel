@@ -1,0 +1,96 @@
+.hero {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: 0 0 50% 50% / 0 0 60px 60px;
+  overflow: hidden;
+}
+
+.hero__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  padding-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+}
+
+.hero__mascot {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  position: relative;
+}
+
+.hero__mascot img {
+  width: 100%;
+  /* mascote grande, ocupando boa parte do hero, escalando com a tela */
+  max-width: clamp(260px, 22vw + 200px, 620px);
+  height: auto;
+  object-fit: contain;
+  transform: translateY(clamp(30px, 5vw, 70px));
+}
+
+.hero__content {
+  flex: 0 1 480px;
+}
+
+.hero__title {
+  font-size: var(--font-size-hero-title);
+  line-height: 1.3;
+  margin: 0 0 1.5rem;
+  font-weight: 700;
+}
+
+.hero__callout {
+  background-color: var(--color-accent-light);
+  color: var(--color-primary-dark);
+  border-radius: 24px;
+  padding: clamp(1.1rem, 1rem + 0.5vw, 1.5rem);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.hero__callout p {
+  margin: 0 0 1rem;
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.hero__cta {
+  display: block;
+  margin: 0 auto;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 700;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .hero__inner {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero__callout {
+    width: auto;
+    margin: 0 auto;
+  }
+
+  .hero__callout p {
+    max-width: none;
+  }
+}
+
+@media (max-width: 500px) {
+  .hero__mascot img {
+    transform: none;
+  }
+}

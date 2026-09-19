@@ -1,0 +1,94 @@
+.header {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: clamp(1rem, 0.85rem + 0.6vw, 1.5rem);
+  padding-bottom: clamp(1rem, 0.85rem + 0.6vw, 1.5rem);
+}
+
+.header__logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.header__logo-main {
+  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem);
+}
+
+.header__logo-sub {
+  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.95rem);
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.header__nav {
+  display: flex;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.header__nav-link {
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  white-space: nowrap;
+}
+
+.header__nav-link:hover {
+  opacity: 0.8;
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 0.8rem + 1vw, 1.75rem);
+  white-space: nowrap;
+}
+
+.header__icon-button {
+  background: none;
+  border: none;
+  color: var(--color-white);
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  cursor: pointer;
+}
+
+.header__login-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.6rem;
+  font-weight: 700;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.header__login-icon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .header__nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1.25rem;
+  }
+}
