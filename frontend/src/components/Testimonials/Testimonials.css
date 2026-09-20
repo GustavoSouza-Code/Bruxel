@@ -4,6 +4,7 @@
 
 .testimonials h2 {
   font-size: var(--font-size-h2);
+  font-weight: 600;
   margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
@@ -14,8 +15,9 @@
 }
 
 .testimonials__card {
-  border-top: 1px solid var(--color-border);
-  padding-top: 1.1rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1.1rem 1.5rem;
 }
 
 .testimonials__card-header {
@@ -27,6 +29,7 @@
 }
 
 .testimonials__card-header strong {
+  font-weight: 600;
   font-size: var(--font-size-body);
 }
 

@@ -1,8 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import mascoteImg from "../../assets/images/mascote/mascote-bruxel.png";
 import { Container } from "../Container/Container";
 import "./Hero.css";
 
 export function Hero() {
+  const navigate = useNavigate();
+
   return (
     <section className="hero">
       <Container className="hero__inner">
@@ -22,8 +25,23 @@ export function Hero() {
               dinheiro desperdiçado sabe que manter a piscina em equilíbrio
               nem sempre é simples.
             </p>
-            <button className="hero__cta">
+            <button
+              className="hero__cta"
+              onClick={() => navigate("/piscinator")}
+            >
               Nosso Piscinator pode te ajudar
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </button>
           </div>
         </div>

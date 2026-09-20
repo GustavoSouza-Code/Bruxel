@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header/Header";
 import { Hero } from "../../components/Hero/Hero";
 import { ProductsSection } from "../../components/ProductsSection/ProductsSection";
@@ -31,12 +32,14 @@ const FEATURED_PRODUCTS: Product[] = [
     packageInfo: "1L",
     price: 21.5,
     imageUrl: hidrofloc1L,
+    category: "tratamento-agua",
   },
   {
     id: "cadeira-espreguicadeira",
     name: "Cadeira Espreguiçadeira em Alumínio Mor",
     price: 395,
     imageUrl: cadeiraRosa,
+    category: "acessorios-lazer",
   },
   {
     id: "propool-10kg",
@@ -44,6 +47,7 @@ const FEATURED_PRODUCTS: Product[] = [
     packageInfo: "10 KG/3KG/1KG",
     price: 210,
     imageUrl: propool10kg,
+    category: "tratamento-agua",
   },
   {
     id: "propool-3kg",
@@ -51,6 +55,7 @@ const FEATURED_PRODUCTS: Product[] = [
     packageInfo: "10 KG/3KG/1KG",
     price: 210,
     imageUrl: propool3kg,
+    category: "tratamento-agua",
   },
 ];
 
@@ -62,18 +67,21 @@ export const ALL_PRODUCTS: Product[] = [
     name: "Filtro de Piscina Dancor",
     price: 0,
     imageUrl: filtroDancor,
+    category: "filtracao-circulacao",
   },
   {
     id: "bomba-dancor",
     name: "Motobomba Dancor PM-1/30R",
     price: 0,
     imageUrl: bombaDancor,
+    category: "filtracao-circulacao",
   },
   {
     id: "guarda-sol",
     name: "Guarda-sol Listrado",
     price: 0,
     imageUrl: guardaSol,
+    category: "acessorios-lazer",
   },
   {
     id: "hidroall-penta-200g",
@@ -81,6 +89,7 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "200g",
     price: 0,
     imageUrl: hidroallPenta,
+    category: "tratamento-agua",
   },
   {
     id: "hiperclor-60",
@@ -88,6 +97,7 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "10kg",
     price: 0,
     imageUrl: hiperclor60,
+    category: "tratamento-agua",
   },
   {
     id: "kit-algicidas",
@@ -95,6 +105,7 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "1L cada",
     price: 0,
     imageUrl: kitAlgicidas,
+    category: "tratamento-agua",
   },
   {
     id: "algicida-choque",
@@ -102,6 +113,7 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "1L",
     price: 0,
     imageUrl: algicidaChoque,
+    category: "tratamento-agua",
   },
   {
     id: "algicida-manutencao",
@@ -109,6 +121,7 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "1L",
     price: 0,
     imageUrl: algicidaManutencao,
+    category: "tratamento-agua",
   },
   {
     id: "ph-mais",
@@ -116,27 +129,35 @@ export const ALL_PRODUCTS: Product[] = [
     packageInfo: "2kg",
     price: 0,
     imageUrl: phMais,
+    category: "tratamento-agua",
   },
   {
     id: "escova-piscina",
     name: "Escova para Piscina",
     price: 0,
     imageUrl: escova,
+    category: "limpeza-piscina",
   },
   {
     id: "peneira-piscina",
     name: "Peneira para Piscina",
     price: 0,
     imageUrl: peneira,
+    category: "limpeza-piscina",
   },
 ];
 
 export function PortalHome() {
+  const navigate = useNavigate();
+
   return (
       <>
         <Header />
         <Hero />
-        <ProductsSection products={FEATURED_PRODUCTS} />
+        <ProductsSection
+          products={FEATURED_PRODUCTS}
+          onSeeStore={() => navigate("/loja")}
+        />
         <Faq />
         <Testimonials />
         <Footer />

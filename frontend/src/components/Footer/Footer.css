@@ -1,5 +1,5 @@
 .footer {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary);
   color: var(--color-white);
 }
 
@@ -7,13 +7,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-  padding-top: clamp(2.25rem, 1.75rem + 1.5vw, 3.5rem);
-  padding-bottom: clamp(2.25rem, 1.75rem + 1.5vw, 3.5rem);
+  gap: clamp(1.5rem, 1rem + 4vw, 8rem);
+  padding-top: clamp(2.25rem, 1.75rem + 1.5vw, 4rem);
+  padding-bottom: clamp(2.25rem, 1.75rem + 1.5vw, 4rem);
 }
 
 .footer__column h3 {
-  color: var(--color-accent-light);
+  color: var(--color-white);
+  font-weight: 600;
   margin: 0 0 0.85rem;
   font-size: var(--font-size-body);
 }
@@ -22,6 +23,7 @@
   margin: 0 0 0.6rem;
   max-width: 280px;
   color: #d8d9f5;
+  font-weight: 500;
   font-size: var(--font-size-small);
   line-height: 1.6;
 }
@@ -30,7 +32,7 @@
   display: flex;
   flex-direction: column;
   align-self: flex-end;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.1;
 }
 

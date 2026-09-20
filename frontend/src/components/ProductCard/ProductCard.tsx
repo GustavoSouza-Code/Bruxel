@@ -1,17 +1,15 @@
 import type { Product } from "../../types/product";
+import { useCart } from "../../context/CartContext";
 import "./ProductCard.css";
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart?: (productId: string) => void;
   onToggleFavorite?: (productId: string) => void;
 }
 
-export function ProductCard({
-  product,
-  onAddToCart,
-  onToggleFavorite,
-}: ProductCardProps) {
+export function ProductCard({ product, onToggleFavorite }: ProductCardProps) {
+  const { addItem } = useCart();
+
   return (
     <article className="product-card">
       <button
@@ -41,7 +39,7 @@ export function ProductCard({
 
       <button
         className="product-card__add-button"
-        onClick={() => onAddToCart?.(product.id)}
+        onClick={() => addItem(product)}
       >
         Adicionar ao carrinho
       </button>

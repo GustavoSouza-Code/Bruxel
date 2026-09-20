@@ -1,5 +1,6 @@
 .products-section {
   padding: var(--space-section) 0;
+  scroll-margin-top: 110px; /* evita que o header fixo cubra o título ao navegar via CategoryNav */
 }
 
 .products-section__header {
@@ -13,6 +14,7 @@
 
 .products-section__header h2 {
   font-size: var(--font-size-h2);
+  font-weight: 600;
   margin: 0;
 }
 

@@ -38,14 +38,16 @@
 
 .hero__title {
   font-size: var(--font-size-hero-title);
-  line-height: 1.3;
+  font-weight: 600;
+  line-height: 1.25;
   margin: 0 0 1.5rem;
-  font-weight: 700;
 }
 
 .hero__callout {
-  background-color: var(--color-accent-light);
-  color: var(--color-primary-dark);
+  background-color: rgba(153, 224, 250, 0.14);
+  border: 1px solid rgba(153, 224, 250, 0.3);
+  backdrop-filter: blur(6px);
+  color: var(--color-white);
   border-radius: 24px;
   padding: clamp(1.1rem, 1rem + 0.5vw, 1.5rem);
   width: fit-content;
@@ -54,20 +56,25 @@
 
 .hero__callout p {
   margin: 0 0 1rem;
+  font-weight: 500;
   font-size: var(--font-size-small);
   line-height: 1.6;
   max-width: 400px;
 }
 
 .hero__cta {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   margin: 0 auto;
   background-color: var(--color-accent);
   color: var(--color-white);
   border: none;
   border-radius: 999px;
-  padding: 0.8rem 1.6rem;
-  font-weight: 700;
+  height: 36px;
+  padding: 0 1.4rem;
+  font-weight: 600;
   font-size: var(--font-size-small);
   cursor: pointer;
   white-space: nowrap;
