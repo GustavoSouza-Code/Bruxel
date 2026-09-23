@@ -1,0 +1,117 @@
+.login-page {
+  padding: clamp(2rem, 1.5rem + 2vw, 3.5rem) 0 var(--space-section);
+}
+
+.login-page__inner {
+  max-width: 480px;
+  text-align: center;
+}
+
+.login-page__message {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0 0 2rem;
+}
+
+.login-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.login-page__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+.login-page__form input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+}
+
+.login-page__form input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.login-page__submit {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.login-page__submit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.login-page__signup-link {
+  display: block;
+  text-align: center;
+  background: none;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.9rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  text-decoration: none;
+  margin-top: 0.75rem;
+}
+
+.login-page__signup-link:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.login-page__features {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+  margin: clamp(2.5rem, 2rem + 2vw, 4rem) auto 0;
+}
+
+.login-page__feature {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: var(--color-text-muted);
+}
+
+.login-page__feature-icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.login-page__feature-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.login-page__feature-text strong {
+  color: var(--color-text);
+  font-size: var(--font-size-body);
+}
+
+.login-page__feature-text span {
+  font-size: var(--font-size-small);
+}
