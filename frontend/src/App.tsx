@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { CartProvider } from "./context/CartContext";
-import { PortalHome } from "./pages/portal/Home";
-import { AboutPage } from "./pages/portal/About";
-import { StorePage } from "./pages/portal/Store";
-import { PiscinatorPage } from "./pages/portal/Piscinator";
-import { CartPage } from "./pages/portal/Cart";
-import { LoginPage } from "./pages/portal/Login";
-import { SignupPage } from "./pages/portal/Signup";
-import { ProfilePage } from "./pages/portal/Profile";
-import { AdminUsersPage } from "./pages/admin/AdminUsers";
-import { AdminProductsPage } from "./pages/admin/AdminProducts";
+import { PortalHome } from "./pages/portal/Home/Home";
+import { AboutPage } from "./pages/portal/About/About";
+import { StorePage } from "./pages/portal/Store/Store";
+import { PiscinatorPage } from "./pages/portal/Piscinator/Piscinator";
+import { CartPage } from "./pages/portal/Cart/Cart";
+import { LoginPage } from "./pages/portal/Login/Login";
+import { SignupPage } from "./pages/portal/Signup/Signup";
+import { ProfilePage } from "./pages/portal/Profile/Profile";
+import { AdminUsersPage } from "./pages/admin/AdminUsers/AdminUsers";
+import { AdminProductsPage } from "./pages/admin/AdminProducts/AdminProducts";
 
 function App() {
   return (
