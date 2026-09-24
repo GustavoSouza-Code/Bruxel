@@ -1,0 +1,29 @@
+.about-story {
+  padding: var(--space-section) 0;
+}
+
+.about-story__inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  flex-wrap: wrap;
+}
+
+.about-story__image {
+  flex: 1 1 320px;
+  min-height: clamp(220px, 20vw + 120px, 340px);
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-accent-light) 100%
+  );
+}
+
+.about-story__text {
+  flex: 1 1 380px;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: var(--font-size-body);
+  line-height: 1.7;
+}

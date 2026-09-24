@@ -1,0 +1,59 @@
+.piscinator-intro {
+  background-color: #153673;
+  color: var(--color-white);
+  border-radius: 0 0 50% 50% / 0 0 40px 40px;
+  overflow: hidden;
+}
+
+.piscinator-intro__inner {
+  padding-top: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+  padding-bottom: clamp(3rem, 2rem + 3vw, 5rem);
+  max-width: 800px;
+}
+
+.piscinator-intro__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.7;
+  font-size: var(--font-size-small);
+  margin-bottom: 2rem;
+}
+
+.piscinator-intro__title {
+  font-weight: 700;
+  font-size: var(--font-size-hero-title);
+  line-height: 1.2;
+  margin: 0 0 2rem;
+}
+
+.piscinator-intro__divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  margin-bottom: 1.5rem;
+}
+
+.piscinator-intro__text {
+  font-weight: 500;
+  font-size: var(--font-size-body);
+  line-height: 1.7;
+  max-width: 620px;
+  margin: 0 0 2.5rem;
+}
+
+.piscinator-intro__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-white);
+  border-radius: 12px;
+  padding: 1rem 1.75rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.piscinator-intro__cta:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
