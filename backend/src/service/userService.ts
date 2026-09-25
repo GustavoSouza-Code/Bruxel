@@ -1,6 +1,9 @@
 import { UserRole, User, CreateUserDTO, UpdateUserDTO } from "../models/user";
+import { UserRepository } from "../repository/userRepository";
 
 export class UserService {
+  private userRepository = new UserRepository();
+
   async create(user: CreateUserDTO) {
     const name = user.name;
     const email = user.email;
@@ -30,6 +33,7 @@ export class UserService {
     console.log("Email:", email);
     console.log("Senha:", password);
 
+    // apenas para teste
     const newUser: User = {
       id: "1",
       name,
@@ -39,19 +43,30 @@ export class UserService {
     };
 
     console.log("Usuário criado com sucesso:", newUser);
-    return newUser;
+
+    await this.userRepository.create(newUser);
   }
 
   async getAll() {
     // Debug
     console.log("Busca de usuarios - GetAll");
-
-    //return await this.userRepository.findAll();
+    return await this.userRepository.getAll();
   }
+
+  async getById(id: string) {
+    console.log("Buscando usuário", id);
+    return await this.userRepository.getById(id);
+  }
+
   async update(id: string, data: UpdateUserDTO) {
     // Debug
     console.log("Atualizando usuario", id, data);
+    return await this.userRepository.update(id, data);
   }
 
-  async delete(id: string) {}
+  async delete(id: string) {
+    // Debug
+    console.log("Deletando usuario", id);
+    return await this.userRepository.delete(id);
+  }
 }
