@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import mascoteImg from "../../../../../assets/images/mascote/mascote-bruxel.png";
+import reflexoAgua from "../../../../../assets/images/mascote/reflexo-agua.png";
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./Hero.css";
 
@@ -8,6 +9,11 @@ export function Hero() {
 
   return (
     <section className="hero">
+
+      <div
+          className="hero__water"
+          style={{ backgroundImage: `url(${reflexoAgua})` }}
+      />
       <Container className="hero__inner">
         <div className="hero__mascot">
           <img src={mascoteImg} alt="Mascote Bruxel Piscinas" />
