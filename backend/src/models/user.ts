@@ -10,7 +10,7 @@ export interface User {
     name: string;
     email: string;
     password: string;
-    cpf: string;
+    cpf?: string;
     phone?: string;
     rua?: string;
     cidade?: string;
@@ -22,8 +22,19 @@ export interface CreateUserDTO {
     name: string;
     email: string;
     password: string;
-    cpf: string
 }
+
+export interface UpdateUserDTO {
+    name?: string
+    email?: string
+    password?: string
+    phone?: string
+    rua?: string
+    cidade?: string
+    bairro?: string
+    
+}
+
 // objeto bruto para login
 export interface LoginDTO {
     email: string;
