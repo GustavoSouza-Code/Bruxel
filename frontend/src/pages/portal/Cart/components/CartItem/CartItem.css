@@ -29,6 +29,7 @@
 
 .cart-item__info {
   flex: 1;
+  min-width: 0; /* permite o nome quebrar linha em vez de alargar o card */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -79,4 +80,25 @@
   font-weight: 600;
   font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
   white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .cart-item {
+    gap: 0.75rem;
+    padding: 1rem 1rem 1rem 0.75rem;
+  }
+
+  .cart-item__image {
+    width: 64px;
+    height: 64px;
+  }
+
+  .cart-item__quantity {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .cart-item__price {
+    font-size: 1rem;
+  }
 }
