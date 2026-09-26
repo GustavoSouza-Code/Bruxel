@@ -2,7 +2,7 @@
   position: relative;
   min-height: clamp(320px, 30vw + 200px, 480px);
   display: flex;
-  align-items: space-between;
+  align-items: center;
   overflow: hidden;
 }
 
