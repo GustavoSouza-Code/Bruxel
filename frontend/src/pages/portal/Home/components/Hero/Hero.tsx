@@ -8,6 +8,22 @@ export function Hero() {
 
   return (
     <section className="hero">
+      <svg
+        className="hero__waves"
+        viewBox="0 0 1440 160"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          className="hero__wave hero__wave--back"
+          d="M0,70 C240,120 480,20 720,55 C960,90 1200,130 1440,80 L1440,160 L0,160 Z"
+        />
+        <path
+          className="hero__wave hero__wave--front"
+          d="M0,105 C280,70 520,140 780,110 C1040,80 1240,120 1440,100 L1440,160 L0,160 Z"
+        />
+      </svg>
+
       <Container className="hero__inner">
         <div className="hero__mascot">
           <img src={mascoteImg} alt="Mascote Bruxel Piscinas" />

@@ -2,17 +2,42 @@
   background-color: var(--color-primary);
   color: var(--color-white);
   border-radius: 0 0 50% 50% / 0 0 60px 60px;
+  position: relative;
   overflow: hidden;
 }
 
+/* ondas decorativas na base do hero, atrás do conteúdo */
+.hero__waves {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(90px, 8vw + 60px, 170px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero__wave--back {
+  fill: var(--color-wave);
+  fill-opacity: 0.22;
+}
+
+.hero__wave--front {
+  fill: var(--color-accent);
+  fill-opacity: 0.22;
+}
+
 .hero__inner {
+  position: relative;
+  z-index: 1;
+
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: clamp(1.5rem, 1rem + 2vw, 3rem);
-  padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
-  padding-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+  padding-top: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+  padding-bottom: clamp(0.8rem, 0.5rem + 1vw, 1.5rem);
 }
 
 .hero__mascot {
@@ -21,18 +46,21 @@
   justify-content: center;
   align-items: flex-end;
   position: relative;
+  bottom: -6px;
+  left: clamp(-3rem, -2vw, -1.5rem);
+  transform: translateX(-275px);
 }
 
 .hero__mascot img {
   width: 100%;
-  /* mascote grande, ocupando boa parte do hero, escalando com a tela */
-  max-width: clamp(260px, 22vw + 200px, 620px);
+  max-width: clamp(250px, 20vw + 180px, 560px);
   height: auto;
   object-fit: contain;
   transform: translateY(clamp(30px, 5vw, 70px));
 }
 
 .hero__content {
+  align-self: center;
   flex: 0 1 480px;
 }
 
