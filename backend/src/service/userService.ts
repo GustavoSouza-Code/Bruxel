@@ -1,72 +1,65 @@
-import { UserRole, User, CreateUserDTO, UpdateUserDTO } from "../models/user";
-import { UserRepository } from "../repository/userRepository";
+import {CreateUserDTO, UpdateUserDTO} from "../models/user";
+import {UserRepository} from "../repository/userRepository";
+import {validarCamposObrigatorios, regraValidacao} from "../utils/validaObrigatorios";
+
+// array de regras
+const regrasCriarUser: regraValidacao[] = [
+    {campo: 'nome', mensagem: 'O nome é obrigatório. '},
+    {campo: 'email', mensagem: 'O E-mail é obrigatório.'},
+    {campo: 'senha', mensagem: 'A senha é obrigatória.'},
+    {campo: 'cpf', mensagem: 'O CPF é obrigatório.'},
+]
+
+// camada service de usuários, com regras de negócio e validações necessárias
 
 export class UserService {
-  private userRepository = new UserRepository();
+    private userRepository = new UserRepository();
 
-  async create(user: CreateUserDTO) {
-    const name = user.name;
-    const email = user.email;
-    const password = user.password;
+    async create(user: CreateUserDTO) {
+        const nome = user.nome;
+        const email = user.email;
+        const senha = user.senha;
+        const cpf = user.cpf
 
-    // Debug
-    console.log("Dados Recebidos em userService.create:");
+        const validacao = validarCamposObrigatorios(user, regrasCriarUser)
 
-    // Validadores
-    if (!name) {
-      console.log("Nome não informado");
-      throw new Error("O nome é obrigatório");
+        if (validacao.length > 0) {
+            throw new Error(JSON.stringify(validacao));
+        }
+
+        const cpfJaExiste = await this.userRepository.getByCPF(user.cpf);
+        if(cpfJaExiste) {
+            throw new Error("Um usuário com esse CPF já existe.")
+        }
+
+        const emailJaExiste = await this.userRepository.getByEmail(user.email);
+        if(emailJaExiste) {
+            throw new Error("Um usuário com esse E-mail já existe.")
+        }
+
+        const novoUsuario = await this.userRepository.create(user);
+        return novoUsuario;
     }
 
-    if (!email) {
-      console.log("Email não informado");
-      throw new Error("O email é obrigatório");
+    async getAll() {
+        return await this.userRepository.getAll();
     }
 
-    if (!password) {
-      console.log("Senha não informado");
-      throw new Error("A senha é obrigatória");
+    async getById(id: string) {
+        const usuario = await this.userRepository.getById(id);
+        if (!usuario) {
+            throw new Error("Usuário não encontrado");
+        }
+        return usuario;
     }
 
-    // Debug
-    console.log("Nome:", name);
-    console.log("Email:", email);
-    console.log("Senha:", password);
+    async update(id: string, data: UpdateUserDTO) {
+        await this.getById(id);
+        return await this.userRepository.update(id, data);
+    }
 
-    // apenas para teste
-    const newUser: User = {
-      id: "1",
-      name,
-      email,
-      password,
-      role: UserRole.USER,
-    };
-
-    console.log("Usuário criado com sucesso:", newUser);
-
-    await this.userRepository.create(newUser);
-  }
-
-  async getAll() {
-    // Debug
-    console.log("Busca de usuarios - GetAll");
-    return await this.userRepository.getAll();
-  }
-
-  async getById(id: string) {
-    console.log("Buscando usuário", id);
-    return await this.userRepository.getById(id);
-  }
-
-  async update(id: string, data: UpdateUserDTO) {
-    // Debug
-    console.log("Atualizando usuario", id, data);
-    return await this.userRepository.update(id, data);
-  }
-
-  async delete(id: string) {
-    // Debug
-    console.log("Deletando usuario", id);
-    return await this.userRepository.delete(id);
-  }
+    async delete(id: string) {
+        await this.getById(id);
+        return await this.userRepository.delete(id);
+    }
 }
