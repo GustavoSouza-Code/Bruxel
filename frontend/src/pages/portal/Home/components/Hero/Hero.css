@@ -47,8 +47,6 @@
   align-items: flex-end;
   position: relative;
   bottom: -6px;
-  left: clamp(-3rem, -2vw, -1.5rem);
-  transform: translateX(-275px);
 }
 
 .hero__mascot img {
@@ -122,10 +120,15 @@
   .hero__callout p {
     max-width: none;
   }
-}
 
-@media (max-width: 500px) {
+  /* empilhado: mascote ocupa a linha de cima, centralizado e menor */
+  .hero__mascot {
+    flex-basis: 100%;
+    bottom: 0;
+  }
+
   .hero__mascot img {
+    max-width: clamp(180px, 45vw, 300px);
     transform: none;
   }
 }

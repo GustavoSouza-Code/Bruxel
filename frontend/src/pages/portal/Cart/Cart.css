@@ -87,6 +87,7 @@
 
 @media (max-width: 800px) {
   .cart-page__layout {
-    grid-template-columns: 1fr;
+    /* minmax(0, …) deixa a coluna encolher abaixo do conteúdo dos cards */
+    grid-template-columns: minmax(0, 1fr);
   }
 }

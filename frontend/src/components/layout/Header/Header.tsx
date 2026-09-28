@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Container } from "../Container/Container";
 import { useCart } from "../../../context/CartContext";
+import { useScrollEdges } from "../../../hooks/useScrollEdges";
 import "./Header.css";
 
 const NAV_LINKS = [
@@ -18,6 +19,19 @@ export function Header() {
   const headerRef = useRef<HTMLElement>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+  const activeLinkRef = useRef<HTMLAnchorElement>(null);
+  const { canScrollLeft, canScrollRight } = useScrollEdges(navRef);
+
+  // no celular os links rolam na horizontal: garante que o da página
+  // atual fique visível (ex.: "Loja virtual", que fica no fim da faixa)
+  useEffect(() => {
+    const nav = navRef.current;
+    const link = activeLinkRef.current;
+    if (!nav || !link) return;
+    nav.scrollLeft = link.offsetLeft - (nav.clientWidth - link.offsetWidth) / 2;
+  }, [pathname]);
 
   useLayoutEffect(() => {
     const headerEl = headerRef.current;
@@ -62,16 +76,30 @@ export function Header() {
             <span className="header__logo-sub">Piscinas</span>
           </div>
 
-          <nav className="header__nav">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="header__nav-link"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav
+            ref={navRef}
+            className={[
+              "header__nav",
+              canScrollLeft && "header__nav--fade-left",
+              canScrollRight && "header__nav--fade-right",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {NAV_LINKS.map((link) => {
+              const isActive = link.href === pathname;
+              return (
+                <Link
+                  key={link.href}
+                  ref={isActive ? activeLinkRef : undefined}
+                  to={link.href}
+                  className={`header__nav-link${isActive ? " header__nav-link--active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="header__actions">
