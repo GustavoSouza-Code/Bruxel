@@ -1,14 +1,14 @@
 import {Request, Response} from "express";
-import {UserService} from "../service/userService";
+import {ProductsService} from "../service/productsService";
 
-// controller de usuários, cuida da parte de requisições e respostas HTTP
-export class UserController {
-    private userService = new UserService();
+// controller de produtos, cuida da parte de requisições e respostas HTTP
+export class ProductsController {
+    private productsService = new ProductsService();
 
     async create(req: Request, res: Response) {
-        const user = req.body;
+        const product = req.body;
         try {
-            const result = await this.userService.create(user);
+            const result = await this.productsService.create(product);
             return res.status(201).json(result);
         } catch (error: any) {
             try {
@@ -22,20 +22,20 @@ export class UserController {
 
     async getAll(req: Request, res: Response) {
         try {
-            const result = await this.userService.getAll();
+            const result = await this.productsService.getAll();
             return res.status(200).json(result);
         } catch (error: any) {
-            return res.status(500).json({mensagem: error.message || "Erro ao buscar usuários."});
+            return res.status(500).json({mensagem: error.message || "Erro ao buscar produtos."});
         }
     }
 
     async getById(req: Request, res: Response) {
         try {
             const id = req.params.id as string;
-            const result = await this.userService.getById(id);
+            const result = await this.productsService.getById(id);
             return res.status(200).json(result);
         } catch (error: any) {
-            return res.status(404).json({mensagem: "Usuário não encontrado."});
+            return res.status(404).json({mensagem: "Produto não encontrado."});
         }
     }
 
@@ -43,20 +43,20 @@ export class UserController {
         try {
             const id = req.params.id as string;
             const data = req.body;
-            const result = await this.userService.update(id, data);
+            const result = await this.productsService.update(id, data);
             return res.status(200).json(result);
         } catch (error: any) {
-            return res.status(400).json({mensagem: "Erro ao atualizar usuário."});
+            return res.status(400).json({mensagem: "Erro ao atualizar produto."});
         }
     }
 
     async delete(req: Request, res: Response) {
         try {
             const id = String(req.params.id);
-            const result = await this.userService.delete(id);
+            const result = await this.productsService.delete(id);
             return res.status(200).json(result);
         } catch (error: any) {
-            return res.status(400).json({mensagem: "Erro ao deletar usuário."});
+            return res.status(400).json({mensagem: "Erro ao deletar produto."});
         }
     }
 }

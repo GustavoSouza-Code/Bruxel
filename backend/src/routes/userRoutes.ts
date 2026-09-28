@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { UserController } from "../controller/userController";
 
+// rotas de usuário
+
 const router = Router();
 const userController = new UserController();
 

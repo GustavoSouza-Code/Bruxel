@@ -1,3 +1,5 @@
+// cria o objeto usuário e seus atributos
+
 // padroniza o estado de um usuário
 export enum UserRole {
     USER = "USER",
@@ -7,36 +9,42 @@ export enum UserRole {
 // define o esqueleto do usuário
 export interface User {
     id: string;
-    name: string;
+    nome: string;
     email: string;
-    password: string;
-    cpf?: string;
+    senha: string;
+    cpf: string;
     phone?: string;
     rua?: string;
     cidade?: string;
     bairro?: string;
+    estado?: string;
+    cep?: string;
     role: UserRole;
+    criado_em: Date | string;
+    atualizado_em: Date | string;
 }
 // objeto de esqueleto para create
 export interface CreateUserDTO {
-    name: string;
+    nome: string;
     email: string;
-    password: string;
+    senha: string;
+    cpf: string;
 }
 
 export interface UpdateUserDTO {
-    name?: string
+    nome?: string
     email?: string
-    password?: string
+    senha?: string
     phone?: string
     rua?: string
     cidade?: string
     bairro?: string
-    
+    estado?: string;
+    cep?: string;
 }
 
 // objeto bruto para login
 export interface LoginDTO {
     email: string;
-    password: string;
+    senha: string;
 }
