@@ -1,7 +1,7 @@
 .store-hero {
   background-color: var(--color-primary);
   color: var(--color-white);
-  border-radius: 0 0 50% 50% / 0 0 40px 40px;
+  border-radius: 0 0 50% 50% / 0 0 40px 40px; /* base curva: só os cantos de baixo arredondam */
   overflow: hidden;
 }
 
@@ -25,16 +25,18 @@
   font-weight: 700;
 }
 
+/* campo de busca em formato de pílula; o <label> envolve input + ícone */
 .store-hero__search {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   background-color: var(--color-white);
   border-radius: 999px;
-  width: min(100%, 500px);
+  width: min(100%, 500px); /* largura toda no celular, com teto de 500px */
   padding: 0.8rem 1.5rem;
 }
 
+/* o input não tem borda própria: o visual é todo do <label> ao redor */
 .store-hero__search input {
   flex: 1;
   border: none;

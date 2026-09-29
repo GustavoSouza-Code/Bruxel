@@ -8,6 +8,7 @@
   margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
+/* Grade de depoimentos: 3 colunas no desktop */
 .testimonials__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -52,12 +53,14 @@
   font-size: 0.8rem;
 }
 
+/* 2 colunas */
 @media (max-width: 900px) {
   .testimonials__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* 1 coluna */
 @media (max-width: 560px) {
   .testimonials__grid {
     grid-template-columns: 1fr;

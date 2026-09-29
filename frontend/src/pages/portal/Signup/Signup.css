@@ -2,6 +2,7 @@
   padding: clamp(2rem, 1.5rem + 2vw, 3.5rem) 0 var(--space-section);
 }
 
+/* coluna estreita e centralizada pro formulário */
 .signup-page__inner {
   max-width: 480px;
   text-align: center;
@@ -37,6 +38,7 @@
   font-size: var(--font-size-body);
 }
 
+/* contorno visível no foco, pra quem navega pelo teclado */
 .signup-page__form input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
@@ -58,6 +60,7 @@
   background-color: var(--color-primary-dark);
 }
 
+/* "Já tem uma conta? Entrar", no fim do formulário */
 .signup-page__login-link {
   margin: 1.5rem 0 0;
   color: var(--color-text-muted);

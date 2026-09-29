@@ -1,9 +1,9 @@
 .hero {
   background-color: var(--color-primary);
   color: var(--color-white);
-  border-radius: 0 0 50% 50% / 0 0 60px 60px;
+  border-radius: 0 0 50% 50% / 0 0 60px 60px; /* base curva: só os cantos de baixo arredondam */
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* corta o mascote e as ondas nas bordas curvas */
 }
 
 /* ondas decorativas na base do hero, atrás do conteúdo */
@@ -17,6 +17,7 @@
   pointer-events: none;
 }
 
+/* duas camadas de onda, com cores diferentes e transparência, pra dar profundidade */
 .hero__wave--back {
   fill: var(--color-wave);
   fill-opacity: 0.22;
@@ -27,6 +28,7 @@
   fill-opacity: 0.22;
 }
 
+/* Conteúdo (mascote + texto): position + z-index colocam tudo na frente das ondas (z-index: 0) */
 .hero__inner {
   position: relative;
   z-index: 1;
@@ -40,13 +42,14 @@
   padding-bottom: clamp(0.8rem, 0.5rem + 1vw, 1.5rem);
 }
 
+/* Mascote */
 .hero__mascot {
   flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: flex-end;
   position: relative;
-  bottom: -6px;
+  bottom: -6px; /* ajuste fino pra baixo (funciona porque o .hero__mascot é position: relative) */
 }
 
 .hero__mascot img {
@@ -54,9 +57,10 @@
   max-width: clamp(250px, 20vw + 180px, 560px);
   height: auto;
   object-fit: contain;
-  transform: translateY(clamp(30px, 5vw, 70px));
+  transform: translateY(clamp(30px, 5vw, 70px)); /* desce o mascote; a base é cortada pelo overflow: hidden do .hero */
 }
 
+/* Texto */
 .hero__content {
   align-self: center;
   flex: 0 1 480px;
@@ -69,6 +73,7 @@
   margin: 0 0 1.5rem;
 }
 
+/* Balão de destaque (efeito de vidro: fundo translúcido + backdrop-filter) */
 .hero__callout {
   background-color: rgba(153, 224, 250, 0.14);
   border: 1px solid rgba(153, 224, 250, 0.3);
@@ -106,6 +111,7 @@
   white-space: nowrap;
 }
 
+/* Tablet e celular: tudo centralizado, em coluna única */
 @media (max-width: 900px) {
   .hero__inner {
     justify-content: center;
@@ -129,6 +135,6 @@
 
   .hero__mascot img {
     max-width: clamp(180px, 45vw, 300px);
-    transform: none;
+    transform: none; /* sem o deslocamento do desktop: aqui o mascote aparece inteiro */
   }
 }

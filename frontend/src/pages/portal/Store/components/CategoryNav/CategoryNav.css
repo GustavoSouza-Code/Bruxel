@@ -10,6 +10,7 @@
   gap: clamp(1.5rem, 1rem + 2vw, 4rem);
 }
 
+/* a borda inferior transparente já reserva o espaço; no hover ela ganha cor sem "pular" o layout */
 .category-nav__item {
   display: flex;
   align-items: center;

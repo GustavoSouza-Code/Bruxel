@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./PiscinatorQuiz.css";
 
+// perguntas do diagnóstico; "Sim" em qualquer uma indica um sinal de problema na piscina
 const QUESTIONS = [
   "A água da piscina está verde?",
   "A água está turva?",
@@ -9,19 +10,28 @@ const QUESTIONS = [
 ];
 
 interface PiscinatorQuizProps {
+  /** chamada ao responder a última pergunta, com todas as respostas (true = "Sim") */
   onFinish: (answers: boolean[]) => void;
 }
 
+/**
+ * Etapa 2 do Piscinator: mostra uma pergunta por vez (com barra de
+ * progresso) e coleta as respostas Sim/Não.
+ */
 export function PiscinatorQuiz({ onFinish }: PiscinatorQuizProps) {
+  // índice da pergunta atual (0 = primeira)
   const [step, setStep] = useState(0);
+  // respostas já dadas, na ordem das perguntas
   const [answers, setAnswers] = useState<boolean[]>([]);
 
   function handleAnswer(value: boolean) {
+    // o estado só atualiza na próxima renderização, então a lista com a resposta atual é montada aqui
     const nextAnswers = [...answers, value];
     if (step + 1 < QUESTIONS.length) {
       setAnswers(nextAnswers);
       setStep(step + 1);
     } else {
+      // última pergunta: entrega tudo pra página em vez de guardar no estado local
       onFinish(nextAnswers);
     }
   }
@@ -38,6 +48,7 @@ export function PiscinatorQuiz({ onFinish }: PiscinatorQuizProps) {
               <div
                 className="piscinator-quiz__progress-fill"
                 style={{
+                  // largura da barra = pergunta atual ÷ total de perguntas (ex.: 2 de 3 = 66%)
                   width: `${((step + 1) / QUESTIONS.length) * 100}%`,
                 }}
               />

@@ -1,14 +1,17 @@
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./Testimonials.css";
 
+/** Depoimento de cliente exibido na Home. */
 interface Testimonial {
   id: string;
   name: string;
   comment: string;
   timeAgo: string;
+  /** nota de 0 a 5 (ainda não usada: veja o TODO das estrelas, mais abaixo) */
   rating: number;
 }
 
+// depoimentos escritos direto no código, não vêm de API
 const TESTIMONIALS: Testimonial[] = [
   {
     id: "luciana",
@@ -33,6 +36,10 @@ const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+/**
+ * Seção "O que nossos clientes estão falando" da Home: grade de cards com os
+ * depoimentos.
+ */
 export function Testimonials() {
   return (
     <section className="testimonials">
@@ -44,6 +51,7 @@ export function Testimonials() {
             <article key={testimonial.id} className="testimonials__card">
               <div className="testimonials__card-header">
                 <strong>{testimonial.name}</strong>
+                {/* TODO: mostrar só `rating` estrelas; por enquanto as 5 aparecem fixas, sem ler a nota */}
                 <span className="testimonials__stars">★★★★★</span>
               </div>
               <p className="testimonials__comment">{testimonial.comment}</p>

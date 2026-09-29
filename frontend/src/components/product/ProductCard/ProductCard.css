@@ -1,5 +1,5 @@
 .product-card {
-  position: relative;
+  position: relative; /* referência pro botão de favoritar, que é position: absolute */
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border-soft);
@@ -21,10 +21,11 @@
 .product-card__image {
   align-self: center;
   height: clamp(120px, 8vw + 90px, 170px);
-  object-fit: contain;
+  object-fit: contain; /* mostra a imagem inteira, sem cortar nem esticar */
   margin-bottom: 1.1rem;
 }
 
+/* nome + embalagem, separados do preço por uma linha */
 .product-card__info {
   border-bottom: 1px solid var(--color-border-soft);
   padding-bottom: 0.85rem;
@@ -52,6 +53,7 @@
   margin: 0 0 0.85rem;
 }
 
+/* botão com cara de link: só texto, sem fundo nem borda */
 .product-card__add-button {
   background: none;
   border: none;

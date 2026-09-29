@@ -4,6 +4,10 @@ import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
 import "./Signup.css";
 
+/**
+ * Tela de cadastro (rota "/criar-conta"). Por enquanto é só a interface: o
+ * envio do formulário é bloqueado (preventDefault) e nada é enviado ao backend.
+ */
 export function SignupPage() {
   return (
     <>
@@ -16,6 +20,7 @@ export function SignupPage() {
             pra oferecer
           </h1>
 
+          {/* TODO: integrar com o backend (cadastro) e validar se "Confirmar senha" é igual à senha */}
           <form
             className="signup-page__form"
             onSubmit={(event) => event.preventDefault()}

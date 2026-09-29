@@ -5,6 +5,11 @@ import { CartItem } from "./components/CartItem/CartItem";
 import { useCart } from "../../../context/CartContext";
 import "./Cart.css";
 
+/**
+ * Carrinho de compras (rota "/carrinho"): lista os itens com controle de
+ * quantidade e mostra o resumo do pedido. Sem itens, mostra uma mensagem
+ * com link pra Loja.
+ */
 export function CartPage() {
   const { items, total, removeItem, updateQuantity } = useCart();
 
@@ -22,6 +27,7 @@ export function CartPage() {
 
           <h1 className="cart-page__title">Seu carrinho</h1>
 
+          {/* vazio: mensagem + link pra Loja; com itens: lista à esquerda e resumo à direita */}
           {items.length === 0 ? (
             <p className="cart-page__empty">
               Seu carrinho está vazio.{" "}
@@ -42,6 +48,7 @@ export function CartPage() {
 
               <aside className="cart-page__summary">
                 <h2>Finalizar compra</h2>
+                {/* TODO: hoje "Produtos" e "Total" são iguais; frete e desconto ainda não existem */}
                 <div className="cart-page__summary-row">
                   <span>Produtos</span>
                   <span>R$ {total.toFixed(2).replace(".", ",")}</span>
@@ -50,6 +57,7 @@ export function CartPage() {
                   <span>Total</span>
                   <span>R$ {total.toFixed(2).replace(".", ",")}</span>
                 </div>
+                {/* TODO: ligar ao fechamento do pedido quando existir; o botão ainda não faz nada */}
                 <button className="cart-page__continue">Continuar</button>
               </aside>
             </div>

@@ -8,6 +8,7 @@
   margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
+/* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
 .admin-users-page__header-row {
   display: none;
 }
@@ -18,6 +19,7 @@
   gap: 1rem;
 }
 
+/* Cada usuário é uma linha (flex) com colunas de mesma largura; no celular vira um cartão empilhado */
 .admin-users-page__row {
   display: flex;
   align-items: center;
@@ -28,6 +30,8 @@
   padding: 1rem 1.25rem;
 }
 
+/* min-width: 0 deixa a coluna encolher abaixo do conteúdo (senão textos longos alargam a linha);
+   overflow-wrap quebra e-mails e endereços compridos */
 .admin-users-page__row > span,
 .admin-users-page__row > input {
   flex: 1 1 0;
@@ -72,6 +76,7 @@
   background-color: var(--color-primary-dark);
 }
 
+/* botões neutros de contorno (Excluir e Cancelar); o hover do Excluir fica vermelho */
 .admin-users-page__delete,
 .admin-users-page__cancel {
   background: none;
@@ -101,6 +106,7 @@
   padding: 2rem 0;
 }
 
+/* Desktop: mostra a linha de títulos e trava a coluna de ações em 160px, pra alinhar com o título "Ações" */
 @media (min-width: 900px) {
   .admin-users-page__header-row {
     display: flex;
@@ -126,6 +132,7 @@
   }
 }
 
+/* Celular e tablet: cada linha vira um cartão, com o rótulo de cada campo à esquerda */
 @media (max-width: 899px) {
   .admin-users-page__row {
     flex-direction: column;
@@ -140,7 +147,7 @@
   }
 
   .admin-users-page__row > span::before {
-    content: attr(data-label);
+    content: attr(data-label); /* usa o atributo data-label do <span> como texto do rótulo */
     font-weight: 600;
     color: var(--color-text-muted);
     flex-shrink: 0;

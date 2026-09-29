@@ -5,6 +5,7 @@ import { useCart } from "../../../context/CartContext";
 import { useScrollEdges } from "../../../hooks/useScrollEdges";
 import "./Header.css";
 
+// links do menu principal, na ordem em que aparecem
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Sobre", href: "/sobre" },
@@ -12,16 +13,29 @@ const NAV_LINKS = [
   { label: "Loja virtual", href: "/loja" },
 ];
 
+// a partir de quantos px de rolagem o header "encolhe" e ganha sombra
 const SCROLL_THRESHOLD = 8;
 
+/**
+ * Cabeçalho fixo do site: logo, menu de navegação, carrinho (com o contador
+ * de itens) e botão Entrar.
+ *
+ * Como o header é `position: fixed` (sai do fluxo da página), um espaçador
+ * do mesmo tamanho é renderizado logo depois dele pra o conteúdo não ficar
+ * escondido por baixo. Ao rolar a página, o header encolhe e ganha sombra.
+ */
 export function Header() {
   const { itemCount } = useCart();
   const headerRef = useRef<HTMLElement>(null);
+  // altura real do header (muda com a tela e ao encolher); usada pelo espaçador no fim do componente
   const [headerHeight, setHeaderHeight] = useState(0);
+  // vira true depois de rolar um pouco a página; liga a classe header--scrolled
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
+  // navRef = faixa de links; activeLinkRef = link da página atual (pra centralizar no celular)
   const navRef = useRef<HTMLElement>(null);
   const activeLinkRef = useRef<HTMLAnchorElement>(null);
+  // diz se há links escondidos à esquerda/direita da faixa (liga os fades do CSS)
   const { canScrollLeft, canScrollRight } = useScrollEdges(navRef);
 
   // no celular os links rolam na horizontal: garante que o da página
@@ -33,6 +47,9 @@ export function Header() {
     nav.scrollLeft = link.offsetLeft - (nav.clientWidth - link.offsetWidth) / 2;
   }, [pathname]);
 
+  // useLayoutEffect mede a altura antes de o navegador pintar a tela, evitando um
+  // "pulo" do conteúdo; o ResizeObserver remede quando o header muda de tamanho
+  // (encolher ao rolar, girar o celular)
   useLayoutEffect(() => {
     const headerEl = headerRef.current;
     if (!headerEl) return;
@@ -48,6 +65,7 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    // throttle: no máximo 1 atualização por quadro (requestAnimationFrame), em vez de uma por evento de scroll
     let ticking = false;
 
     function handleScroll() {
@@ -59,6 +77,7 @@ export function Header() {
       });
     }
 
+    // já aplica o estado certo se a página abrir rolada (ex.: ao recarregar no meio dela)
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -76,6 +95,7 @@ export function Header() {
             <span className="header__logo-sub">Piscinas</span>
           </div>
 
+          {/* menu principal; as classes fade-* esmaecem a borda quando há links escondidos (só no celular) */}
           <nav
             ref={navRef}
             className={[
@@ -87,6 +107,7 @@ export function Header() {
               .join(" ")}
           >
             {NAV_LINKS.map((link) => {
+              // só o link da página atual recebe o destaque, o aria-current e a ref usada pra centralizá-lo
               const isActive = link.href === pathname;
               return (
                 <Link
@@ -118,6 +139,7 @@ export function Header() {
                 <circle cx="19" cy="21" r="1" />
                 <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 2-1.55l1.65-7.45H5.12" />
               </svg>
+              {/* badge só aparece com o carrinho não vazio */}
               {itemCount > 0 && (
                 <span className="header__cart-badge">{itemCount}</span>
               )}
@@ -142,6 +164,7 @@ export function Header() {
           </div>
         </Container>
       </header>
+      {/* espaçador: ocupa o lugar do header fixo pra o conteúdo da página começar abaixo dele */}
       <div aria-hidden="true" style={{ height: headerHeight }} />
     </>
   );
