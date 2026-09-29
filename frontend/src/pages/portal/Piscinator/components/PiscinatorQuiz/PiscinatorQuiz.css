@@ -31,6 +31,7 @@
   font-size: var(--font-size-small);
 }
 
+/* trilho da barra de progresso; o overflow: hidden mantém o preenchimento dentro das pontas arredondadas */
 .piscinator-quiz__progress-bar {
   height: 6px;
   border-radius: 999px;
@@ -38,6 +39,7 @@
   overflow: hidden;
 }
 
+/* preenchimento: a largura vem do React (style inline) e o transition anima a mudança */
 .piscinator-quiz__progress-fill {
   height: 100%;
   background-color: var(--color-accent);
@@ -65,7 +67,7 @@
   font-weight: 600;
   font-size: var(--font-size-body);
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 2px solid transparent; /* mantém os dois botões do mesmo tamanho (só o "Não" colore a borda) */
 }
 
 .piscinator-quiz__answer--no {

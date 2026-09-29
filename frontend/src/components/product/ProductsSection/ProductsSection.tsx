@@ -4,12 +4,19 @@ import { Container } from "../../layout/Container/Container";
 import "./ProductsSection.css";
 
 interface ProductsSectionProps {
+  /** vira o id da <section>; o CategoryNav usa pra rolar até ela */
   id?: string;
+  /** título da seção (padrão: "Produtos mais vendidos") */
   title?: string;
   products: Product[];
+  /** se informado, mostra o botão "Acessar loja virtual" ao lado do título */
   onSeeStore?: () => void;
 }
 
+/**
+ * Seção com título e uma grade de ProductCards. Serve tanto pra Home
+ * (destaques) quanto pras seções por categoria da Loja.
+ */
 export function ProductsSection({
   id,
   title = "Produtos mais vendidos",

@@ -2,6 +2,7 @@
   padding: clamp(2rem, 1.5rem + 2vw, 3.5rem) 0 var(--space-section);
 }
 
+/* coluna estreita e centralizada pro formulário */
 .login-page__inner {
   max-width: 480px;
   text-align: center;
@@ -37,6 +38,7 @@
   font-size: var(--font-size-body);
 }
 
+/* contorno visível no foco, pra quem navega pelo teclado */
 .login-page__form input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
@@ -58,6 +60,7 @@
   background-color: var(--color-primary-dark);
 }
 
+/* <Link> com cara de botão de contorno */
 .login-page__signup-link {
   display: block;
   text-align: center;
@@ -77,6 +80,7 @@
   color: var(--color-white);
 }
 
+/* vitrine dos recursos da conta */
 .login-page__features {
   display: flex;
   flex-direction: column;

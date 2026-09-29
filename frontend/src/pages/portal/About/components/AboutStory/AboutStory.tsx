@@ -1,6 +1,7 @@
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./AboutStory.css";
 
+/** Segunda parte da página Sobre: imagem (ainda placeholder) ao lado do texto sobre o compromisso da empresa. */
 export function AboutStory() {
   return (
     <section className="about-story">

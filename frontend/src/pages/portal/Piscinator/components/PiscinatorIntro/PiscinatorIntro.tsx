@@ -2,9 +2,11 @@ import { Container } from "../../../../../components/layout/Container/Container"
 import "./PiscinatorIntro.css";
 
 interface PiscinatorIntroProps {
+  /** chamada ao clicar em "Acessar piscinator" (a página passa pra etapa do quiz) */
   onStart: () => void;
 }
 
+/** Etapa 1 do Piscinator: explica o que é a ferramenta e tem o botão que inicia o diagnóstico. */
 export function PiscinatorIntro({ onStart }: PiscinatorIntroProps) {
   return (
     <section className="piscinator-intro">

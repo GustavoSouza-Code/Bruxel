@@ -1,5 +1,6 @@
 import type { Product } from "../types/product";
 
+// imagens dos produtos: o Vite empacota cada arquivo e entrega a URL final
 import hidrofloc1L from "../assets/images/produtos/hidroall-hidrofloc-1l.png";
 import cadeiraRosa from "../assets/images/produtos/cadeira-espreguicadeira-rosa.png";
 import propool10kg from "../assets/images/produtos/propool-3em1-10kg.png";
@@ -16,6 +17,10 @@ import phMais from "../assets/images/produtos/hidroall-ph-mais-2kg.png";
 import escova from "../assets/images/produtos/escova-piscina.png";
 import peneira from "../assets/images/produtos/peneira-piscina.png";
 
+/**
+ * Produtos em destaque ("mais vendidos"), mostrados na Home. Também são a
+ * base do catálogo completo (ALL_PRODUCTS), logo abaixo.
+ */
 // TODO: substituir por dados vindos da API (src/services) quando o backend
 // tiver a rota de produtos pronta. Preços abaixo foram tirados do Figma.
 export const FEATURED_PRODUCTS: Product[] = [
@@ -53,6 +58,7 @@ export const FEATURED_PRODUCTS: Product[] = [
 ];
 
 // Catálogo completo (Loja, Piscinator e Admin usam esta lista)
+// obs.: price: 0 quer dizer "preço ainda a definir" (só os destaques têm preço real)
 export const ALL_PRODUCTS: Product[] = [
   ...FEATURED_PRODUCTS,
   {

@@ -1,11 +1,13 @@
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./SocialBanner.css";
 
+/** Post do Instagram exibido como card (por enquanto só a legenda). */
 interface SocialPost {
   id: string;
   caption: string;
 }
 
+// legendas dos cards; todos levam ao perfil da Bruxel no Instagram (não a um post específico)
 const SOCIAL_POSTS: SocialPost[] = [
   { id: "checkup", caption: "Sua piscina precisa de um check-up?" },
   { id: "cuidado", caption: "Sua piscina merece cuidado profissional!" },
@@ -13,6 +15,7 @@ const SOCIAL_POSTS: SocialPost[] = [
   { id: "espaco", caption: "Venha conhecer o nosso espaço!" },
 ];
 
+/** Faixa azul "Acompanhe a gente nas redes sociais": 4 cards que levam ao Instagram da Bruxel. */
 export function SocialBanner() {
   return (
     <section className="social-banner">

@@ -6,12 +6,20 @@ import { PiscinatorResult } from "./components/PiscinatorResult/PiscinatorResult
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { ALL_PRODUCTS } from "../../../data/products";
 
+/** Etapa atual do fluxo: apresentação → perguntas → diagnóstico. */
 type Step = "intro" | "quiz" | "result";
 
+/**
+ * Página do Piscinator (rota "/piscinator"): um diagnóstico rápido da piscina
+ * em 3 etapas. Esta página controla qual etapa aparece (`step`) e guarda as
+ * respostas do quiz pra entregá-las ao resultado.
+ */
 export function PiscinatorPage() {
   const [step, setStep] = useState<Step>("intro");
+  // uma resposta por pergunta, na ordem (true = "Sim"); só é preenchida quando o quiz termina
   const [answers, setAnswers] = useState<boolean[]>([]);
 
+  // TODO: recomendar produtos conforme o diagnóstico; hoje a lista é fixa (os 4 primeiros de "tratamento-agua")
   const recommendedProducts = ALL_PRODUCTS.filter(
     (product) => product.category === "tratamento-agua"
   ).slice(0, 4);
@@ -20,6 +28,7 @@ export function PiscinatorPage() {
     <>
       <Header />
 
+      {/* só uma etapa é renderizada por vez */}
       {step === "intro" && (
         <PiscinatorIntro onStart={() => setStep("quiz")} />
       )}
@@ -27,6 +36,7 @@ export function PiscinatorPage() {
       {step === "quiz" && (
         <PiscinatorQuiz
           onFinish={(finalAnswers) => {
+            // guarda as respostas e passa pra tela de resultado
             setAnswers(finalAnswers);
             setStep("result");
           }}
@@ -38,6 +48,7 @@ export function PiscinatorPage() {
           answers={answers}
           products={recommendedProducts}
           onRestart={() => {
+            // refazer: apaga as respostas e volta pro começo
             setAnswers([]);
             setStep("intro");
           }}

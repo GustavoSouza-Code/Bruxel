@@ -3,6 +3,7 @@
   scroll-margin-top: 110px; /* evita que o header fixo cubra o título ao navegar via CategoryNav */
 }
 
+/* Título + botão da loja */
 .products-section__header {
   display: flex;
   align-items: center;
@@ -30,24 +31,28 @@
   white-space: nowrap;
 }
 
+/* Grade de produtos: 4 colunas no desktop, diminuindo conforme a tela estreita */
 .products-section__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
+/* 3 colunas */
 @media (max-width: 1100px) {
   .products-section__grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/* 2 colunas */
 @media (max-width: 760px) {
   .products-section__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* 1 coluna (celular pequeno) */
 @media (max-width: 460px) {
   .products-section__grid {
     grid-template-columns: 1fr;

@@ -8,6 +8,7 @@
   margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
+/* Formulário de cadastro/edição: grade de 3 colunas (1 no celular) */
 .admin-products-page__form {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -27,6 +28,7 @@
   color: var(--color-text);
 }
 
+/* campo que ocupa a linha inteira da grade */
 .admin-products-page__field--full {
   grid-column: 1 / -1;
 }
@@ -90,6 +92,7 @@
   color: var(--color-primary);
 }
 
+/* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
 .admin-products-page__header-row {
   display: none;
 }
@@ -100,6 +103,7 @@
   gap: 1rem;
 }
 
+/* Cada produto é uma linha (flex); no celular vira um cartão empilhado */
 .admin-products-page__row {
   display: flex;
   align-items: center;
@@ -109,6 +113,8 @@
   padding: 1rem 1.25rem;
 }
 
+/* min-width: 0 deixa a coluna encolher abaixo do conteúdo (senão textos longos alargam a linha);
+   overflow-wrap quebra nomes compridos */
 .admin-products-page__row > span {
   flex: 1 1 0;
   min-width: 0;
@@ -124,6 +130,7 @@
   display: block;
 }
 
+/* quadrado cinza quando o produto não tem imagem */
 .admin-products-page__thumb--empty {
   background-color: var(--color-border-soft);
 }
@@ -173,6 +180,7 @@
   padding: 2rem 0;
 }
 
+/* Desktop: mostra a linha de títulos e trava a coluna de ações em 140px, pra alinhar com o título "Ações" */
 @media (min-width: 900px) {
   .admin-products-page__header-row {
     display: flex;
@@ -198,6 +206,7 @@
   }
 }
 
+/* Celular e tablet: formulário em 1 coluna e cada linha vira um cartão, com o rótulo de cada campo à esquerda */
 @media (max-width: 899px) {
   .admin-products-page__form {
     grid-template-columns: 1fr;
@@ -216,12 +225,13 @@
   }
 
   .admin-products-page__row > span::before {
-    content: attr(data-label);
+    content: attr(data-label); /* usa o atributo data-label do <span> como texto do rótulo */
     font-weight: 600;
     color: var(--color-text-muted);
     flex-shrink: 0;
   }
 
+  /* a miniatura fica sem o rótulo "Imagem" no celular (anula o attr(data-label) da regra acima) */
   .admin-products-page__thumb-cell::before {
     content: "";
   }

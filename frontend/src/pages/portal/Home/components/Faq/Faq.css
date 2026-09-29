@@ -23,6 +23,7 @@
   padding: clamp(1rem, 0.9rem + 0.4vw, 1.35rem) clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
 }
 
+/* pergunta: o botão ocupa a linha toda, pra a área de clique ser grande */
 .faq__question {
   width: 100%;
   background: none;
@@ -43,6 +44,7 @@
   flex-shrink: 0;
 }
 
+/* resposta: só existe no DOM enquanto o item está aberto (ver Faq.tsx) */
 .faq__answer {
   margin: 0.85rem 0 0;
   color: var(--color-text-muted);

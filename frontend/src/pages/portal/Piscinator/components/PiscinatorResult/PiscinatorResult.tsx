@@ -4,11 +4,18 @@ import { ProductCard } from "../../../../../components/product/ProductCard/Produ
 import "./PiscinatorResult.css";
 
 interface PiscinatorResultProps {
+  /** respostas do quiz (true = "Sim"); cada "Sim" vale 1 ponto no diagnóstico */
   answers: boolean[];
+  /** produtos recomendados, mostrados abaixo do diagnóstico */
   products: Product[];
+  /** chamada ao clicar em "Refazer diagnóstico" */
   onRestart: () => void;
 }
 
+/**
+ * Converte a pontuação (nº de respostas "Sim", de 0 a 3) no texto do
+ * diagnóstico: 0 = tudo certo, 1 = sinais leves, 2 = moderado, 3 = grave.
+ */
 function getDiagnosis(score: number) {
   if (score === 0) {
     return {
@@ -41,11 +48,13 @@ function getDiagnosis(score: number) {
   };
 }
 
+/** Etapa 3 do Piscinator: mostra o diagnóstico, o botão de refazer e os produtos recomendados. */
 export function PiscinatorResult({
   answers,
   products,
   onRestart,
 }: PiscinatorResultProps) {
+  // pontuação = quantas respostas foram "Sim" (true)
   const score = answers.filter(Boolean).length;
   const diagnosis = getDiagnosis(score);
 
@@ -62,6 +71,7 @@ export function PiscinatorResult({
           Refazer diagnóstico
         </button>
 
+        {/* sem produtos recomendados, a seção inteira some */}
         {products.length > 0 && (
           <div className="piscinator-result__products">
             <h2>Produtos recomendados</h2>

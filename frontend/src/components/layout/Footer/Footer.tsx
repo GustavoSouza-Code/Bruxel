@@ -1,6 +1,10 @@
 import { Container } from "../Container/Container";
 import "./Footer.css";
 
+/**
+ * Rodapé do site: localização, horário de atendimento, contato e redes
+ * sociais da Bruxel. Os dados são fixos (não vêm de API).
+ */
 export function Footer() {
   return (
     <footer className="footer">

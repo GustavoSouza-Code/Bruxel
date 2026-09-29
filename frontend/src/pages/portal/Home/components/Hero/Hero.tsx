@@ -3,11 +3,17 @@ import mascoteImg from "../../../../../assets/images/mascote/mascote-bruxel.png"
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./Hero.css";
 
+/**
+ * Seção de abertura da Home: mascote, título e um chamado pro Piscinator.
+ * O fundo azul tem a base curva e ondas SVG decorativas (ver Hero.css).
+ */
 export function Hero() {
   const navigate = useNavigate();
 
   return (
     <section className="hero">
+      {/* ondas decorativas: aria-hidden porque não têm significado pra leitor de tela;
+          preserveAspectRatio="none" deixa o desenho esticar pra caber na largura */}
       <svg
         className="hero__waves"
         viewBox="0 0 1440 160"
@@ -35,6 +41,7 @@ export function Hero() {
             <strong>sinônimo de lazer</strong> e não de dúvidas.
           </h1>
 
+          {/* balão de destaque com o botão que leva ao Piscinator */}
           <div className="hero__callout">
             <p>
               Mas quem já passou por água verde, produtos errados ou

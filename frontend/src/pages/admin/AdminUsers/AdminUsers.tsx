@@ -4,6 +4,7 @@ import { Container } from "../../../components/layout/Container/Container";
 import type { User } from "../../../types/user";
 import "./AdminUsers.css";
 
+// Mock até o backend ter a rota de usuários pronta
 const INITIAL_USERS: User[] = [
   {
     id: "user-1",
@@ -39,9 +40,16 @@ const INITIAL_USERS: User[] = [
   },
 ];
 
+/**
+ * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com
+ * edição inline e exclusão. A lista vive só na memória (começa com
+ * INITIAL_USERS); as alterações somem ao recarregar a página.
+ */
 export function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+  // id do usuário cuja linha está em edição; null = ninguém (só uma linha por vez)
   const [editingId, setEditingId] = useState<string | null>(null);
+  // cópia editável do usuário em edição; só vai pra lista ao clicar em Salvar
   const [editDraft, setEditDraft] = useState<User | null>(null);
 
   function startEdit(user: User) {
@@ -64,8 +72,10 @@ export function AdminUsersPage() {
   }
 
   function deleteUser(user: User) {
+    // pede confirmação antes de excluir (a ação não tem desfazer)
     if (!window.confirm(`Excluir o usuário ${user.name}?`)) return;
     setUsers((current) => current.filter((u) => u.id !== user.id));
+    // se a linha excluída estava em edição, encerra a edição
     if (editingId === user.id) {
       setEditingId(null);
       setEditDraft(null);
@@ -84,6 +94,7 @@ export function AdminUsersPage() {
         <Container>
           <h1 className="admin-users-page__title">Gestão de Usuários</h1>
 
+          {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
           <div className="admin-users-page__header-row">
             <span>Nome</span>
             <span>E-mail</span>
@@ -95,6 +106,7 @@ export function AdminUsersPage() {
 
           <div className="admin-users-page__list">
             {users.map((user) => {
+              // só a linha do usuário em edição vira inputs; as outras continuam em modo leitura
               const isEditing = editingId === user.id;
               const draft = isEditing ? editDraft : null;
 
@@ -144,6 +156,7 @@ export function AdminUsersPage() {
                     </>
                   ) : (
                     <>
+                      {/* data-label: rótulo que o CSS mostra no celular, onde não há linha de títulos */}
                       <span data-label="Nome">{user.name}</span>
                       <span data-label="E-mail">{user.email}</span>
                       <span data-label="Endereço">{user.address}</span>

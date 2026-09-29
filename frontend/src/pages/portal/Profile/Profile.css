@@ -26,6 +26,7 @@
   margin: 0 0 clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
 }
 
+/* Menu lateral (260px) + conteúdo; no celular vira uma coluna só */
 .profile-page__layout {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -117,6 +118,7 @@
   color: var(--color-white);
 }
 
+/* Modo leitura: pares rótulo/valor (<dl>) em 2 colunas */
 .profile-page__info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -133,7 +135,7 @@
 .profile-page__info-row dd {
   margin: 0;
   font-weight: 600;
-  word-break: break-word;
+  word-break: break-word; /* e-mails e endereços longos quebram em vez de estourar a coluna */
 }
 
 /* Formulário de edição */
@@ -166,7 +168,7 @@
 }
 
 .profile-page__form-actions {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1; /* os botões ocupam a linha inteira da grade, abaixo dos campos */
   display: flex;
   gap: 0.75rem;
 }
@@ -244,6 +246,7 @@
   white-space: nowrap;
 }
 
+/* cores por status do pedido (o sufixo da classe é o valor de OrderStatus) */
 .profile-page__status--entregue {
   background-color: #e3f5e8;
   color: #1e7a3c;
@@ -269,6 +272,7 @@
   font-weight: 600;
 }
 
+/* Celular: o menu vira uma faixa horizontal rolável e tudo empilha em 1 coluna */
 @media (max-width: 768px) {
   .profile-page__layout {
     grid-template-columns: 1fr;
@@ -300,6 +304,6 @@
   }
 
   .profile-page__order-main {
-    flex-basis: 100%;
+    flex-basis: 100%; /* os dados do pedido ocupam a linha toda; status e total vão pra linha de baixo */
   }
 }

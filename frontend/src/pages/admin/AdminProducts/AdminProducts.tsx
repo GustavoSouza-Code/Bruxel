@@ -6,6 +6,7 @@ import type { Product, ProductCategory } from "../../../types/product";
 import { ALL_PRODUCTS } from "../../../data/products";
 import "./AdminProducts.css";
 
+// opções do <select> de categoria (value = slug de ProductCategory)
 const CATEGORY_OPTIONS: { value: ProductCategory; label: string }[] = [
   { value: "tratamento-agua", label: "Tratamento da água" },
   { value: "limpeza-piscina", label: "Limpeza da Piscina" },
@@ -13,6 +14,8 @@ const CATEGORY_OPTIONS: { value: ProductCategory; label: string }[] = [
   { value: "acessorios-lazer", label: "Acessórios & Lazer" },
 ];
 
+// formulário em branco (sem id: ele é gerado ao salvar); a categoria começa em "tratamento-agua"
+// pra o <select> nunca ficar sem valor
 const EMPTY_FORM: Omit<Product, "id"> = {
   name: "",
   variant: "",
@@ -23,13 +26,23 @@ const EMPTY_FORM: Omit<Product, "id"> = {
   category: "tratamento-agua",
 };
 
+/**
+ * Gestão de produtos do painel admin (rota "/admin/produtos"): um formulário
+ * que serve tanto pra cadastrar quanto pra editar, e a lista de produtos
+ * abaixo dele. Parte de ALL_PRODUCTS e vive só na memória; as alterações
+ * somem ao recarregar a página.
+ */
 export function AdminProductsPage() {
+  // a função inicial copia a lista, pra não alterar ALL_PRODUCTS (que a Loja também usa)
   const [products, setProducts] = useState<Product[]>(() => [...ALL_PRODUCTS]);
+  // id do produto em edição; null = o formulário está cadastrando um produto novo
   const [editingId, setEditingId] = useState<string | null>(null);
+  // valores atuais dos campos do formulário (tanto no cadastro quanto na edição)
   const [formState, setFormState] = useState<Omit<Product, "id">>(EMPTY_FORM);
 
   const isEditing = editingId !== null;
 
+  // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "price" só aceita number)
   function updateField<K extends keyof Omit<Product, "id">>(
     field: K,
     value: Omit<Product, "id">[K]
@@ -44,6 +57,7 @@ export function AdminProductsPage() {
 
   function startEdit(product: Product) {
     setEditingId(product.id);
+    // campos opcionais podem ser undefined no produto, mas os inputs precisam de string: daí o ?? ""
     setFormState({
       name: product.name,
       variant: product.variant ?? "",
@@ -58,12 +72,14 @@ export function AdminProductsPage() {
   function deleteProduct(product: Product) {
     if (!window.confirm(`Excluir o produto "${product.name}"?`)) return;
     setProducts((current) => current.filter((p) => p.id !== product.id));
+    // se o produto excluído estava no formulário, limpa o formulário
     if (editingId === product.id) resetForm();
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
+    // mesmo formulário pros dois casos: editando, substitui o produto (mantém o id); senão, cria um novo
     if (isEditing) {
       setProducts((current) =>
         current.map((p) =>
@@ -73,6 +89,7 @@ export function AdminProductsPage() {
     } else {
       const newProduct: Product = {
         ...formState,
+        // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
         id: `produto-${Date.now()}`,
       };
       setProducts((current) => [...current, newProduct]);
@@ -181,6 +198,7 @@ export function AdminProductsPage() {
             </div>
           </form>
 
+          {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
           <div className="admin-products-page__header-row">
             <span>Imagem</span>
             <span>Nome</span>
@@ -191,12 +209,14 @@ export function AdminProductsPage() {
 
           <div className="admin-products-page__list">
             {products.map((product) => {
+              // converte o slug da categoria no nome legível mostrado na lista
               const categoryLabel = CATEGORY_OPTIONS.find(
                 (option) => option.value === product.category
               )?.label;
 
               return (
                 <div key={product.id} className="admin-products-page__row">
+                  {/* data-label: rótulo do CSS no celular; sem imagem, aparece um quadrado cinza */}
                   <span data-label="Imagem" className="admin-products-page__thumb-cell">
                     {product.imageUrl ? (
                       <img

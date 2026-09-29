@@ -2,6 +2,7 @@
   padding: var(--space-section) 0;
 }
 
+/* imagem e texto lado a lado; em tela estreita quebram em linhas (flex-wrap) */
 .about-story__inner {
   display: flex;
   align-items: center;
@@ -9,8 +10,9 @@
   flex-wrap: wrap;
 }
 
+/* placeholder em degradê até termos a foto real */
 .about-story__image {
-  flex: 1 1 320px;
+  flex: 1 1 320px; /* cresce e encolhe com base de 320px; sem espaço pra isso, quebra de linha */
   min-height: clamp(220px, 20vw + 120px, 340px);
   border-radius: 16px;
   background: linear-gradient(

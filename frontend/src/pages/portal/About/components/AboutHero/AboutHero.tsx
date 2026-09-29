@@ -1,11 +1,13 @@
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./AboutHero.css";
 
+/** Faixa de abertura da página Sobre: fundo em degradê (no lugar da foto) e o texto institucional. */
 export function AboutHero() {
   return (
     <section className="about-hero">
       {/* TODO: substituir por foto real da fachada/loja quando o time de marketing enviar o asset */}
       <div className="about-hero__image" aria-hidden="true" />
+      {/* película escura por cima da imagem, pra o texto branco ficar legível */}
       <div className="about-hero__overlay" />
 
       <Container className="about-hero__content">

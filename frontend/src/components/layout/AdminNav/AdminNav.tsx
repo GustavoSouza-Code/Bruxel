@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import "./AdminNav.css";
 
+/**
+ * Barra de navegação do painel de gestão. Substitui o Header do site nas
+ * páginas /admin/*: tem os atalhos de Usuários e Produtos e o link pra
+ * voltar ao portal.
+ */
 export function AdminNav() {
   return (
     <header className="admin-nav">

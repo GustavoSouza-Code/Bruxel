@@ -1,5 +1,6 @@
 @import "./styles/tokens.css";
 
+/* reset global: padding e borda passam a contar dentro do width/height do elemento */
 * {
   box-sizing: border-box;
 }
@@ -8,6 +9,7 @@ html {
   font-size: 100%;
 }
 
+/* estilos-base do site; cor, fonte e tamanho vêm dos tokens (styles/tokens.css) */
 body {
   margin: 0;
   font-family: var(--font-family-base);
@@ -17,6 +19,7 @@ body {
   background-color: var(--color-white);
 }
 
+/* tira as margens padrão do navegador; o espaçamento é definido em cada componente */
 h1,
 h2,
 h3,
@@ -24,6 +27,7 @@ p {
   margin: 0;
 }
 
+/* botões não herdam a fonte do site por padrão; sem isso usariam a fonte do sistema */
 button {
   font-family: inherit;
 }

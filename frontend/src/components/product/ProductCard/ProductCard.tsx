@@ -4,9 +4,14 @@ import "./ProductCard.css";
 
 interface ProductCardProps {
   product: Product;
+  /** chamada ao clicar no ♡; opcional e ainda não usada por nenhuma página (o botão não faz nada por enquanto) */
   onToggleFavorite?: (productId: string) => void;
 }
 
+/**
+ * Card de produto: imagem, nome, embalagem, preço e botão de adicionar ao
+ * carrinho. É usado na Home, na Loja e no resultado do Piscinator.
+ */
 export function ProductCard({ product, onToggleFavorite }: ProductCardProps) {
   const { addItem } = useCart();
 
@@ -33,6 +38,7 @@ export function ProductCard({ product, onToggleFavorite }: ProductCardProps) {
         )}
       </div>
 
+      {/* toFixed(2) garante 2 casas decimais; o replace troca o ponto pela vírgula (formato brasileiro) */}
       <p className="product-card__price">
         R$ <strong>{product.price.toFixed(2).replace(".", ",")}</strong>
       </p>
