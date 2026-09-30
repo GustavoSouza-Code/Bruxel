@@ -1,101 +1,41 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
 import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
-import type { Product, ProductCategory } from "../../../types/product";
-import { ALL_PRODUCTS } from "../../../data/products";
+import type { Product } from "../../../types/product";
+import { useProducts } from "../../../crud/products/useProducts";
+import { CATEGORY_OPTIONS } from "../../../crud/products/productCategories";
+import { ProductForm } from "../../../crud/products/ProductForm/ProductForm";
+import type { ProductFormData } from "../../../crud/products/ProductForm/ProductForm";
 import "./AdminProducts.css";
 
-// opções do <select> de categoria (value = slug de ProductCategory)
-const CATEGORY_OPTIONS: { value: ProductCategory; label: string }[] = [
-  { value: "tratamento-agua", label: "Tratamento da água" },
-  { value: "limpeza-piscina", label: "Limpeza da Piscina" },
-  { value: "filtracao-circulacao", label: "Filtração e circulação" },
-  { value: "acessorios-lazer", label: "Acessórios & Lazer" },
-];
-
-// formulário em branco (sem id: ele é gerado ao salvar); a categoria começa em "tratamento-agua"
-// pra o <select> nunca ficar sem valor
-const EMPTY_FORM: Omit<Product, "id"> = {
-  name: "",
-  variant: "",
-  packageInfo: "",
-  description: "",
-  price: 0,
-  imageUrl: "",
-  category: "tratamento-agua",
-};
-
 /**
- * Gestão de produtos do painel admin (rota "/admin/produtos"): um formulário
- * que serve tanto pra cadastrar quanto pra editar, e a lista de produtos
- * abaixo dele. Parte de ALL_PRODUCTS e vive só na memória; as alterações
- * somem ao recarregar a página.
+ * Gestão de produtos do painel admin (rota "/admin/produtos"): o formulário
+ * de cadastro/edição (ProductForm) e a lista de produtos abaixo dele. A
+ * lista e as operações de criar/editar/excluir vêm do useProducts
+ * (src/crud/products); esta página só cuida da tela.
  */
 export function AdminProductsPage() {
-  // a função inicial copia a lista, pra não alterar ALL_PRODUCTS (que a Loja também usa)
-  const [products, setProducts] = useState<Product[]>(() => [...ALL_PRODUCTS]);
+  const { products, createProduct, updateProduct, deleteProduct } = useProducts();
   // id do produto em edição; null = o formulário está cadastrando um produto novo
   const [editingId, setEditingId] = useState<string | null>(null);
-  // valores atuais dos campos do formulário (tanto no cadastro quanto na edição)
-  const [formState, setFormState] = useState<Omit<Product, "id">>(EMPTY_FORM);
 
-  const isEditing = editingId !== null;
+  const editingProduct = products.find((p) => p.id === editingId) ?? null;
 
-  // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "price" só aceita number)
-  function updateField<K extends keyof Omit<Product, "id">>(
-    field: K,
-    value: Omit<Product, "id">[K]
-  ) {
-    setFormState((current) => ({ ...current, [field]: value }));
-  }
-
-  function resetForm() {
-    setEditingId(null);
-    setFormState(EMPTY_FORM);
-  }
-
-  function startEdit(product: Product) {
-    setEditingId(product.id);
-    // campos opcionais podem ser undefined no produto, mas os inputs precisam de string: daí o ?? ""
-    setFormState({
-      name: product.name,
-      variant: product.variant ?? "",
-      packageInfo: product.packageInfo ?? "",
-      description: product.description ?? "",
-      price: product.price,
-      imageUrl: product.imageUrl,
-      category: product.category ?? "tratamento-agua",
-    });
-  }
-
-  function deleteProduct(product: Product) {
-    if (!window.confirm(`Excluir o produto "${product.name}"?`)) return;
-    setProducts((current) => current.filter((p) => p.id !== product.id));
-    // se o produto excluído estava no formulário, limpa o formulário
-    if (editingId === product.id) resetForm();
-  }
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-
+  function handleSubmit(data: ProductFormData) {
     // mesmo formulário pros dois casos: editando, substitui o produto (mantém o id); senão, cria um novo
-    if (isEditing) {
-      setProducts((current) =>
-        current.map((p) =>
-          p.id === editingId ? { ...formState, id: editingId } : p
-        )
-      );
+    if (editingId) {
+      updateProduct(editingId, data);
     } else {
-      const newProduct: Product = {
-        ...formState,
-        // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
-        id: `produto-${Date.now()}`,
-      };
-      setProducts((current) => [...current, newProduct]);
+      createProduct(data);
     }
+    setEditingId(null);
+  }
 
-    resetForm();
+  function handleDelete(product: Product) {
+    if (!window.confirm(`Excluir o produto "${product.name}"?`)) return;
+    deleteProduct(product.id);
+    // se o produto excluído estava no formulário, volta o formulário pro cadastro
+    if (editingId === product.id) setEditingId(null);
   }
 
   return (
@@ -106,97 +46,14 @@ export function AdminProductsPage() {
         <Container>
           <h1 className="admin-products-page__title">Gestão de Produtos</h1>
 
-          <form className="admin-products-page__form" onSubmit={handleSubmit}>
-            <label>
-              Nome
-              <input
-                type="text"
-                value={formState.name}
-                onChange={(e) => updateField("name", e.target.value)}
-                required
-              />
-            </label>
-
-            <label>
-              Variante
-              <input
-                type="text"
-                value={formState.variant}
-                onChange={(e) => updateField("variant", e.target.value)}
-              />
-            </label>
-
-            <label>
-              Embalagem/Pacote
-              <input
-                type="text"
-                value={formState.packageInfo}
-                onChange={(e) => updateField("packageInfo", e.target.value)}
-              />
-            </label>
-
-            <label className="admin-products-page__field--full">
-              Descrição/Características
-              <textarea
-                value={formState.description}
-                onChange={(e) => updateField("description", e.target.value)}
-                rows={3}
-              />
-            </label>
-
-            <label>
-              Preço
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={formState.price}
-                onChange={(e) => updateField("price", Number(e.target.value))}
-                required
-              />
-            </label>
-
-            <label>
-              Categoria
-              <select
-                value={formState.category}
-                onChange={(e) =>
-                  updateField("category", e.target.value as ProductCategory)
-                }
-              >
-                {CATEGORY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="admin-products-page__field--full">
-              URL da imagem
-              <input
-                type="text"
-                placeholder="https://..."
-                value={formState.imageUrl}
-                onChange={(e) => updateField("imageUrl", e.target.value)}
-              />
-            </label>
-
-            <div className="admin-products-page__form-actions">
-              <button type="submit" className="admin-products-page__submit">
-                {isEditing ? "Salvar alterações" : "Adicionar produto"}
-              </button>
-              {isEditing && (
-                <button
-                  type="button"
-                  className="admin-products-page__cancel"
-                  onClick={resetForm}
-                >
-                  Cancelar edição
-                </button>
-              )}
-            </div>
-          </form>
+          {/* a key muda quando o produto em edição muda: o React descarta o formulário
+              antigo e cria outro, já com os dados do novo produto (ou em branco) */}
+          <ProductForm
+            key={editingId ?? "novo"}
+            product={editingProduct}
+            onSubmit={handleSubmit}
+            onCancel={() => setEditingId(null)}
+          />
 
           {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
           <div className="admin-products-page__header-row">
@@ -236,13 +93,13 @@ export function AdminProductsPage() {
                   <div className="admin-products-page__actions">
                     <button
                       className="admin-products-page__edit"
-                      onClick={() => startEdit(product)}
+                      onClick={() => setEditingId(product.id)}
                     >
                       Editar
                     </button>
                     <button
                       className="admin-products-page__delete"
-                      onClick={() => deleteProduct(product)}
+                      onClick={() => handleDelete(product)}
                     >
                       Excluir
                     </button>

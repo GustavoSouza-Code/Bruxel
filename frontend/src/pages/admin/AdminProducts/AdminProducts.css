@@ -8,90 +8,6 @@
   margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
 }
 
-/* Formulário de cadastro/edição: grade de 3 colunas (1 no celular) */
-.admin-products-page__form {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  background-color: #f7f7fa;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
-}
-
-.admin-products-page__form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  font-weight: 600;
-  font-size: var(--font-size-small);
-  color: var(--color-text);
-}
-
-/* campo que ocupa a linha inteira da grade */
-.admin-products-page__field--full {
-  grid-column: 1 / -1;
-}
-
-.admin-products-page__form input,
-.admin-products-page__form select,
-.admin-products-page__form textarea {
-  border: 1px solid var(--color-border-soft);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
-  font-family: inherit;
-  font-size: var(--font-size-body);
-  background-color: var(--color-white);
-}
-
-.admin-products-page__form input:focus,
-.admin-products-page__form select:focus,
-.admin-products-page__form textarea:focus {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 1px;
-}
-
-.admin-products-page__form textarea {
-  resize: vertical;
-}
-
-.admin-products-page__form-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 1rem;
-}
-
-.admin-products-page__submit {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: 999px;
-  padding: 0.8rem 1.6rem;
-  font-weight: 600;
-  font-size: var(--font-size-body);
-  cursor: pointer;
-}
-
-.admin-products-page__submit:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.admin-products-page__cancel {
-  background: none;
-  border: 1px solid var(--color-border-soft);
-  color: var(--color-text-muted);
-  border-radius: 999px;
-  padding: 0.8rem 1.6rem;
-  font-weight: 600;
-  font-size: var(--font-size-body);
-  cursor: pointer;
-}
-
-.admin-products-page__cancel:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
 /* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
 .admin-products-page__header-row {
   display: none;
@@ -206,12 +122,8 @@
   }
 }
 
-/* Celular e tablet: formulário em 1 coluna e cada linha vira um cartão, com o rótulo de cada campo à esquerda */
+/* Celular e tablet: cada linha vira um cartão, com o rótulo de cada campo à esquerda */
 @media (max-width: 899px) {
-  .admin-products-page__form {
-    grid-template-columns: 1fr;
-  }
-
   .admin-products-page__row {
     flex-direction: column;
     align-items: stretch;
