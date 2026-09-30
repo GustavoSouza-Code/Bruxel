@@ -1,6 +1,7 @@
 import {UserRepository} from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import {AppError} from "../errors/AppError";
 
 export interface AuthRequestDTO {
     email: string;
@@ -22,17 +23,17 @@ export class AuthService {
     async execute({email, senha}: AuthRequestDTO): Promise<AuthResponseDTO> {
         const user = await this.userRepository.getByEmail(email);
         if (!user) {
-            throw new Error('E-mail ou senha incorretos.')
+            throw new AppError(400, 'E-mail ou senha incorretos.')
         }
 
         const verificaSenha = await bcrypt.compare(senha, user.senha)
         if (!verificaSenha) {
-            throw new Error('E-mail ou senha incorretos.')
+            throw new AppError(400, 'E-mail ou senha incorretos.')
         }
 
         const secretJWT = process.env.JWT_SECRET;
         if (!secretJWT) {
-            throw new Error('Chave secreta JWT não configurada no ambiente.');
+            throw new AppError(404,'Chave secreta JWT não configurada no ambiente.');
         }
 
         const token = jwt.sign(
