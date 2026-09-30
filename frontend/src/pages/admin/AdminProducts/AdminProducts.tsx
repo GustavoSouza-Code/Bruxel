@@ -3,7 +3,7 @@ import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
 import type { Product } from "../../../types/product";
 import { useProducts } from "../../../crud/products/useProducts";
-import { CATEGORY_OPTIONS } from "../../../crud/products/productCategories";
+import { getCategoryName } from "../../../crud/products/productCategories";
 import { ProductForm } from "../../../crud/products/ProductForm/ProductForm";
 import type { ProductFormData } from "../../../crud/products/ProductForm/ProductForm";
 import "./AdminProducts.css";
@@ -32,7 +32,7 @@ export function AdminProductsPage() {
   }
 
   function handleDelete(product: Product) {
-    if (!window.confirm(`Excluir o produto "${product.name}"?`)) return;
+    if (!window.confirm(`Excluir o produto "${product.nome}"?`)) return;
     deleteProduct(product.id);
     // se o produto excluído estava no formulário, volta o formulário pro cadastro
     if (editingId === product.id) setEditingId(null);
@@ -66,29 +66,27 @@ export function AdminProductsPage() {
 
           <div className="admin-products-page__list">
             {products.map((product) => {
-              // converte o slug da categoria no nome legível mostrado na lista
-              const categoryLabel = CATEGORY_OPTIONS.find(
-                (option) => option.value === product.category
-              )?.label;
+              // converte o categoria_id no nome legível mostrado na lista
+              const categoryLabel = getCategoryName(product.categoria_id);
 
               return (
                 <div key={product.id} className="admin-products-page__row">
                   {/* data-label: rótulo do CSS no celular; sem imagem, aparece um quadrado cinza */}
                   <span data-label="Imagem" className="admin-products-page__thumb-cell">
-                    {product.imageUrl ? (
+                    {product.url_imagem ? (
                       <img
-                        src={product.imageUrl}
-                        alt={product.name}
+                        src={product.url_imagem}
+                        alt={product.nome}
                         className="admin-products-page__thumb"
                       />
                     ) : (
                       <span className="admin-products-page__thumb admin-products-page__thumb--empty" />
                     )}
                   </span>
-                  <span data-label="Nome">{product.name}</span>
-                  <span data-label="Categoria">{categoryLabel ?? "—"}</span>
+                  <span data-label="Nome">{product.nome}</span>
+                  <span data-label="Categoria">{categoryLabel || "—"}</span>
                   <span data-label="Preço">
-                    R$ {product.price.toFixed(2).replace(".", ",")}
+                    R$ {product.preco.toFixed(2).replace(".", ",")}
                   </span>
                   <div className="admin-products-page__actions">
                     <button

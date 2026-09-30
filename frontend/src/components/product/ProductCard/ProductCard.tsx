@@ -9,7 +9,7 @@ interface ProductCardProps {
 }
 
 /**
- * Card de produto: imagem, nome, embalagem, preço e botão de adicionar ao
+ * Card de produto: imagem, nome, preço e botão de adicionar ao
  * carrinho. É usado na Home, na Loja e no resultado do Piscinator.
  */
 export function ProductCard({ product, onToggleFavorite }: ProductCardProps) {
@@ -27,20 +27,17 @@ export function ProductCard({ product, onToggleFavorite }: ProductCardProps) {
 
       <img
         className="product-card__image"
-        src={product.imageUrl}
-        alt={product.name}
+        src={product.url_imagem}
+        alt={product.nome}
       />
 
       <div className="product-card__info">
-        <p className="product-card__name">{product.name}</p>
-        {product.packageInfo && (
-          <span className="product-card__package">{product.packageInfo}</span>
-        )}
+        <p className="product-card__name">{product.nome}</p>
       </div>
 
       {/* toFixed(2) garante 2 casas decimais; o replace troca o ponto pela vírgula (formato brasileiro) */}
       <p className="product-card__price">
-        R$ <strong>{product.price.toFixed(2).replace(".", ",")}</strong>
+        R$ <strong>{product.preco.toFixed(2).replace(".", ",")}</strong>
       </p>
 
       <button

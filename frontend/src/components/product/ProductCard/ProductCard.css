@@ -41,12 +41,6 @@
   font-size: var(--font-size-small);
 }
 
-.product-card__package {
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
 .product-card__price {
   font-weight: 600;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.5rem);

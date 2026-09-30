@@ -1,11 +1,21 @@
-/** Dados de um cliente da Bruxel, do jeito que as telas do frontend usam hoje. */
+/**
+ * Dados de um usuário da Bruxel. Os campos têm os mesmos nomes da tabela
+ * `users` do banco. A senha não fica aqui: o front só a envia no cadastro/login.
+ */
 export interface User {
   id: string;
-  name: string;
+  nome: string;
   email: string;
-  /** endereço num texto só (rua, número, cidade); ainda não é dividido em campos */
-  address: string;
-  phone: string;
-  /** CPF ou CNPJ, como foi digitado (com pontuação) */
-  document: string;
+  /** CPF só com dígitos (11 caracteres), igual ao banco */
+  cpf: string;
+  telefone?: string;
+  rua?: string;
+  numero?: string;
+  bairro?: string;
+  cidade?: string;
+  /** sigla com 2 letras, ex.: "RS" */
+  estado?: string;
+  /** só dígitos (8 caracteres) */
+  cep?: string;
+  perfil: "CLIENTE" | "ADMINISTRADOR";
 }

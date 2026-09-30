@@ -45,6 +45,14 @@
   resize: vertical;
 }
 
+/* checkbox "Ativo": caixa e texto na mesma linha, alinhados com a base dos inputs vizinhos */
+.product-form label.product-form__checkbox {
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  padding-bottom: 0.6rem;
+}
+
 .product-form__actions {
   grid-column: 1 / -1;
   display: flex;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import type { Product, ProductCategory } from "../../../types/product";
-import { CATEGORY_OPTIONS } from "../productCategories";
+import type { Product } from "../../../types/product";
+import { CATEGORIES } from "../productCategories";
 import "./ProductForm.css";
 
 /** O que o formulário entrega ao ser enviado: o produto sem o id (quem decide o id é o CRUD). */
@@ -15,27 +15,29 @@ interface ProductFormProps {
   onCancel: () => void;
 }
 
-// formulário em branco; a categoria começa em "tratamento-agua" pra o <select> nunca ficar sem valor
+// formulário em branco; a categoria começa na primeira pra o <select> nunca ficar sem valor
 const EMPTY_FORM: ProductFormData = {
-  name: "",
-  variant: "",
-  packageInfo: "",
-  description: "",
-  price: 0,
-  imageUrl: "",
-  category: "tratamento-agua",
+  categoria_id: CATEGORIES[0].id,
+  codigo: "",
+  nome: "",
+  descricao: "",
+  preco: 0,
+  estoque: 0,
+  url_imagem: "",
+  ativo: true,
 };
 
 // campos opcionais podem ser undefined no produto, mas os inputs precisam de string: daí o ?? ""
 function toFormData(product: Product): ProductFormData {
   return {
-    name: product.name,
-    variant: product.variant ?? "",
-    packageInfo: product.packageInfo ?? "",
-    description: product.description ?? "",
-    price: product.price,
-    imageUrl: product.imageUrl,
-    category: product.category ?? "tratamento-agua",
+    categoria_id: product.categoria_id,
+    codigo: product.codigo,
+    nome: product.nome,
+    descricao: product.descricao ?? "",
+    preco: product.preco,
+    estoque: product.estoque,
+    url_imagem: product.url_imagem ?? "",
+    ativo: product.ativo,
   };
 }
 
@@ -52,7 +54,7 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
     product ? toFormData(product) : EMPTY_FORM
   );
 
-  // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "price" só aceita number)
+  // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "preco" só aceita number)
   function updateField<K extends keyof ProductFormData>(
     field: K,
     value: ProductFormData[K]
@@ -73,37 +75,35 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
         Nome
         <input
           type="text"
-          value={formState.name}
-          onChange={(e) => updateField("name", e.target.value)}
+          placeholder="ex.: Hidrofloc 1L"
+          value={formState.nome}
+          onChange={(e) => updateField("nome", e.target.value)}
           required
         />
       </label>
 
       <label>
-        Variante
+        Código
         <input
           type="text"
-          value={formState.variant}
-          onChange={(e) => updateField("variant", e.target.value)}
+          value={formState.codigo}
+          onChange={(e) => updateField("codigo", e.target.value)}
+          required
         />
       </label>
 
       <label>
-        Embalagem/Pacote
-        <input
-          type="text"
-          value={formState.packageInfo}
-          onChange={(e) => updateField("packageInfo", e.target.value)}
-        />
-      </label>
-
-      <label className="product-form__field--full">
-        Descrição/Características
-        <textarea
-          value={formState.description}
-          onChange={(e) => updateField("description", e.target.value)}
-          rows={3}
-        />
+        Categoria
+        <select
+          value={formState.categoria_id}
+          onChange={(e) => updateField("categoria_id", e.target.value)}
+        >
+          {CATEGORIES.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.nome}
+            </option>
+          ))}
+        </select>
       </label>
 
       <label>
@@ -112,26 +112,40 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
           type="number"
           step="0.01"
           min="0"
-          value={formState.price}
-          onChange={(e) => updateField("price", Number(e.target.value))}
+          value={formState.preco}
+          onChange={(e) => updateField("preco", Number(e.target.value))}
           required
         />
       </label>
 
       <label>
-        Categoria
-        <select
-          value={formState.category}
-          onChange={(e) =>
-            updateField("category", e.target.value as ProductCategory)
-          }
-        >
-          {CATEGORY_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        Estoque
+        <input
+          type="number"
+          step="1"
+          min="0"
+          value={formState.estoque}
+          onChange={(e) => updateField("estoque", Number(e.target.value))}
+          required
+        />
+      </label>
+
+      <label className="product-form__checkbox">
+        <input
+          type="checkbox"
+          checked={formState.ativo}
+          onChange={(e) => updateField("ativo", e.target.checked)}
+        />
+        Ativo na loja
+      </label>
+
+      <label className="product-form__field--full">
+        Descrição/Características
+        <textarea
+          value={formState.descricao}
+          onChange={(e) => updateField("descricao", e.target.value)}
+          rows={3}
+        />
       </label>
 
       <label className="product-form__field--full">
@@ -139,8 +153,8 @@ export function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
         <input
           type="text"
           placeholder="https://..."
-          value={formState.imageUrl}
-          onChange={(e) => updateField("imageUrl", e.target.value)}
+          value={formState.url_imagem}
+          onChange={(e) => updateField("url_imagem", e.target.value)}
         />
       </label>
 

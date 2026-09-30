@@ -42,11 +42,6 @@
   margin: 0;
 }
 
-.cart-item__package {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
-}
-
 .cart-item__quantity {
   display: flex;
   align-items: center;

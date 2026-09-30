@@ -62,6 +62,29 @@
   outline-offset: 1px;
 }
 
+/* edição do endereço: os 6 campos ocupam a coluna "Endereço", 2 por linha */
+.admin-users-page__address-edit {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.admin-users-page__address-edit > input {
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+}
+
+.admin-users-page__address-edit > input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
 .admin-users-page__actions {
   display: flex;
   gap: 0.5rem;

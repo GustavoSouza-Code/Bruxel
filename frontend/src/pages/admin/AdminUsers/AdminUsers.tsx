@@ -5,6 +5,8 @@ import { Modal } from "../../../components/ui/Modal/Modal";
 import { SignupForm } from "../../../crud/users/SignupForm/SignupForm";
 import type { SignupFormData } from "../../../crud/users/SignupForm/SignupForm";
 import { useUsers } from "../../../crud/users/useUsers";
+import { ADDRESS_FIELDS, formatAddress } from "../../../crud/users/userFields";
+import type { EditableUserField } from "../../../crud/users/userFields";
 import type { User } from "../../../types/user";
 import "./AdminUsers.css";
 
@@ -48,7 +50,7 @@ export function AdminUsersPage() {
 
   function handleDelete(user: User) {
     // pede confirmação antes de excluir (a ação não tem desfazer)
-    if (!window.confirm(`Excluir o usuário ${user.name}?`)) return;
+    if (!window.confirm(`Excluir o usuário ${user.nome}?`)) return;
     deleteUser(user.id);
     // se a linha excluída estava em edição, encerra a edição
     if (editingId === user.id) {
@@ -57,7 +59,7 @@ export function AdminUsersPage() {
     }
   }
 
-  function updateDraftField(field: keyof User, value: string) {
+  function updateDraftField(field: EditableUserField, value: string) {
     setEditDraft((current) => (current ? { ...current, [field]: value } : current));
   }
 
@@ -83,7 +85,7 @@ export function AdminUsersPage() {
             <span>E-mail</span>
             <span>Endereço</span>
             <span>Telefone</span>
-            <span>CPF/CNPJ</span>
+            <span>CPF</span>
             <span>Ações</span>
           </div>
 
@@ -98,8 +100,8 @@ export function AdminUsersPage() {
                   {isEditing && draft ? (
                     <>
                       <input
-                        value={draft.name}
-                        onChange={(e) => updateDraftField("name", e.target.value)}
+                        value={draft.nome}
+                        onChange={(e) => updateDraftField("nome", e.target.value)}
                         aria-label="Nome"
                       />
                       <input
@@ -107,20 +109,28 @@ export function AdminUsersPage() {
                         onChange={(e) => updateDraftField("email", e.target.value)}
                         aria-label="E-mail"
                       />
+                      {/* o endereço tem uma coluna por campo no banco, então vira um grupo de inputs */}
+                      <div className="admin-users-page__address-edit">
+                        {ADDRESS_FIELDS.map(({ field, label }) => (
+                          <input
+                            key={field}
+                            value={draft[field] ?? ""}
+                            onChange={(e) => updateDraftField(field, e.target.value)}
+                            placeholder={label}
+                            aria-label={label}
+                          />
+                        ))}
+                      </div>
                       <input
-                        value={draft.address}
-                        onChange={(e) => updateDraftField("address", e.target.value)}
-                        aria-label="Endereço"
-                      />
-                      <input
-                        value={draft.phone}
-                        onChange={(e) => updateDraftField("phone", e.target.value)}
+                        value={draft.telefone ?? ""}
+                        onChange={(e) => updateDraftField("telefone", e.target.value)}
                         aria-label="Telefone"
                       />
                       <input
-                        value={draft.document}
-                        onChange={(e) => updateDraftField("document", e.target.value)}
-                        aria-label="CPF/CNPJ"
+                        value={draft.cpf}
+                        onChange={(e) => updateDraftField("cpf", e.target.value.replace(/\D/g, ""))}
+                        maxLength={11}
+                        aria-label="CPF"
                       />
                       <div className="admin-users-page__actions">
                         <button
@@ -140,12 +150,12 @@ export function AdminUsersPage() {
                   ) : (
                     <>
                       {/* data-label: rótulo que o CSS mostra no celular, onde não há linha de títulos */}
-                      <span data-label="Nome">{user.name}</span>
+                      <span data-label="Nome">{user.nome}</span>
                       <span data-label="E-mail">{user.email}</span>
                       {/* campos vazios (ex.: usuário recém-criado pelo modal) mostram "—" */}
-                      <span data-label="Endereço">{user.address || "—"}</span>
-                      <span data-label="Telefone">{user.phone || "—"}</span>
-                      <span data-label="CPF/CNPJ">{user.document || "—"}</span>
+                      <span data-label="Endereço">{formatAddress(user) || "—"}</span>
+                      <span data-label="Telefone">{user.telefone || "—"}</span>
+                      <span data-label="CPF">{user.cpf || "—"}</span>
                       <div className="admin-users-page__actions">
                         <button
                           className="admin-users-page__edit"

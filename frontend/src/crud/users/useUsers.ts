@@ -6,35 +6,51 @@ import type { SignupFormData } from "./SignupForm/SignupForm";
 const INITIAL_USERS: User[] = [
   {
     id: "user-1",
-    name: "Marcos Bruxel",
+    nome: "Marcos Bruxel",
     email: "marcos@bruxelpiscinas.com",
-    address: "Av. Benjamim Constant, 2361, Lajeado - RS",
-    phone: "(51) 99307-8577",
-    document: "123.456.789-00",
+    cpf: "12345678900",
+    telefone: "(51) 99307-8577",
+    rua: "Av. Benjamim Constant",
+    numero: "2361",
+    cidade: "Lajeado",
+    estado: "RS",
+    perfil: "ADMINISTRADOR",
   },
   {
     id: "user-2",
-    name: "Ana Paula Martins",
+    nome: "Ana Paula Martins",
     email: "ana.paula@email.com",
-    address: "Rua das Flores, 120, Lajeado - RS",
-    phone: "(51) 99123-4567",
-    document: "987.654.321-00",
+    cpf: "98765432100",
+    telefone: "(51) 99123-4567",
+    rua: "Rua das Flores",
+    numero: "120",
+    cidade: "Lajeado",
+    estado: "RS",
+    perfil: "CLIENTE",
   },
   {
     id: "user-3",
-    name: "Eduardo Oliveira",
+    nome: "Eduardo Oliveira",
     email: "eduardo.oliveira@email.com",
-    address: "Rua Sete de Setembro, 850, Lajeado - RS",
-    phone: "(51) 99876-5432",
-    document: "456.789.123-00",
+    cpf: "45678912300",
+    telefone: "(51) 99876-5432",
+    rua: "Rua Sete de Setembro",
+    numero: "850",
+    cidade: "Lajeado",
+    estado: "RS",
+    perfil: "CLIENTE",
   },
   {
     id: "user-4",
-    name: "Luciana Hass",
+    nome: "Luciana Hass",
     email: "luciana.hass@email.com",
-    address: "Av. Presidente Vargas, 45, Lajeado - RS",
-    phone: "(51) 99555-2211",
-    document: "321.654.987-00",
+    cpf: "32165498700",
+    telefone: "(51) 99555-2211",
+    rua: "Av. Presidente Vargas",
+    numero: "45",
+    cidade: "Lajeado",
+    estado: "RS",
+    perfil: "CLIENTE",
   },
 ];
 
@@ -51,14 +67,13 @@ export function useUsers() {
     const newUser: User = {
       // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
       id: `user-${Date.now()}`,
-      name: data.name,
+      nome: data.nome,
       email: data.email,
-      // o formulário de cadastro não pede esses campos; o admin pode preencher depois em Editar
-      address: "",
-      phone: "",
-      document: "",
+      cpf: data.cpf,
+      // o banco já cria todo usuário como CLIENTE; o endereço o admin preenche depois em Editar
+      perfil: "CLIENTE",
     };
-    // TODO: enviar data.password ao backend (POST /api/users); o User do front não guarda senha
+    // TODO: enviar data.senha ao backend (POST /api/users); o User do front não guarda senha
     setUsers((current) => [...current, newUser]);
   }
 

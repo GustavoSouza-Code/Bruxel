@@ -1,17 +1,16 @@
 import type { ReactNode } from "react";
-import type { ProductCategory } from "../../../../../types/product";
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./CategoryNav.css";
 
-/** Atalho de categoria; o id é o mesmo slug usado como id da seção na página. */
-interface Category {
-  id: ProductCategory;
+/** Atalho de categoria; o id é o mesmo categoria_id usado como id da seção na página. */
+interface CategoryShortcut {
+  id: string;
   label: string;
   icon: ReactNode;
 }
 
 // cada ícone é um SVG inline que usa currentColor, então herda a cor do texto do botão
-const CATEGORIES: Category[] = [
+const CATEGORIES: CategoryShortcut[] = [
   {
     id: "tratamento-agua",
     label: "Tratamento da água",
@@ -57,7 +56,7 @@ const CATEGORIES: Category[] = [
 
 /** Barra de atalhos da Loja: cada botão rola suavemente até a seção da categoria. */
 export function CategoryNav() {
-  function handleClick(id: ProductCategory) {
+  function handleClick(id: string) {
     // o id é o mesmo da <section> renderizada pelo ProductsSection (o scroll-margin-top
     // dela evita que o header fixo cubra o título)
     document

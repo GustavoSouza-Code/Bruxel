@@ -27,15 +27,10 @@ export function CartItem({ item, onRemove, onQuantityChange }: CartItemProps) {
         ×
       </button>
 
-      <img className="cart-item__image" src={product.imageUrl} alt={product.name} />
+      <img className="cart-item__image" src={product.url_imagem} alt={product.nome} />
 
       <div className="cart-item__info">
-        <p className="cart-item__name">{product.name}</p>
-        {product.packageInfo && (
-          <span className="cart-item__package">
-            Peso da unidade: {product.packageInfo}
-          </span>
-        )}
+        <p className="cart-item__name">{product.nome}</p>
 
         <div className="cart-item__quantity">
           <span>Quantidade</span>
@@ -59,7 +54,7 @@ export function CartItem({ item, onRemove, onQuantityChange }: CartItemProps) {
 
       {/* subtotal deste item (preço × quantidade) */}
       <p className="cart-item__price">
-        R$ <strong>{(product.price * quantity).toFixed(2).replace(".", ",")}</strong>
+        R$ <strong>{(product.preco * quantity).toFixed(2).replace(".", ",")}</strong>
       </p>
     </div>
   );

@@ -4,6 +4,8 @@ import { Header } from "../../../components/layout/Header/Header";
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
 import type { User } from "../../../types/user";
+import { formatAddress } from "../../../crud/users/userFields";
+import type { EditableUserField } from "../../../crud/users/userFields";
 import "./Profile.css";
 
 /** Abas do menu lateral da conta. */
@@ -25,11 +27,15 @@ interface Order {
 // Mock até o login estar integrado com o backend
 const MOCK_USER: User = {
   id: "user-3",
-  name: "Eduardo Oliveira",
+  nome: "Eduardo Oliveira",
   email: "eduardo.oliveira@email.com",
-  address: "Rua Sete de Setembro, 850, Lajeado - RS",
-  phone: "(51) 99876-5432",
-  document: "456.789.123-00",
+  cpf: "45678912300",
+  telefone: "(51) 99876-5432",
+  rua: "Rua Sete de Setembro",
+  numero: "850",
+  cidade: "Lajeado",
+  estado: "RS",
+  perfil: "CLIENTE",
 };
 
 // Mock até o backend ter a rota de pedidos
@@ -55,11 +61,11 @@ const SECTIONS: { id: ProfileSection; label: string }[] = [
 
 // campos do perfil: alimentam tanto a visualização (lista dt/dd) quanto o formulário
 // de edição; `type` é o type do <input>, pra o teclado/validação certos (e-mail, telefone)
-const PROFILE_FIELDS: { field: keyof User; label: string; type: string }[] = [
-  { field: "name", label: "Nome completo", type: "text" },
+const PROFILE_FIELDS: { field: EditableUserField; label: string; type: string }[] = [
+  { field: "nome", label: "Nome completo", type: "text" },
   { field: "email", label: "E-mail", type: "email" },
-  { field: "phone", label: "Telefone", type: "tel" },
-  { field: "document", label: "CPF/CNPJ", type: "text" },
+  { field: "telefone", label: "Telefone", type: "tel" },
+  { field: "cpf", label: "CPF", type: "text" },
 ];
 
 /** Formata um valor em reais no padrão brasileiro: 289.7 → "R$ 289,70". */
@@ -99,7 +105,7 @@ export function ProfilePage() {
     setDraft(null);
   }
 
-  function updateDraftField(field: keyof User, value: string) {
+  function updateDraftField(field: EditableUserField, value: string) {
     // troca só o campo alterado; sem rascunho (fora da edição), não faz nada
     setDraft((current) => (current ? { ...current, [field]: value } : current));
   }
@@ -123,7 +129,7 @@ export function ProfilePage() {
           </nav>
 
           {/* saudação só com o primeiro nome */}
-          <h1 className="profile-page__title">Olá, {user.name.split(" ")[0]}!</h1>
+          <h1 className="profile-page__title">Olá, {user.nome.split(" ")[0]}!</h1>
 
           <div className="profile-page__layout">
             <aside className="profile-page__menu">
@@ -171,7 +177,7 @@ export function ProfilePage() {
                           {label}
                           <input
                             type={type}
-                            value={draft[field]}
+                            value={draft[field] ?? ""}
                             onChange={(e) => updateDraftField(field, e.target.value)}
                             required
                           />
@@ -210,7 +216,7 @@ export function ProfilePage() {
                   </div>
                   <div className="profile-page__card">
                     <span className="profile-page__tag">Principal</span>
-                    <p>{user.address}</p>
+                    <p>{formatAddress(user) || "Nenhum endereço cadastrado."}</p>
                   </div>
                 </>
               )}

@@ -4,9 +4,11 @@ import "./SignupForm.css";
 
 /** O que o formulário entrega ao ser enviado (a confirmação de senha fica só aqui dentro). */
 export interface SignupFormData {
-  name: string;
+  nome: string;
   email: string;
-  password: string;
+  /** só dígitos, igual ao banco */
+  cpf: string;
+  senha: string;
 }
 
 interface SignupFormProps {
@@ -24,9 +26,10 @@ export function SignupForm({
   onSubmit,
   submitLabel = "Criar conta",
 }: SignupFormProps) {
-  const [name, setName] = useState("");
+  const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [senha, setSenha] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   // mensagem de erro mostrada acima do botão; null = sem erro
   const [error, setError] = useState<string | null>(null);
@@ -34,16 +37,17 @@ export function SignupForm({
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (senha !== confirmPassword) {
       setError("As senhas não conferem.");
       return;
     }
 
-    onSubmit({ name, email, password });
+    onSubmit({ nome, email, cpf, senha });
 
-    setName("");
+    setNome("");
     setEmail("");
-    setPassword("");
+    setCpf("");
+    setSenha("");
     setConfirmPassword("");
     setError(null);
   }
@@ -55,8 +59,8 @@ export function SignupForm({
         <input
           type="text"
           placeholder="Seu nome completo"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
           required
         />
       </label>
@@ -71,12 +75,26 @@ export function SignupForm({
         />
       </label>
       <label>
+        CPF
+        <input
+          type="text"
+          inputMode="numeric"
+          placeholder="Só números"
+          value={cpf}
+          // tira tudo que não é dígito, pra ficar no formato do banco (11 dígitos)
+          onChange={(e) => setCpf(e.target.value.replace(/\D/g, ""))}
+          maxLength={11}
+          minLength={11}
+          required
+        />
+      </label>
+      <label>
         Senha
         <input
           type="password"
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
           required
         />
       </label>

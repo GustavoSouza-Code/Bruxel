@@ -21,7 +21,7 @@ export function PiscinatorPage() {
 
   // TODO: recomendar produtos conforme o diagnóstico; hoje a lista é fixa (os 4 primeiros de "tratamento-agua")
   const recommendedProducts = ALL_PRODUCTS.filter(
-    (product) => product.category === "tratamento-agua"
+    (product) => product.categoria_id === "tratamento-agua"
   ).slice(0, 4);
 
   return (

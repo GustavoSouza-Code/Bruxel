@@ -1,27 +1,27 @@
-/**
- * Slugs das categorias da loja. Cada um também é o `id` da seção na página
- * Loja (o CategoryNav usa esse id pra rolar até ela).
- */
-export type ProductCategory =
-  | "tratamento-agua"
-  | "limpeza-piscina"
-  | "filtracao-circulacao"
-  | "acessorios-lazer";
+/** Categoria da loja (tabela `categories` do banco). */
+export interface Category {
+  id: string;
+  nome: string;
+}
 
-/** Produto vendido na loja. */
+/**
+ * Produto vendido na loja. Os campos têm os mesmos nomes da tabela
+ * `products` do banco, pra não precisar traduzir na hora de chamar a API.
+ */
 export interface Product {
   id: string;
-  name: string;
-  /** variação do produto; por enquanto só é preenchida no cadastro do Admin (não aparece nos cards) */
-  variant?: string;
-  /** embalagem/peso, ex.: "1L" ou "10 KG/3KG/1KG"; aparece no card e no carrinho */
-  packageInfo?: string;
-  /** descrição/características; por enquanto só é preenchida no cadastro do Admin */
-  description?: string;
+  /** id da categoria (ver CATEGORIES em crud/products/productCategories.ts) */
+  categoria_id: string;
+  /** código interno do produto; único no banco */
+  codigo: string;
+  /** nome que aparece no card; inclui a embalagem, ex.: "Hidrofloc 1L" */
+  nome: string;
+  descricao?: string;
   /** preço em reais, como número (a formatação "R$ 21,50" é feita na tela) */
-  price: number;
+  preco: number;
+  estoque: number;
   /** imagem do produto: asset importado (src/assets) ou uma URL */
-  imageUrl: string;
-  /** define em qual seção da Loja o produto aparece */
-  category?: ProductCategory;
+  url_imagem?: string;
+  /** produto inativo não deveria aparecer na loja */
+  ativo: boolean;
 }
