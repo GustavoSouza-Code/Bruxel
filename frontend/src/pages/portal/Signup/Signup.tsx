@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Header } from "../../../components/layout/Header/Header";
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
-import { SignupForm } from "../../../components/user/SignupForm/SignupForm";
+import { SignupForm } from "../../../crud/users/SignupForm/SignupForm";
 import "./Signup.css";
 
 /**
