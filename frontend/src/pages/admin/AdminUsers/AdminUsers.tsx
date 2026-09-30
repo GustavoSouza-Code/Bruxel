@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
+import { Modal } from "../../../components/ui/Modal/Modal";
+import { SignupForm } from "../../../components/user/SignupForm/SignupForm";
+import type { SignupFormData } from "../../../components/user/SignupForm/SignupForm";
 import type { User } from "../../../types/user";
 import "./AdminUsers.css";
 
@@ -42,8 +45,9 @@ const INITIAL_USERS: User[] = [
 
 /**
  * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com
- * edição inline e exclusão. A lista vive só na memória (começa com
- * INITIAL_USERS); as alterações somem ao recarregar a página.
+ * edição inline e exclusão, e um botão que abre um modal com o mesmo
+ * formulário do "/criar-conta" pra cadastrar usuários. A lista vive só na
+ * memória (começa com INITIAL_USERS); as alterações somem ao recarregar a página.
  */
 export function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>(INITIAL_USERS);
@@ -51,6 +55,24 @@ export function AdminUsersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   // cópia editável do usuário em edição; só vai pra lista ao clicar em Salvar
   const [editDraft, setEditDraft] = useState<User | null>(null);
+  // controla se o modal de "Novo usuário" está aberto
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  function createUser(data: SignupFormData) {
+    const newUser: User = {
+      // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
+      id: `user-${Date.now()}`,
+      name: data.name,
+      email: data.email,
+      // o formulário de cadastro não pede esses campos; o admin pode preencher depois em Editar
+      address: "",
+      phone: "",
+      document: "",
+    };
+    // TODO: enviar data.password ao backend (POST /api/users); o User do front não guarda senha
+    setUsers((current) => [...current, newUser]);
+    setIsCreateOpen(false);
+  }
 
   function startEdit(user: User) {
     setEditingId(user.id);
@@ -92,7 +114,15 @@ export function AdminUsersPage() {
 
       <section className="admin-users-page">
         <Container>
-          <h1 className="admin-users-page__title">Gestão de Usuários</h1>
+          <div className="admin-users-page__top">
+            <h1 className="admin-users-page__title">Gestão de Usuários</h1>
+            <button
+              className="admin-users-page__new"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              + Novo usuário
+            </button>
+          </div>
 
           {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
           <div className="admin-users-page__header-row">
@@ -159,9 +189,10 @@ export function AdminUsersPage() {
                       {/* data-label: rótulo que o CSS mostra no celular, onde não há linha de títulos */}
                       <span data-label="Nome">{user.name}</span>
                       <span data-label="E-mail">{user.email}</span>
-                      <span data-label="Endereço">{user.address}</span>
-                      <span data-label="Telefone">{user.phone}</span>
-                      <span data-label="CPF/CNPJ">{user.document}</span>
+                      {/* campos vazios (ex.: usuário recém-criado pelo modal) mostram "—" */}
+                      <span data-label="Endereço">{user.address || "—"}</span>
+                      <span data-label="Telefone">{user.phone || "—"}</span>
+                      <span data-label="CPF/CNPJ">{user.document || "—"}</span>
                       <div className="admin-users-page__actions">
                         <button
                           className="admin-users-page__edit"
@@ -188,6 +219,12 @@ export function AdminUsersPage() {
           </div>
         </Container>
       </section>
+
+      {isCreateOpen && (
+        <Modal title="Novo usuário" onClose={() => setIsCreateOpen(false)}>
+          <SignupForm submitLabel="Criar usuário" onSubmit={createUser} />
+        </Modal>
+      )}
     </>
   );
 }

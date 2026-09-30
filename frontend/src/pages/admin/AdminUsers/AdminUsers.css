@@ -2,10 +2,20 @@
   padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
 }
 
+/* título à esquerda e botão "+ Novo usuário" à direita; no celular o botão desce se não couber */
+.admin-users-page__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
 .admin-users-page__title {
   font-weight: 600;
   font-size: var(--font-size-h2);
-  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+  margin: 0;
 }
 
 /* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
@@ -58,6 +68,7 @@
   flex: 0 0 auto;
 }
 
+.admin-users-page__new,
 .admin-users-page__edit,
 .admin-users-page__save {
   background-color: var(--color-primary);
@@ -71,6 +82,7 @@
   white-space: nowrap;
 }
 
+.admin-users-page__new:hover,
 .admin-users-page__edit:hover,
 .admin-users-page__save:hover {
   background-color: var(--color-primary-dark);
