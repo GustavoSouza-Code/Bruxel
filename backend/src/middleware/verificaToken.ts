@@ -1,21 +1,27 @@
 import {NextFunction, Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
+import {UserRepository} from "../repository/userRepository";
 
-export function verificaToken(req: Request, res: Response, next: NextFunction) {
-    const cabecalho = req.headers.authorization;
-    if (!cabecalho) {
-        return res.status(401).json({mensagem: "Token não fornecido."})
+const userRepository = new UserRepository();
+
+export async function verificaToken(req: Request, res: Response, next: NextFunction) {
+    const [esquema, token] = (req.headers.authorization ?? '').split(' ');
+    if (esquema !== 'Bearer' || !token) {
+        return res.status(401).json({mensagem: "Token não fornecido."});
     }
 
-    const partes = cabecalho.split(' ');
-    const token = partes[1];
-
+    let payload: jwt.JwtPayload;
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET as string);
-        (req as any).usuario = payload;
-        next()
-    } catch(erro) {
-        return res.status(401).json({mensagem: "Token inválido ou expirado."})
+        payload = jwt.verify(token, process.env.JWT_SECRET as string) as jwt.JwtPayload;
+    } catch {
+        return res.status(401).json({mensagem: "Token inválido ou expirado."});
     }
 
+    const usuarioAtual = await userRepository.getById(String(payload.id));
+    if (!usuarioAtual) {
+        return res.status(401).json({mensagem: "Usuário não existe mais."});
+    }
+
+    (req as any).usuario = usuarioAtual;
+    next();
 }
