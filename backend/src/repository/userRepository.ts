@@ -1,9 +1,14 @@
 import {UpdateUserDTO, CreateUserDTO} from "../models/user";
 import {prisma} from '../database/prisma';
+import bcrypt from 'bcrypt';
 
 // lógica de interação com o banco de dados utilizando PrismaORM
 // CRUD completo
-import bcrypt from 'bcrypt';
+
+export const camposPublicosUsuario = {
+    id: true, nome: true, email: true, cpf: true, telefone: true, rua: true, numero: true,
+    bairro: true, cidade: true, estado: true, cep: true, perfil: true, criado_em: true, atualizado_em: true
+} as const;
 
 export class UserRepository {
 
@@ -13,29 +18,15 @@ export class UserRepository {
             data: {
                 ...user,
                 senha: senhaHash
-            }
+            },
+            select: camposPublicosUsuario
         });
     }
 
     async getAll() {
         try {
             const users = await prisma.users.findMany({
-                select: {
-                    id: true,
-                    nome: true,
-                    email: true,
-                    cpf: true,
-                    telefone: true,
-                    rua: true,
-                    numero: true,
-                    bairro: true,
-                    cidade: true,
-                    estado: true,
-                    cep: true,
-                    perfil: true,
-                    criado_em: true,
-                    atualizado_em: true
-                }
+                select: camposPublicosUsuario
             });
             return users;
         } catch (error) {
@@ -50,22 +41,7 @@ export class UserRepository {
                 where: {
                     id: id,
                 },
-                select: {
-                    id: true,
-                    nome: true,
-                    email: true,
-                    cpf: true,
-                    telefone: true,
-                    rua: true,
-                    numero: true,
-                    bairro: true,
-                    cidade: true,
-                    estado: true,
-                    cep: true,
-                    perfil: true,
-                    criado_em: true,
-                    atualizado_em: true
-                }
+                select: camposPublicosUsuario
             })
             return users;
         } catch (error) {
@@ -115,22 +91,7 @@ export class UserRepository {
             const updateUser = await prisma.users.update({
                 where: { id: id },
                 data: dadosParaAtualizar,
-                select: {
-                    id: true,
-                    nome: true,
-                    email: true,
-                    cpf: true,
-                    telefone: true,
-                    rua: true,
-                    numero: true,
-                    bairro: true,
-                    cidade: true,
-                    estado: true,
-                    cep: true,
-                    perfil: true,
-                    criado_em: true,
-                    atualizado_em: true
-                }
+                select: camposPublicosUsuario
             });
             return updateUser;
         } catch (error) {
@@ -144,7 +105,8 @@ export class UserRepository {
             const deleteUser = await prisma.users.delete({
                 where: {
                     id: id,
-                }
+                },
+                select: camposPublicosUsuario
             });
             return deleteUser;
         } catch (error) {
