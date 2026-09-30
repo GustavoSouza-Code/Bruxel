@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import userRoutes from '../routes/userRoutes';
 import productsRoutes from '../routes/productsRoutes';
+import authRoutes from "../routes/authRoutes";
 
 // arquivo server, necessário para inicializar o back-end
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use('/api', userRoutes);
 app.use('/api', productsRoutes);
+app.use('/api', authRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
