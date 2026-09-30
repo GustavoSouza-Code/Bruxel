@@ -1,5 +1,5 @@
 import {CreateProductDTO, UpdateProductDTO} from "../models/products";
-import {productsRepository} from "../repository/productsRepository";
+import {ProductsRepository} from "../repository/productsRepository";
 import {validarCamposObrigatorios, regraValidacao} from "../utils/validaObrigatorios";
 
 // array de regras
@@ -13,7 +13,7 @@ const regrasCriarProduto: regraValidacao[] = [
 // camada service de produtos, com regras de negócio e validações necessárias
 
 export class ProductsService {
-    private productsRepository = new productsRepository();
+    private productsRepository = new ProductsRepository();
 
     async create(product: CreateProductDTO) {
 

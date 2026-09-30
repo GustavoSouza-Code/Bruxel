@@ -4,7 +4,7 @@ import { prisma } from '../database/prisma';
 // lógica de interação com o banco de dados utilizando PrismaORM
 // CRUD completo
 
-export class productsRepository {
+export class ProductsRepository {
 
     async create(product: CreateProductDTO) {
         return prisma.products.create({

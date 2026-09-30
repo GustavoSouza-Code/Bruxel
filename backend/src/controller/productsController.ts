@@ -5,7 +5,7 @@ import {ProductsService} from "../service/productsService";
 export class ProductsController {
     private productsService = new ProductsService();
 
-    async create(req: Request, res: Response) {
+    create = async (req: Request, res: Response) => {
         const product = req.body;
         try {
             const result = await this.productsService.create(product);
@@ -20,7 +20,7 @@ export class ProductsController {
         }
     }
 
-    async getAll(req: Request, res: Response) {
+    getAll = async (req: Request, res: Response) => {
         try {
             const result = await this.productsService.getAll();
             return res.status(200).json(result);
@@ -29,7 +29,7 @@ export class ProductsController {
         }
     }
 
-    async getById(req: Request, res: Response) {
+    getById = async (req: Request, res: Response) => {
         try {
             const id = req.params.id as string;
             const result = await this.productsService.getById(id);
@@ -39,7 +39,7 @@ export class ProductsController {
         }
     }
 
-    async update(req: Request, res: Response) {
+    update = async (req: Request, res: Response) => {
         try {
             const id = req.params.id as string;
             const data = req.body;
@@ -50,7 +50,7 @@ export class ProductsController {
         }
     }
 
-    async delete(req: Request, res: Response) {
+    delete = async (req: Request, res: Response) => {
         try {
             const id = String(req.params.id);
             const result = await this.productsService.delete(id);

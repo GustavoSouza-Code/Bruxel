@@ -3,18 +3,40 @@ import {prisma} from '../database/prisma';
 
 // lógica de interação com o banco de dados utilizando PrismaORM
 // CRUD completo
+import bcrypt from 'bcrypt';
 
 export class UserRepository {
 
     async create(user: CreateUserDTO) {
+        const senhaHash = await bcrypt.hash(user.senha, 10);
         return prisma.users.create({
-            data: user
+            data: {
+                ...user,
+                senha: senhaHash
+            }
         });
     }
 
     async getAll() {
         try {
-            const users = await prisma.users.findMany();
+            const users = await prisma.users.findMany({
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cpf: true,
+                    telefone: true,
+                    rua: true,
+                    numero: true,
+                    bairro: true,
+                    cidade: true,
+                    estado: true,
+                    cep: true,
+                    perfil: true,
+                    criado_em: true,
+                    atualizado_em: true
+                }
+            });
             return users;
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
@@ -27,6 +49,22 @@ export class UserRepository {
             const users = await prisma.users.findUnique({
                 where: {
                     id: id,
+                },
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cpf: true,
+                    telefone: true,
+                    rua: true,
+                    numero: true,
+                    bairro: true,
+                    cidade: true,
+                    estado: true,
+                    cep: true,
+                    perfil: true,
+                    criado_em: true,
+                    atualizado_em: true
                 }
             })
             return users;
@@ -68,11 +106,31 @@ export class UserRepository {
 
     async update(id: string, data: UpdateUserDTO) {
         try {
+            const dadosParaAtualizar = { ...data };
+
+            if (dadosParaAtualizar.senha) {
+                dadosParaAtualizar.senha = await bcrypt.hash(dadosParaAtualizar.senha, 10);
+            }
+
             const updateUser = await prisma.users.update({
-                where: {
-                    id: id,
-                },
-                data: data
+                where: { id: id },
+                data: dadosParaAtualizar,
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    cpf: true,
+                    telefone: true,
+                    rua: true,
+                    numero: true,
+                    bairro: true,
+                    cidade: true,
+                    estado: true,
+                    cep: true,
+                    perfil: true,
+                    criado_em: true,
+                    atualizado_em: true
+                }
             });
             return updateUser;
         } catch (error) {
