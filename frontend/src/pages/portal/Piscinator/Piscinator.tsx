@@ -4,7 +4,7 @@ import { PiscinatorIntro } from "./components/PiscinatorIntro/PiscinatorIntro";
 import { PiscinatorQuiz } from "./components/PiscinatorQuiz/PiscinatorQuiz";
 import { PiscinatorResult } from "./components/PiscinatorResult/PiscinatorResult";
 import { Footer } from "../../../components/layout/Footer/Footer";
-import { ALL_PRODUCTS } from "../../../data/products";
+import { TODOS_PRODUTOS } from "../../../data/produtos";
 
 /** Etapa atual do fluxo: apresentação → perguntas → diagnóstico. */
 type Step = "intro" | "quiz" | "result";
@@ -20,7 +20,7 @@ export function PiscinatorPage() {
   const [answers, setAnswers] = useState<boolean[]>([]);
 
   // TODO: recomendar produtos conforme o diagnóstico; hoje a lista é fixa (os 4 primeiros de "tratamento-agua")
-  const recommendedProducts = ALL_PRODUCTS.filter(
+  const recommendedProducts = TODOS_PRODUTOS.filter(
     (product) => product.categoria_id === "tratamento-agua"
   ).slice(0, 4);
 

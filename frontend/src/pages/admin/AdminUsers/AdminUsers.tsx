@@ -2,36 +2,36 @@ import { useState } from "react";
 import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
 import { Modal } from "../../../components/ui/Modal/Modal";
-import { SignupForm } from "../../../crud/users/SignupForm/SignupForm";
-import type { SignupFormData } from "../../../crud/users/SignupForm/SignupForm";
-import { useUsers } from "../../../crud/users/useUsers";
-import { ADDRESS_FIELDS, formatAddress } from "../../../crud/users/userFields";
-import type { EditableUserField } from "../../../crud/users/userFields";
-import type { User } from "../../../types/user";
+import { FormularioCadastro } from "../../../crud/usuarios/FormularioCadastro/FormularioCadastro";
+import type { DadosFormularioCadastro } from "../../../crud/usuarios/FormularioCadastro/FormularioCadastro";
+import { useUsuarios } from "../../../crud/usuarios/useUsuarios";
+import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
+import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
+import type { Usuario } from "../../../types/usuario";
 import "./AdminUsers.css";
 
 /**
  * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com
  * edição inline e exclusão, e um botão que abre um modal com o mesmo
  * formulário do "/criar-conta" pra cadastrar usuários. A lista e as
- * operações de criar/editar/excluir vêm do useUsers (src/crud/users);
+ * operações de criar/editar/excluir vêm do useUsuarios (src/crud/usuarios);
  * esta página só cuida da tela.
  */
 export function AdminUsersPage() {
-  const { users, createUser, updateUser, deleteUser } = useUsers();
+  const { usuarios, criarUsuario, atualizarUsuario, excluirUsuario } = useUsuarios();
   // id do usuário cuja linha está em edição; null = ninguém (só uma linha por vez)
   const [editingId, setEditingId] = useState<string | null>(null);
   // cópia editável do usuário em edição; só vai pra lista ao clicar em Salvar
-  const [editDraft, setEditDraft] = useState<User | null>(null);
+  const [editDraft, setEditDraft] = useState<Usuario | null>(null);
   // controla se o modal de "Novo usuário" está aberto
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  function handleCreate(data: SignupFormData) {
-    createUser(data);
+  function handleCreate(data: DadosFormularioCadastro) {
+    criarUsuario(data);
     setIsCreateOpen(false);
   }
 
-  function startEdit(user: User) {
+  function startEdit(user: Usuario) {
     setEditingId(user.id);
     setEditDraft({ ...user });
   }
@@ -43,15 +43,15 @@ export function AdminUsersPage() {
 
   function saveEdit() {
     if (!editDraft) return;
-    updateUser(editDraft);
+    atualizarUsuario(editDraft);
     setEditingId(null);
     setEditDraft(null);
   }
 
-  function handleDelete(user: User) {
+  function handleDelete(user: Usuario) {
     // pede confirmação antes de excluir (a ação não tem desfazer)
     if (!window.confirm(`Excluir o usuário ${user.nome}?`)) return;
-    deleteUser(user.id);
+    excluirUsuario(user.id);
     // se a linha excluída estava em edição, encerra a edição
     if (editingId === user.id) {
       setEditingId(null);
@@ -59,7 +59,7 @@ export function AdminUsersPage() {
     }
   }
 
-  function updateDraftField(field: EditableUserField, value: string) {
+  function updateDraftField(field: CampoEditavelUsuario, value: string) {
     setEditDraft((current) => (current ? { ...current, [field]: value } : current));
   }
 
@@ -90,7 +90,7 @@ export function AdminUsersPage() {
           </div>
 
           <div className="admin-users-page__list">
-            {users.map((user) => {
+            {usuarios.map((user) => {
               // só a linha do usuário em edição vira inputs; as outras continuam em modo leitura
               const isEditing = editingId === user.id;
               const draft = isEditing ? editDraft : null;
@@ -111,11 +111,11 @@ export function AdminUsersPage() {
                       />
                       {/* o endereço tem uma coluna por campo no banco, então vira um grupo de inputs */}
                       <div className="admin-users-page__address-edit">
-                        {ADDRESS_FIELDS.map(({ field, label }) => (
+                        {CAMPOS_ENDERECO.map(({ campo, label }) => (
                           <input
-                            key={field}
-                            value={draft[field] ?? ""}
-                            onChange={(e) => updateDraftField(field, e.target.value)}
+                            key={campo}
+                            value={draft[campo] ?? ""}
+                            onChange={(e) => updateDraftField(campo, e.target.value)}
                             placeholder={label}
                             aria-label={label}
                           />
@@ -153,7 +153,7 @@ export function AdminUsersPage() {
                       <span data-label="Nome">{user.nome}</span>
                       <span data-label="E-mail">{user.email}</span>
                       {/* campos vazios (ex.: usuário recém-criado pelo modal) mostram "—" */}
-                      <span data-label="Endereço">{formatAddress(user) || "—"}</span>
+                      <span data-label="Endereço">{formatarEndereco(user) || "—"}</span>
                       <span data-label="Telefone">{user.telefone || "—"}</span>
                       <span data-label="CPF">{user.cpf || "—"}</span>
                       <div className="admin-users-page__actions">
@@ -176,7 +176,7 @@ export function AdminUsersPage() {
               );
             })}
 
-            {users.length === 0 && (
+            {usuarios.length === 0 && (
               <p className="admin-users-page__empty">Nenhum usuário cadastrado.</p>
             )}
           </div>
@@ -185,7 +185,7 @@ export function AdminUsersPage() {
 
       {isCreateOpen && (
         <Modal title="Novo usuário" onClose={() => setIsCreateOpen(false)}>
-          <SignupForm submitLabel="Criar usuário" onSubmit={handleCreate} />
+          <FormularioCadastro textoBotao="Criar usuário" onSubmit={handleCreate} />
         </Modal>
       )}
     </>

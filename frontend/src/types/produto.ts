@@ -1,5 +1,5 @@
 /** Categoria da loja (tabela `categories` do banco). */
-export interface Category {
+export interface Categoria {
   id: string;
   nome: string;
 }
@@ -8,9 +8,9 @@ export interface Category {
  * Produto vendido na loja. Os campos têm os mesmos nomes da tabela
  * `products` do banco, pra não precisar traduzir na hora de chamar a API.
  */
-export interface Product {
+export interface Produto {
   id: string;
-  /** id da categoria (ver CATEGORIES em crud/products/productCategories.ts) */
+  /** id da categoria (ver CATEGORIAS em crud/produtos/categorias.ts) */
   categoria_id: string;
   /** código interno do produto; único no banco */
   codigo: string;

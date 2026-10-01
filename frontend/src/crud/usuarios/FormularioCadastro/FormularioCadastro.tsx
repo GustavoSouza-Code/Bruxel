@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import "./SignupForm.css";
+import "./FormularioCadastro.css";
 
 /** O que o formulário entrega ao ser enviado (a confirmação de senha fica só aqui dentro). */
-export interface SignupFormData {
+export interface DadosFormularioCadastro {
   nome: string;
   email: string;
   /** só dígitos, igual ao banco */
@@ -11,10 +11,10 @@ export interface SignupFormData {
   senha: string;
 }
 
-interface SignupFormProps {
-  onSubmit: (data: SignupFormData) => void;
+interface FormularioCadastroProps {
+  onSubmit: (dados: DadosFormularioCadastro) => void;
   /** texto do botão de enviar; padrão "Criar conta" */
-  submitLabel?: string;
+  textoBotao?: string;
 }
 
 /**
@@ -22,23 +22,23 @@ interface SignupFormProps {
  * "Novo usuário" do painel admin. Confere se as duas senhas são iguais antes
  * de chamar onSubmit e limpa os campos depois de enviar.
  */
-export function SignupForm({
+export function FormularioCadastro({
   onSubmit,
-  submitLabel = "Criar conta",
-}: SignupFormProps) {
+  textoBotao = "Criar conta",
+}: FormularioCadastroProps) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   // mensagem de erro mostrada acima do botão; null = sem erro
-  const [error, setError] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent) {
+  function enviar(event: FormEvent) {
     event.preventDefault();
 
-    if (senha !== confirmPassword) {
-      setError("As senhas não conferem.");
+    if (senha !== confirmarSenha) {
+      setErro("As senhas não conferem.");
       return;
     }
 
@@ -48,12 +48,12 @@ export function SignupForm({
     setEmail("");
     setCpf("");
     setSenha("");
-    setConfirmPassword("");
-    setError(null);
+    setConfirmarSenha("");
+    setErro(null);
   }
 
   return (
-    <form className="signup-form" onSubmit={handleSubmit}>
+    <form className="signup-form" onSubmit={enviar}>
       <label>
         Nome completo
         <input
@@ -103,23 +103,23 @@ export function SignupForm({
         <input
           type="password"
           placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={confirmarSenha}
+          onChange={(e) => setConfirmarSenha(e.target.value)}
           required
         />
       </label>
 
-      {error && (
+      {erro && (
         <p className="signup-form__error" role="alert">
-          {error}
+          {erro}
         </p>
       )}
 
       <button type="submit" className="signup-form__submit">
-        {submitLabel}
+        {textoBotao}
       </button>
     </form>
   );
 }
 
-export default SignupForm;
+export default FormularioCadastro;

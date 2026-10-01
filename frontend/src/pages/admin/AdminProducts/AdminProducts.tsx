@@ -1,39 +1,39 @@
 import { useState } from "react";
 import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
-import type { Product } from "../../../types/product";
-import { useProducts } from "../../../crud/products/useProducts";
-import { getCategoryName } from "../../../crud/products/productCategories";
-import { ProductForm } from "../../../crud/products/ProductForm/ProductForm";
-import type { ProductFormData } from "../../../crud/products/ProductForm/ProductForm";
+import type { Produto } from "../../../types/produto";
+import { useProdutos } from "../../../crud/produtos/useProdutos";
+import { nomeDaCategoria } from "../../../crud/produtos/categorias";
+import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
+import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import "./AdminProducts.css";
 
 /**
  * Gestão de produtos do painel admin (rota "/admin/produtos"): o formulário
- * de cadastro/edição (ProductForm) e a lista de produtos abaixo dele. A
- * lista e as operações de criar/editar/excluir vêm do useProducts
- * (src/crud/products); esta página só cuida da tela.
+ * de cadastro/edição (FormularioProduto) e a lista de produtos abaixo dele. A
+ * lista e as operações de criar/editar/excluir vêm do useProdutos
+ * (src/crud/produtos); esta página só cuida da tela.
  */
 export function AdminProductsPage() {
-  const { products, createProduct, updateProduct, deleteProduct } = useProducts();
+  const { produtos, criarProduto, atualizarProduto, excluirProduto } = useProdutos();
   // id do produto em edição; null = o formulário está cadastrando um produto novo
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const editingProduct = products.find((p) => p.id === editingId) ?? null;
+  const editingProduct = produtos.find((p) => p.id === editingId) ?? null;
 
-  function handleSubmit(data: ProductFormData) {
+  function handleSubmit(data: DadosFormularioProduto) {
     // mesmo formulário pros dois casos: editando, substitui o produto (mantém o id); senão, cria um novo
     if (editingId) {
-      updateProduct(editingId, data);
+      atualizarProduto(editingId, data);
     } else {
-      createProduct(data);
+      criarProduto(data);
     }
     setEditingId(null);
   }
 
-  function handleDelete(product: Product) {
+  function handleDelete(product: Produto) {
     if (!window.confirm(`Excluir o produto "${product.nome}"?`)) return;
-    deleteProduct(product.id);
+    excluirProduto(product.id);
     // se o produto excluído estava no formulário, volta o formulário pro cadastro
     if (editingId === product.id) setEditingId(null);
   }
@@ -48,9 +48,9 @@ export function AdminProductsPage() {
 
           {/* a key muda quando o produto em edição muda: o React descarta o formulário
               antigo e cria outro, já com os dados do novo produto (ou em branco) */}
-          <ProductForm
+          <FormularioProduto
             key={editingId ?? "novo"}
-            product={editingProduct}
+            produto={editingProduct}
             onSubmit={handleSubmit}
             onCancel={() => setEditingId(null)}
           />
@@ -65,9 +65,9 @@ export function AdminProductsPage() {
           </div>
 
           <div className="admin-products-page__list">
-            {products.map((product) => {
+            {produtos.map((product) => {
               // converte o categoria_id no nome legível mostrado na lista
-              const categoryLabel = getCategoryName(product.categoria_id);
+              const categoryLabel = nomeDaCategoria(product.categoria_id);
 
               return (
                 <div key={product.id} className="admin-products-page__row">
@@ -106,7 +106,7 @@ export function AdminProductsPage() {
               );
             })}
 
-            {products.length === 0 && (
+            {produtos.length === 0 && (
               <p className="admin-products-page__empty">
                 Nenhum produto cadastrado.
               </p>

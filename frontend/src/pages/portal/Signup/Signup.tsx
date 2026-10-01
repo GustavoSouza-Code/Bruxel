@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 import { Header } from "../../../components/layout/Header/Header";
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
-import { SignupForm } from "../../../crud/users/SignupForm/SignupForm";
+import { FormularioCadastro } from "../../../crud/usuarios/FormularioCadastro/FormularioCadastro";
 import "./Signup.css";
 
 /**
  * Tela de cadastro (rota "/criar-conta"). Por enquanto é só a interface: o
- * SignupForm valida as senhas, mas nada é enviado ao backend.
+ * FormularioCadastro valida as senhas, mas nada é enviado ao backend.
  */
 export function SignupPage() {
   return (
@@ -22,7 +22,7 @@ export function SignupPage() {
           </h1>
 
           {/* TODO: integrar com o backend (POST /api/users) */}
-          <SignupForm onSubmit={() => {}} />
+          <FormularioCadastro onSubmit={() => {}} />
 
           <p className="signup-page__login-link">
             Já tem uma conta? <Link to="/entrar">Entrar</Link>

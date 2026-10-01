@@ -1,9 +1,9 @@
-import type { Product } from "../../../types/product";
+import type { Produto } from "../../../types/produto";
 import { useCart } from "../../../context/CartContext";
 import "./ProductCard.css";
 
 interface ProductCardProps {
-  product: Product;
+  product: Produto;
   /** chamada ao clicar no ♡; opcional e ainda não usada por nenhuma página (o botão não faz nada por enquanto) */
   onToggleFavorite?: (productId: string) => void;
 }

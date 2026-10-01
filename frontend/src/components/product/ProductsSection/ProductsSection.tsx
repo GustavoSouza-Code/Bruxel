@@ -1,4 +1,4 @@
-import type { Product } from "../../../types/product";
+import type { Produto } from "../../../types/produto";
 import { ProductCard } from "../ProductCard/ProductCard";
 import { Container } from "../../layout/Container/Container";
 import "./ProductsSection.css";
@@ -8,7 +8,7 @@ interface ProductsSectionProps {
   id?: string;
   /** título da seção (padrão: "Produtos mais vendidos") */
   title?: string;
-  products: Product[];
+  products: Produto[];
   /** se informado, mostra o botão "Acessar loja virtual" ao lado do título */
   onSeeStore?: () => void;
 }

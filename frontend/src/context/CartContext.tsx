@@ -1,10 +1,10 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { Product } from "../types/product";
+import type { Produto } from "../types/produto";
 
 /** Uma linha do carrinho: o produto e quantas unidades dele foram adicionadas. */
 export interface CartItem {
-  product: Product;
+  product: Produto;
   quantity: number;
 }
 
@@ -17,7 +17,7 @@ interface CartContextValue {
   /** valor total em reais (preço × quantidade de cada item) */
   total: number;
   /** adiciona 1 unidade; se o produto já está no carrinho, só aumenta a quantidade */
-  addItem: (product: Product) => void;
+  addItem: (product: Produto) => void;
   /** tira o produto do carrinho, qualquer que seja a quantidade */
   removeItem: (productId: string) => void;
   /** define a quantidade exata; abaixo de 1 o item é removido */
@@ -37,7 +37,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  function addItem(product: Product) {
+  function addItem(product: Produto) {
     // a forma com função (current) garante partir sempre do valor mais recente do estado
     setItems((current) => {
       const existing = current.find(

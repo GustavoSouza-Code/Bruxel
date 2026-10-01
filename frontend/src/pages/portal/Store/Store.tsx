@@ -4,8 +4,8 @@ import { StoreHero } from "./components/StoreHero/StoreHero";
 import { CategoryNav } from "./components/CategoryNav/CategoryNav";
 import { ProductsSection } from "../../../components/product/ProductsSection/ProductsSection";
 import { Footer } from "../../../components/layout/Footer/Footer";
-import { ALL_PRODUCTS } from "../../../data/products";
-import { CATEGORIES } from "../../../crud/products/productCategories";
+import { TODOS_PRODUTOS } from "../../../data/produtos";
+import { CATEGORIAS } from "../../../crud/produtos/categorias";
 
 /**
  * Loja virtual (rota "/loja"): busca por nome no topo, atalhos de categoria
@@ -18,8 +18,8 @@ export function StorePage() {
   // busca por nome, sem diferenciar maiúsculas de minúsculas; campo vazio mostra tudo
   const filteredProducts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return ALL_PRODUCTS;
-    return ALL_PRODUCTS.filter((product) =>
+    if (!term) return TODOS_PRODUTOS;
+    return TODOS_PRODUTOS.filter((product) =>
       product.nome.toLowerCase().includes(term)
     );
   }, [searchTerm]);
@@ -30,14 +30,14 @@ export function StorePage() {
       <StoreHero searchTerm={searchTerm} onSearchChange={setSearchTerm} />
       <CategoryNav />
 
-      {/* destaques: os 4 primeiros do resultado (ALL_PRODUCTS começa pelos FEATURED_PRODUCTS) */}
+      {/* destaques: os 4 primeiros do resultado (TODOS_PRODUTOS começa pelos PRODUTOS_DESTAQUE) */}
       <ProductsSection
         title="Produtos mais vendidos"
         products={filteredProducts.slice(0, 4)}
       />
 
       {/* uma seção por categoria; o id vira a âncora do CategoryNav */}
-      {CATEGORIES.map((category) => {
+      {CATEGORIAS.map((category) => {
         const products = filteredProducts.filter(
           (product) => product.categoria_id === category.id
         );

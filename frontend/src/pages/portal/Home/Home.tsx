@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "../../../components/layout/Header/Header";
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { ProductsSection } from "../../../components/product/ProductsSection/ProductsSection";
-import { FEATURED_PRODUCTS } from "../../../data/products";
+import { PRODUTOS_DESTAQUE } from "../../../data/produtos";
 import { Hero } from "./components/Hero/Hero";
 import { Faq } from "./components/Faq/Faq";
 import { Testimonials } from "./components/Testimonials/Testimonials";
@@ -20,7 +20,7 @@ export function PortalHome() {
         <Hero />
         {/* passar onSeeStore faz o botão "Acessar loja virtual" aparecer e levar pra Loja */}
         <ProductsSection
-          products={FEATURED_PRODUCTS}
+          products={PRODUTOS_DESTAQUE}
           onSeeStore={() => navigate("/loja")}
         />
         <Faq />

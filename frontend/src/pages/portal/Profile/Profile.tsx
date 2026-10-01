@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { Header } from "../../../components/layout/Header/Header";
 import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
-import type { User } from "../../../types/user";
-import { formatAddress } from "../../../crud/users/userFields";
-import type { EditableUserField } from "../../../crud/users/userFields";
+import type { Usuario } from "../../../types/usuario";
+import { formatarEndereco } from "../../../crud/usuarios/camposUsuario";
+import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import "./Profile.css";
 
 /** Abas do menu lateral da conta. */
@@ -25,8 +25,8 @@ interface Order {
 }
 
 // Mock até o login estar integrado com o backend
-const MOCK_USER: User = {
-  id: "user-3",
+const MOCK_USER: Usuario = {
+  id: "usuario-3",
   nome: "Eduardo Oliveira",
   email: "eduardo.oliveira@email.com",
   cpf: "45678912300",
@@ -61,7 +61,7 @@ const SECTIONS: { id: ProfileSection; label: string }[] = [
 
 // campos do perfil: alimentam tanto a visualização (lista dt/dd) quanto o formulário
 // de edição; `type` é o type do <input>, pra o teclado/validação certos (e-mail, telefone)
-const PROFILE_FIELDS: { field: EditableUserField; label: string; type: string }[] = [
+const PROFILE_FIELDS: { field: CampoEditavelUsuario; label: string; type: string }[] = [
   { field: "nome", label: "Nome completo", type: "text" },
   { field: "email", label: "E-mail", type: "email" },
   { field: "telefone", label: "Telefone", type: "tel" },
@@ -82,12 +82,12 @@ function formatPrice(value: number) {
  */
 export function ProfilePage() {
   // dados salvos do usuário (o que aparece na tela)
-  const [user, setUser] = useState<User>(MOCK_USER);
+  const [user, setUser] = useState<Usuario>(MOCK_USER);
   // aba selecionada no menu lateral
   const [activeSection, setActiveSection] = useState<ProfileSection>("perfil");
   // rascunho da edição: cópia de `user` que o formulário altera; null = fora do modo de
   // edição. Só vira `user` ao salvar; cancelar apenas descarta o rascunho
-  const [draft, setDraft] = useState<User | null>(null);
+  const [draft, setDraft] = useState<Usuario | null>(null);
 
   function startEdit() {
     // copia pra o formulário editar sem mexer nos dados salvos até clicar em Salvar
@@ -105,7 +105,7 @@ export function ProfilePage() {
     setDraft(null);
   }
 
-  function updateDraftField(field: EditableUserField, value: string) {
+  function updateDraftField(field: CampoEditavelUsuario, value: string) {
     // troca só o campo alterado; sem rascunho (fora da edição), não faz nada
     setDraft((current) => (current ? { ...current, [field]: value } : current));
   }
@@ -216,7 +216,7 @@ export function ProfilePage() {
                   </div>
                   <div className="profile-page__card">
                     <span className="profile-page__tag">Principal</span>
-                    <p>{formatAddress(user) || "Nenhum endereço cadastrado."}</p>
+                    <p>{formatarEndereco(user) || "Nenhum endereço cadastrado."}</p>
                   </div>
                 </>
               )}

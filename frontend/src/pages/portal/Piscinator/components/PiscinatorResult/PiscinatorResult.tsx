@@ -1,4 +1,4 @@
-import type { Product } from "../../../../../types/product";
+import type { Produto } from "../../../../../types/produto";
 import { Container } from "../../../../../components/layout/Container/Container";
 import { ProductCard } from "../../../../../components/product/ProductCard/ProductCard";
 import "./PiscinatorResult.css";
@@ -7,7 +7,7 @@ interface PiscinatorResultProps {
   /** respostas do quiz (true = "Sim"); cada "Sim" vale 1 ponto no diagnóstico */
   answers: boolean[];
   /** produtos recomendados, mostrados abaixo do diagnóstico */
-  products: Product[];
+  products: Produto[];
   /** chamada ao clicar em "Refazer diagnóstico" */
   onRestart: () => void;
 }

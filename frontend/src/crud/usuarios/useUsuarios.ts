@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { User } from "../../types/user";
-import type { SignupFormData } from "./SignupForm/SignupForm";
+import type { Usuario } from "../../types/usuario";
+import type { DadosFormularioCadastro } from "./FormularioCadastro/FormularioCadastro";
 
 // Mock até o backend ter a rota de usuários pronta
-const INITIAL_USERS: User[] = [
+const USUARIOS_INICIAIS: Usuario[] = [
   {
-    id: "user-1",
+    id: "usuario-1",
     nome: "Marcos Bruxel",
     email: "marcos@bruxelpiscinas.com",
     cpf: "12345678900",
@@ -17,7 +17,7 @@ const INITIAL_USERS: User[] = [
     perfil: "ADMINISTRADOR",
   },
   {
-    id: "user-2",
+    id: "usuario-2",
     nome: "Ana Paula Martins",
     email: "ana.paula@email.com",
     cpf: "98765432100",
@@ -29,7 +29,7 @@ const INITIAL_USERS: User[] = [
     perfil: "CLIENTE",
   },
   {
-    id: "user-3",
+    id: "usuario-3",
     nome: "Eduardo Oliveira",
     email: "eduardo.oliveira@email.com",
     cpf: "45678912300",
@@ -41,7 +41,7 @@ const INITIAL_USERS: User[] = [
     perfil: "CLIENTE",
   },
   {
-    id: "user-4",
+    id: "usuario-4",
     nome: "Luciana Hass",
     email: "luciana.hass@email.com",
     cpf: "32165498700",
@@ -57,36 +57,36 @@ const INITIAL_USERS: User[] = [
 /**
  * CRUD de usuários: guarda a lista e é o único lugar que a altera. As telas
  * só chamam essas funções. A lista vive só na memória (começa com
- * INITIAL_USERS); quando o backend for integrado, as chamadas à API entram
+ * USUARIOS_INICIAIS); quando o backend for integrado, as chamadas à API entram
  * aqui dentro sem precisar mexer nas páginas.
  */
-export function useUsers() {
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+export function useUsuarios() {
+  const [usuarios, setUsuarios] = useState<Usuario[]>(USUARIOS_INICIAIS);
 
-  function createUser(data: SignupFormData) {
-    const newUser: User = {
+  function criarUsuario(dados: DadosFormularioCadastro) {
+    const novoUsuario: Usuario = {
       // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
-      id: `user-${Date.now()}`,
-      nome: data.nome,
-      email: data.email,
-      cpf: data.cpf,
+      id: `usuario-${Date.now()}`,
+      nome: dados.nome,
+      email: dados.email,
+      cpf: dados.cpf,
       // o banco já cria todo usuário como CLIENTE; o endereço o admin preenche depois em Editar
       perfil: "CLIENTE",
     };
-    // TODO: enviar data.senha ao backend (POST /api/users); o User do front não guarda senha
-    setUsers((current) => [...current, newUser]);
+    // TODO: enviar dados.senha ao backend (POST /api/users); o Usuario do front não guarda senha
+    setUsuarios((atuais) => [...atuais, novoUsuario]);
   }
 
   // substitui o usuário que tem o mesmo id pela versão editada
-  function updateUser(updated: User) {
-    setUsers((current) =>
-      current.map((user) => (user.id === updated.id ? updated : user))
+  function atualizarUsuario(atualizado: Usuario) {
+    setUsuarios((atuais) =>
+      atuais.map((usuario) => (usuario.id === atualizado.id ? atualizado : usuario))
     );
   }
 
-  function deleteUser(id: string) {
-    setUsers((current) => current.filter((user) => user.id !== id));
+  function excluirUsuario(id: string) {
+    setUsuarios((atuais) => atuais.filter((usuario) => usuario.id !== id));
   }
 
-  return { users, createUser, updateUser, deleteUser };
+  return { usuarios, criarUsuario, atualizarUsuario, excluirUsuario };
 }

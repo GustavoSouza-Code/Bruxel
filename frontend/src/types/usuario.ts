@@ -2,7 +2,7 @@
  * Dados de um usuário da Bruxel. Os campos têm os mesmos nomes da tabela
  * `users` do banco. A senha não fica aqui: o front só a envia no cadastro/login.
  */
-export interface User {
+export interface Usuario {
   id: string;
   nome: string;
   email: string;
