@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Produto } from "../../types/produto";
-import { TODOS_PRODUTOS } from "../../data/produtos";
+import type { Produto } from "../../tipos/produto";
+import { TODOS_PRODUTOS } from "../../dados/produtos";
 import type { DadosFormularioProduto } from "./FormularioProduto/FormularioProduto";
 
 /**

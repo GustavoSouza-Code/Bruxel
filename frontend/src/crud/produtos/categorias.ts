@@ -1,7 +1,7 @@
-import type { Categoria } from "../../types/produto";
+import type { Categoria } from "../../tipos/produto";
 
 // categorias da loja, na ordem em que aparecem; o id também vira a âncora da
-// seção na Loja (o CategoryNav rola até ela)
+// seção na Loja (o NavCategorias rola até ela)
 // TODO: trocar pelos dados do backend (tabela categories); lá os ids são UUIDs
 export const CATEGORIAS: Categoria[] = [
   { id: "tratamento-agua", nome: "Tratamento da água" },

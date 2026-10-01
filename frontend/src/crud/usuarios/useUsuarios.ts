@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Usuario } from "../../types/usuario";
+import type { Usuario } from "../../tipos/usuario";
 import type { DadosFormularioCadastro } from "./FormularioCadastro/FormularioCadastro";
 
 // Mock até o backend ter a rota de usuários pronta

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import type { Produto } from "../../../types/produto";
+import type { Produto } from "../../../tipos/produto";
 import { CATEGORIAS } from "../categorias";
 import "./FormularioProduto.css";
 
@@ -10,9 +10,9 @@ export type DadosFormularioProduto = Omit<Produto, "id">;
 interface FormularioProdutoProps {
   /** produto em edição; null = o formulário está cadastrando um produto novo */
   produto: Produto | null;
-  onSubmit: (dados: DadosFormularioProduto) => void;
+  onEnviar: (dados: DadosFormularioProduto) => void;
   /** chamado pelo botão "Cancelar edição" (só aparece editando) */
-  onCancel: () => void;
+  onCancelar: () => void;
 }
 
 // formulário em branco; a categoria começa na primeira pra o <select> nunca ficar sem valor
@@ -47,7 +47,7 @@ function paraDadosFormulario(produto: Produto): DadosFormularioProduto {
  * branco); pra trocar o produto em edição, a página muda a `key` do
  * componente, e o React cria um formulário novo.
  */
-export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioProdutoProps) {
+export function FormularioProduto({ produto, onEnviar, onCancelar }: FormularioProdutoProps) {
   const editando = produto !== null;
   // a função inicial só roda quando o componente é criado
   const [formulario, setFormulario] = useState<DadosFormularioProduto>(() =>
@@ -64,13 +64,13 @@ export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioPro
 
   function enviar(event: FormEvent) {
     event.preventDefault();
-    onSubmit(formulario);
+    onEnviar(formulario);
     // no cadastro, limpa os campos pro próximo produto (na edição a página troca a key e recria o form)
     if (!editando) setFormulario(FORMULARIO_VAZIO);
   }
 
   return (
-    <form className="product-form" onSubmit={enviar}>
+    <form className="formulario-produto" onSubmit={enviar}>
       <label>
         Nome
         <input
@@ -130,7 +130,7 @@ export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioPro
         />
       </label>
 
-      <label className="product-form__checkbox">
+      <label className="formulario-produto__checkbox">
         <input
           type="checkbox"
           checked={formulario.ativo}
@@ -139,7 +139,7 @@ export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioPro
         Ativo na loja
       </label>
 
-      <label className="product-form__field--full">
+      <label className="formulario-produto__campo--inteiro">
         Descrição/Características
         <textarea
           value={formulario.descricao}
@@ -148,7 +148,7 @@ export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioPro
         />
       </label>
 
-      <label className="product-form__field--full">
+      <label className="formulario-produto__campo--inteiro">
         URL da imagem
         <input
           type="text"
@@ -158,15 +158,15 @@ export function FormularioProduto({ produto, onSubmit, onCancel }: FormularioPro
         />
       </label>
 
-      <div className="product-form__actions">
-        <button type="submit" className="product-form__submit">
+      <div className="formulario-produto__acoes">
+        <button type="submit" className="formulario-produto__enviar">
           {editando ? "Salvar alterações" : "Adicionar produto"}
         </button>
         {editando && (
           <button
             type="button"
-            className="product-form__cancel"
-            onClick={onCancel}
+            className="formulario-produto__cancelar"
+            onClick={onCancelar}
           >
             Cancelar edição
           </button>

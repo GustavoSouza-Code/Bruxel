@@ -1,0 +1,32 @@
+.pagina-cadastro {
+  padding: clamp(2rem, 1.5rem + 2vw, 3.5rem) 0 var(--space-section);
+}
+
+/* coluna estreita e centralizada pro formulário */
+.pagina-cadastro__interno {
+  max-width: 480px;
+  text-align: center;
+}
+
+.pagina-cadastro__mensagem {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0 0 2rem;
+}
+
+/* "Já tem uma conta? Entrar", no fim do formulário */
+.pagina-cadastro__link-login {
+  margin: 1.5rem 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.pagina-cadastro__link-login a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pagina-cadastro__link-login a:hover {
+  text-decoration: underline;
+}

@@ -12,7 +12,7 @@ export interface DadosFormularioCadastro {
 }
 
 interface FormularioCadastroProps {
-  onSubmit: (dados: DadosFormularioCadastro) => void;
+  onEnviar: (dados: DadosFormularioCadastro) => void;
   /** texto do botão de enviar; padrão "Criar conta" */
   textoBotao?: string;
 }
@@ -20,10 +20,10 @@ interface FormularioCadastroProps {
 /**
  * Formulário de cadastro de usuário, usado no "/criar-conta" e no modal de
  * "Novo usuário" do painel admin. Confere se as duas senhas são iguais antes
- * de chamar onSubmit e limpa os campos depois de enviar.
+ * de chamar onEnviar e limpa os campos depois de enviar.
  */
 export function FormularioCadastro({
-  onSubmit,
+  onEnviar,
   textoBotao = "Criar conta",
 }: FormularioCadastroProps) {
   const [nome, setNome] = useState("");
@@ -42,7 +42,7 @@ export function FormularioCadastro({
       return;
     }
 
-    onSubmit({ nome, email, cpf, senha });
+    onEnviar({ nome, email, cpf, senha });
 
     setNome("");
     setEmail("");
@@ -53,7 +53,7 @@ export function FormularioCadastro({
   }
 
   return (
-    <form className="signup-form" onSubmit={enviar}>
+    <form className="formulario-cadastro" onSubmit={enviar}>
       <label>
         Nome completo
         <input
@@ -110,12 +110,12 @@ export function FormularioCadastro({
       </label>
 
       {erro && (
-        <p className="signup-form__error" role="alert">
+        <p className="formulario-cadastro__erro" role="alert">
           {erro}
         </p>
       )}
 
-      <button type="submit" className="signup-form__submit">
+      <button type="submit" className="formulario-cadastro__enviar">
         {textoBotao}
       </button>
     </form>

@@ -1,4 +1,4 @@
-import type { Usuario } from "../../types/usuario";
+import type { Usuario } from "../../tipos/usuario";
 
 /** Campos de texto que as telas deixam editar (id e perfil ficam de fora). */
 export type CampoEditavelUsuario = Exclude<keyof Usuario, "id" | "perfil">;

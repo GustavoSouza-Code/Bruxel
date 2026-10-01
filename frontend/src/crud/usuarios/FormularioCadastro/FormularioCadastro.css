@@ -1,11 +1,11 @@
-.signup-form {
+.formulario-cadastro {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   text-align: left;
 }
 
-.signup-form label {
+.formulario-cadastro label {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -14,7 +14,7 @@
   color: var(--color-text);
 }
 
-.signup-form input {
+.formulario-cadastro input {
   border: 1px solid var(--color-border-soft);
   border-radius: 10px;
   padding: 0.8rem 1rem;
@@ -23,19 +23,19 @@
 }
 
 /* contorno visível no foco, pra quem navega pelo teclado */
-.signup-form input:focus {
+.formulario-cadastro input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-.signup-form__error {
+.formulario-cadastro__erro {
   margin: 0;
   color: #c0392b;
   font-size: var(--font-size-small);
   font-weight: 600;
 }
 
-.signup-form__submit {
+.formulario-cadastro__enviar {
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
@@ -47,6 +47,6 @@
   margin-top: 0.5rem;
 }
 
-.signup-form__submit:hover {
+.formulario-cadastro__enviar:hover {
   background-color: var(--color-primary-dark);
 }
