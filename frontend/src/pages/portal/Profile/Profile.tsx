@@ -6,12 +6,16 @@ import { Container } from "../../../components/layout/Container/Container";
 import type { User } from "../../../types/user";
 import "./Profile.css";
 
+/** Abas do menu lateral da conta. */
 type ProfileSection = "perfil" | "enderecos" | "compras";
 
+/** Situação de um pedido; também vira o sufixo da classe CSS profile-page__status--… */
 type OrderStatus = "entregue" | "a-caminho" | "cancelado";
 
+/** Pedido do histórico de compras. */
 interface Order {
   id: string;
+  /** data já formatada (dd/mm/aaaa) */
   date: string;
   itemCount: number;
   total: number;
@@ -28,24 +32,29 @@ const MOCK_USER: User = {
   document: "456.789.123-00",
 };
 
+// Mock até o backend ter a rota de pedidos
 const MOCK_ORDERS: Order[] = [
   { id: "10482", date: "12/09/2026", itemCount: 3, total: 289.7, status: "a-caminho" },
   { id: "10231", date: "28/07/2026", itemCount: 1, total: 159.9, status: "entregue" },
   { id: "09877", date: "03/05/2026", itemCount: 2, total: 74.8, status: "cancelado" },
 ];
 
+// texto amigável de cada status, mostrado na etiqueta do pedido
 const STATUS_LABELS: Record<OrderStatus, string> = {
   entregue: "Entregue",
   "a-caminho": "A caminho",
   cancelado: "Cancelado",
 };
 
+// itens do menu lateral, na ordem em que aparecem
 const SECTIONS: { id: ProfileSection; label: string }[] = [
   { id: "perfil", label: "Informações do perfil" },
   { id: "enderecos", label: "Endereços" },
   { id: "compras", label: "Compras" },
 ];
 
+// campos do perfil: alimentam tanto a visualização (lista dt/dd) quanto o formulário
+// de edição; `type` é o type do <input>, pra o teclado/validação certos (e-mail, telefone)
 const PROFILE_FIELDS: { field: keyof User; label: string; type: string }[] = [
   { field: "name", label: "Nome completo", type: "text" },
   { field: "email", label: "E-mail", type: "email" },
@@ -53,16 +62,29 @@ const PROFILE_FIELDS: { field: keyof User; label: string; type: string }[] = [
   { field: "document", label: "CPF/CNPJ", type: "text" },
 ];
 
+/** Formata um valor em reais no padrão brasileiro: 289.7 → "R$ 289,70". */
 function formatPrice(value: number) {
   return `R$ ${value.toFixed(2).replace(".", ",")}`;
 }
 
+/**
+ * Área "Minha conta" (rota "/perfil"): menu lateral com três abas — dados do
+ * perfil (com edição), endereços e histórico de compras.
+ *
+ * Por enquanto usa dados de exemplo (MOCK_USER e MOCK_ORDERS); as alterações
+ * feitas na edição valem só até recarregar a página.
+ */
 export function ProfilePage() {
+  // dados salvos do usuário (o que aparece na tela)
   const [user, setUser] = useState<User>(MOCK_USER);
+  // aba selecionada no menu lateral
   const [activeSection, setActiveSection] = useState<ProfileSection>("perfil");
+  // rascunho da edição: cópia de `user` que o formulário altera; null = fora do modo de
+  // edição. Só vira `user` ao salvar; cancelar apenas descarta o rascunho
   const [draft, setDraft] = useState<User | null>(null);
 
   function startEdit() {
+    // copia pra o formulário editar sem mexer nos dados salvos até clicar em Salvar
     setDraft({ ...user });
   }
 
@@ -78,10 +100,12 @@ export function ProfilePage() {
   }
 
   function updateDraftField(field: keyof User, value: string) {
+    // troca só o campo alterado; sem rascunho (fora da edição), não faz nada
     setDraft((current) => (current ? { ...current, [field]: value } : current));
   }
 
   function changeSection(section: ProfileSection) {
+    // trocar de aba descarta uma edição em andamento
     setActiveSection(section);
     setDraft(null);
   }
@@ -98,6 +122,7 @@ export function ProfilePage() {
             <span>Minha conta</span>
           </nav>
 
+          {/* saudação só com o primeiro nome */}
           <h1 className="profile-page__title">Olá, {user.name.split(" ")[0]}!</h1>
 
           <div className="profile-page__layout">
@@ -114,16 +139,19 @@ export function ProfilePage() {
                   {section.label}
                 </button>
               ))}
+              {/* TODO: "Sair" só leva pra tela de login; ainda não existe sessão pra encerrar */}
               <Link to="/entrar" className="profile-page__logout">
                 Sair
               </Link>
             </aside>
 
             <div className="profile-page__content">
+              {/* só a aba selecionada é renderizada */}
               {activeSection === "perfil" && (
                 <>
                   <div className="profile-page__content-header">
                     <h2>Informações do perfil</h2>
+                    {/* o botão Editar só aparece fora do modo de edição */}
                     {!draft && (
                       <button
                         type="button"
@@ -135,6 +163,7 @@ export function ProfilePage() {
                     )}
                   </div>
 
+                  {/* com rascunho: formulário de edição; sem rascunho: só leitura */}
                   {draft ? (
                     <form className="profile-page__form" onSubmit={saveEdit}>
                       {PROFILE_FIELDS.map(({ field, label, type }) => (

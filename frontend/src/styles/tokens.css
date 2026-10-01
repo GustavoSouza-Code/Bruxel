@@ -4,13 +4,13 @@
   --color-primary-dark: #191d56; /* tom mais escuro usado em variações */
   --color-accent: #448dd0; /* secondary/800 — botões de ação (CTA, Entrar) */
   --color-accent-light: #99e0fa; /* secondary/300 — fundo do balão de fala do Hero */
-  --color-store-button: #dcdcff;
-  --color-wave: #7b84e0;
+  --color-store-button: #dcdcff; /* fundo dos botões de destaque claros (ex.: "Acessar loja virtual") */
+  --color-wave: #7b84e0; /* ondas decorativas do Hero */
 
   --color-text: #000000;
-  --color-text-muted: #737373;
-  --color-border: #0a0d4d;
-  --color-border-soft: rgba(10, 13, 77, 0.15);
+  --color-text-muted: #737373; /* textos secundários (embalagem, legendas) */
+  --color-border: #0a0d4d; /* borda forte, na cor do azul principal */
+  --color-border-soft: rgba(10, 13, 77, 0.15); /* borda discreta de cards, listas e divisórias */
   --color-white: #ffffff;
 
   /* Layout */
@@ -33,5 +33,6 @@
   --font-size-body: clamp(1rem, 0.94rem + 0.2vw, 1.1rem);
   --font-size-small: clamp(0.85rem, 0.8rem + 0.15vw, 0.95rem);
 
+  /* espaço vertical (padding) entre seções da página */
   --space-section: clamp(2.5rem, 2rem + 2vw, 4.5rem);
 }

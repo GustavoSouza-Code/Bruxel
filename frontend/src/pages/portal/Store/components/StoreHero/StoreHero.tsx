@@ -2,10 +2,16 @@ import { Container } from "../../../../../components/layout/Container/Container"
 import "./StoreHero.css";
 
 interface StoreHeroProps {
+  /** texto atual da busca (o estado mora na StorePage) */
   searchTerm: string;
+  /** chamada a cada tecla digitada, com o novo texto */
   onSearchChange: (value: string) => void;
 }
 
+/**
+ * Faixa azul do topo da Loja: título e campo de busca. É um componente
+ * controlado — o valor do input vem da StorePage, que também filtra os produtos.
+ */
 export function StoreHero({ searchTerm, onSearchChange }: StoreHeroProps) {
   return (
     <section className="store-hero">

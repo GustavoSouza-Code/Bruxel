@@ -1,44 +1,62 @@
-import { Request, Response } from "express";
-import { UserService } from "../service/userService";
+import {Request, Response} from "express";
+import {UserService} from "../service/userService";
 
+// controller de usuários, cuida da parte de requisições e respostas HTTP
 export class UserController {
-  private userService = new UserService();
+    private userService = new UserService();
 
-  async create(req: Request, res: Response) {
-    const user = req.body;
+    create = async (req: Request, res: Response) => {
+        const user = req.body;
+        try {
+            const result = await this.userService.create(user);
+            return res.status(201).json(result);
+        } catch (error: any) {
+            try {
+                const errosValidacao = JSON.parse(error.message);
+                return res.status(400).json({erros: errosValidacao});
+            } catch {
+                return res.status(500).json({mensagem: error.message || "Erro interno do servidor."});
+            }
+        }
+    }
 
-    const result = await this.userService.create(user);
+    getAll = async (req: Request, res: Response)=> {
+        try {
+            const result = await this.userService.getAll();
+            return res.status(200).json(result);
+        } catch (error: any) {
+            return res.status(500).json({mensagem: error.message || "Erro ao buscar usuários."});
+        }
+    }
 
-    return res.status(201).json(result);
-  }
+    getById = async (req: Request, res: Response)=> {
+        try {
+            const id = req.params.id as string;
+            const result = await this.userService.getById(id);
+            return res.status(200).json(result);
+        } catch (error: any) {
+            return res.status(404).json({mensagem: "Usuário não encontrado."});
+        }
+    }
 
-  async getAll(req: Request, res: Response) {
-    const result = await this.userService.getAll();
+    update = async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id as string;
+            const data = req.body;
+            const result = await this.userService.update(id, data);
+            return res.status(200).json(result);
+        } catch (error: any) {
+            return res.status(400).json({mensagem: "Erro ao atualizar usuário."});
+        }
+    }
 
-    return res.status(200).json(result);
-  }
-
-  async getById(req: Request, res: Response) {
-    const id = req.params.id as string;
-
-    const result = await this.userService.getById(id);
-
-    return res.status(200).json(result);
-  }
-
-  async update(req: Request, res: Response) {
-    const id = req.params.id as string;
-    const data = req.body;
-
-    const result = await this.userService.update(id, data);
-
-    return res.status(200).json(result);
-  }
-
-  async delete(req: Request, res: Response) {
-    const id = String(req.params.id);
-    const result = await this.userService.delete(id);
-
-    return res.status(200).json(result);
-  }
+    delete = async (req: Request, res: Response) => {
+        try {
+            const id = String(req.params.id);
+            const result = await this.userService.delete(id);
+            return res.status(200).json(result);
+        } catch (error: any) {
+            return res.status(400).json({mensagem: "Erro ao deletar usuário."});
+        }
+    }
 }

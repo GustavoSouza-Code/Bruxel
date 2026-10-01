@@ -1,3 +1,4 @@
+/* Barra do painel (mais escura que o Header do site, pra diferenciar) */
 .admin-nav {
   display: flex;
   align-items: center;
@@ -11,7 +12,7 @@
 .admin-nav__title {
   font-weight: 700;
   font-size: var(--font-size-body);
-  margin-right: auto;
+  margin-right: auto; /* empurra os links e o "Voltar ao site" pra direita */
   white-space: nowrap;
 }
 
@@ -35,6 +36,7 @@
   text-decoration: underline;
 }
 
+/* linha à esquerda separa "Voltar ao site" dos atalhos do painel */
 .admin-nav__back {
   border-left: 1px solid rgba(255, 255, 255, 0.3);
   padding-left: 1rem;

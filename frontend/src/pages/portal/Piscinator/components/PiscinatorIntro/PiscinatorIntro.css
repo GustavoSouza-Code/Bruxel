@@ -1,7 +1,7 @@
 .piscinator-intro {
   background-color: #153673;
   color: var(--color-white);
-  border-radius: 0 0 50% 50% / 0 0 40px 40px;
+  border-radius: 0 0 50% 50% / 0 0 40px 40px; /* base curva (mesma ideia do Hero e do StoreHero) */
   overflow: hidden;
 }
 

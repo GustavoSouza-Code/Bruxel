@@ -4,6 +4,7 @@ import { Footer } from "../../../components/layout/Footer/Footer";
 import { Container } from "../../../components/layout/Container/Container";
 import "./Login.css";
 
+// vitrine do que a conta oferece, exibida abaixo do formulário (ainda não são links)
 const ACCOUNT_FEATURES = [
   {
     id: "perfil",
@@ -41,6 +42,10 @@ const ACCOUNT_FEATURES = [
   },
 ];
 
+/**
+ * Tela de login (rota "/entrar"). Por enquanto é só a interface: o envio do
+ * formulário é bloqueado (preventDefault) e nada é enviado ao backend.
+ */
 export function LoginPage() {
   return (
     <>
@@ -52,6 +57,7 @@ export function LoginPage() {
             Olá! Você precisa realizar o login para entrar no seu perfil
           </h1>
 
+          {/* TODO: integrar com o backend (login); hoje o botão "Entrar" não faz nada */}
           <form
             className="login-page__form"
             onSubmit={(event) => event.preventDefault()}

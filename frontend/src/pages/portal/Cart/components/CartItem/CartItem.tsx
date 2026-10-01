@@ -3,10 +3,17 @@ import "./CartItem.css";
 
 interface CartItemProps {
   item: CartItemType;
+  /** remove o produto do carrinho de vez */
   onRemove: (productId: string) => void;
+  /** define a nova quantidade; o carrinho remove o item se ela ficar abaixo de 1 */
   onQuantityChange: (productId: string, quantity: number) => void;
 }
 
+/**
+ * Uma linha do carrinho: imagem, nome, controle de quantidade e o subtotal
+ * (preço × quantidade). O tipo do item é importado como CartItemType pra não
+ * conflitar com o nome deste componente.
+ */
 export function CartItem({ item, onRemove, onQuantityChange }: CartItemProps) {
   const { product, quantity } = item;
 
@@ -50,6 +57,7 @@ export function CartItem({ item, onRemove, onQuantityChange }: CartItemProps) {
         </div>
       </div>
 
+      {/* subtotal deste item (preço × quantidade) */}
       <p className="cart-item__price">
         R$ <strong>{(product.price * quantity).toFixed(2).replace(".", ",")}</strong>
       </p>

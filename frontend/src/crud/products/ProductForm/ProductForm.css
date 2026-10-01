@@ -1,0 +1,90 @@
+/* Formulário de cadastro/edição: grade de 3 colunas (1 no celular) */
+.product-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+.product-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* campo que ocupa a linha inteira da grade */
+.product-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.product-form input,
+.product-form select,
+.product-form textarea {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+}
+
+.product-form input:focus,
+.product-form select:focus,
+.product-form textarea:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.product-form textarea {
+  resize: vertical;
+}
+
+.product-form__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+}
+
+.product-form__submit {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.product-form__submit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.product-form__cancel {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.product-form__cancel:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Celular e tablet: formulário em 1 coluna */
+@media (max-width: 899px) {
+  .product-form {
+    grid-template-columns: 1fr;
+  }
+}

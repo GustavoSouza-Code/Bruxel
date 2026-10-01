@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Container } from "../../../../../components/layout/Container/Container";
 import "./Faq.css";
 
+/** Uma pergunta do FAQ; o id identifica qual item está aberto. */
 interface FaqItem {
   id: string;
   question: string;
   answer: string;
 }
 
+// perguntas frequentes da Bruxel; as respostas ainda são placeholders ("TODO: resposta.")
 const FAQ_ITEMS: FaqItem[] = [
   {
     id: "piscina-verde",
@@ -31,10 +33,16 @@ const FAQ_ITEMS: FaqItem[] = [
   },
 ];
 
+/**
+ * Lista de perguntas frequentes em formato de acordeão: clicar numa pergunta
+ * abre a resposta, e abrir outra fecha a anterior (só uma fica aberta).
+ */
 export function Faq() {
+  // id do item aberto; null = todos fechados
   const [openId, setOpenId] = useState<string | null>(null);
 
   function toggle(id: string) {
+    // clicar no item aberto fecha; clicar em outro troca o aberto
     setOpenId((current) => (current === id ? null : id));
   }
 

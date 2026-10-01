@@ -6,6 +6,7 @@
   overflow: hidden;
 }
 
+/* placeholder em degradê até termos a foto real (ver TODO em AboutHero.tsx); inset: 0 cobre o hero inteiro */
 .about-hero__image {
   position: absolute;
   inset: 0;
@@ -16,6 +17,7 @@
   );
 }
 
+/* película escura semitransparente por cima da imagem */
 .about-hero__overlay {
   position: absolute;
   inset: 0;
@@ -26,6 +28,7 @@
   );
 }
 
+/* position + z-index colocam o texto na frente da imagem e da película */
 .about-hero__content {
   position: relative;
   z-index: 1;

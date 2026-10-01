@@ -1,72 +1,80 @@
-import { UserRole, User, CreateUserDTO, UpdateUserDTO } from "../models/user";
-import { UserRepository } from "../repository/userRepository";
+import {CreateUserDTO, UpdateUserDTO} from "../models/user";
+import {UserRepository} from "../repository/userRepository";
+import {validarCamposObrigatorios, regraValidacao} from "../utils/validaObrigatorios";
+import {AppError} from "../errors/AppError";
+
+// array de regras
+const regrasCriarUser: regraValidacao[] = [
+    {campo: 'nome', mensagem: 'O nome é obrigatório. '},
+    {campo: 'email', mensagem: 'O E-mail é obrigatório.'},
+    {campo: 'senha', mensagem: 'A senha é obrigatória.'},
+    {campo: 'cpf', mensagem: 'O CPF é obrigatório.'},
+]
+
+// camada service de usuários, com regras de negócio e validações necessárias
 
 export class UserService {
-  private userRepository = new UserRepository();
+    private userRepository = new UserRepository();
 
-  async create(user: CreateUserDTO) {
-    const name = user.name;
-    const email = user.email;
-    const password = user.password;
+    async create(user: CreateUserDTO) {
+        const validacao = validarCamposObrigatorios(user ?? {}, regrasCriarUser);
 
-    // Debug
-    console.log("Dados Recebidos em userService.create:");
+        if (validacao.length > 0) {
+            throw new AppError(400, "Dados inválidos.", validacao);
+        }
 
-    // Validadores
-    if (!name) {
-      console.log("Nome não informado");
-      throw new Error("O nome é obrigatório");
+        const dados: CreateUserDTO = {
+            nome: String(user.nome).trim(),
+            email: String(user.email).trim().toLowerCase(),
+            senha: String(user.senha),
+            cpf: String(user.cpf).replace(/\D/g, ""),
+        };
+
+        if (dados.cpf.length !== 11) {
+            throw new AppError(400, "O CPF deve ter 11 dígitos.");
+        }
+
+        const cpfJaExiste = await this.userRepository.getByCPF(dados.cpf);
+        if (cpfJaExiste) {
+            throw new AppError(409, "Um usuário com esse CPF já existe.");
+        }
+
+        const emailJaExiste = await this.userRepository.getByEmail(dados.email);
+        if (emailJaExiste) {
+            throw new AppError(409, "Um usuário com esse E-mail já existe.");
+        }
+
+        return await this.userRepository.create(dados);
     }
 
-    if (!email) {
-      console.log("Email não informado");
-      throw new Error("O email é obrigatório");
+    async getAll() {
+        return await this.userRepository.getAll();
     }
 
-    if (!password) {
-      console.log("Senha não informado");
-      throw new Error("A senha é obrigatória");
+    async getById(id: string) {
+        const usuario = await this.userRepository.getById(id);
+        if (!usuario) {
+            throw new AppError(404, "Usuário não encontrado");
+        }
+        return usuario;
     }
 
-    // Debug
-    console.log("Nome:", name);
-    console.log("Email:", email);
-    console.log("Senha:", password);
+    async update(id: string, data: UpdateUserDTO) {
+        await this.getById(id);
 
-    // apenas para teste
-    const newUser: User = {
-      id: "1",
-      name,
-      email,
-      password,
-      role: UserRole.USER,
-    };
+        const permitidos = ["nome", "email", "senha", "telefone", "rua", "numero", "bairro", "cidade", "estado", "cep"] as const;
+        const dados: Record<string, unknown> = {};
+        for (const campo of permitidos) {
+            const valor = (data as Record<string, unknown>)[campo];
+            if (valor !== undefined) dados[campo] = valor;
+        }
+        if (typeof dados.email === "string") dados.email = dados.email.trim().toLowerCase();
 
-    console.log("Usuário criado com sucesso:", newUser);
+        return await this.userRepository.update(id, dados as UpdateUserDTO);
+    }
 
-    await this.userRepository.create(newUser);
-  }
-
-  async getAll() {
-    // Debug
-    console.log("Busca de usuarios - GetAll");
-    return await this.userRepository.getAll();
-  }
-
-  async getById(id: string) {
-    console.log("Buscando usuário", id);
-    return await this.userRepository.getById(id);
-  }
-
-  async update(id: string, data: UpdateUserDTO) {
-    // Debug
-    console.log("Atualizando usuario", id, data);
-    return await this.userRepository.update(id, data);
-  }
-
-  async delete(id: string) {
-    // Debug
-    console.log("Deletando usuario", id);
-    return await this.userRepository.delete(id);
-  }
+    async delete(id: string) {
+        await this.getById(id);
+        return await this.userRepository.delete(id);
+    }
 }

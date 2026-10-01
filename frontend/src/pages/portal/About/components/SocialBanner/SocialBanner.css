@@ -17,6 +17,7 @@
   gap: clamp(1rem, 0.8rem + 1vw, 1.5rem);
 }
 
+/* card 4:5 (formato de post do Instagram); position: relative + overflow: hidden seguram imagem, degradê e legenda */
 .social-banner__card {
   position: relative;
   display: block;
@@ -26,6 +27,7 @@
   text-decoration: none;
 }
 
+/* placeholder em degradê até termos a foto real */
 .social-banner__image {
   position: absolute;
   inset: 0;
@@ -36,6 +38,7 @@
   );
 }
 
+/* degradê escuro de baixo pra cima, pra a legenda branca ficar legível sobre qualquer foto */
 .social-banner__card::after {
   content: "";
   position: absolute;
@@ -43,6 +46,7 @@
   background: linear-gradient(180deg, rgba(6, 9, 47, 0) 40%, rgba(6, 9, 47, 0.85) 100%);
 }
 
+/* legenda colada na base, na frente do degradê (z-index: 1) */
 .social-banner__caption {
   position: absolute;
   left: 0;
@@ -64,12 +68,14 @@
   margin-bottom: 0.15rem;
 }
 
+/* 2 colunas */
 @media (max-width: 900px) {
   .social-banner__grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* 1 coluna */
 @media (max-width: 480px) {
   .social-banner__grid {
     grid-template-columns: 1fr;

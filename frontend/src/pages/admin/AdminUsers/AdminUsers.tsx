@@ -1,48 +1,33 @@
 import { useState } from "react";
 import { AdminNav } from "../../../components/layout/AdminNav/AdminNav";
 import { Container } from "../../../components/layout/Container/Container";
+import { Modal } from "../../../components/ui/Modal/Modal";
+import { SignupForm } from "../../../crud/users/SignupForm/SignupForm";
+import type { SignupFormData } from "../../../crud/users/SignupForm/SignupForm";
+import { useUsers } from "../../../crud/users/useUsers";
 import type { User } from "../../../types/user";
 import "./AdminUsers.css";
 
-const INITIAL_USERS: User[] = [
-  {
-    id: "user-1",
-    name: "Marcos Bruxel",
-    email: "marcos@bruxelpiscinas.com",
-    address: "Av. Benjamim Constant, 2361, Lajeado - RS",
-    phone: "(51) 99307-8577",
-    document: "123.456.789-00",
-  },
-  {
-    id: "user-2",
-    name: "Ana Paula Martins",
-    email: "ana.paula@email.com",
-    address: "Rua das Flores, 120, Lajeado - RS",
-    phone: "(51) 99123-4567",
-    document: "987.654.321-00",
-  },
-  {
-    id: "user-3",
-    name: "Eduardo Oliveira",
-    email: "eduardo.oliveira@email.com",
-    address: "Rua Sete de Setembro, 850, Lajeado - RS",
-    phone: "(51) 99876-5432",
-    document: "456.789.123-00",
-  },
-  {
-    id: "user-4",
-    name: "Luciana Hass",
-    email: "luciana.hass@email.com",
-    address: "Av. Presidente Vargas, 45, Lajeado - RS",
-    phone: "(51) 99555-2211",
-    document: "321.654.987-00",
-  },
-];
-
+/**
+ * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com
+ * edição inline e exclusão, e um botão que abre um modal com o mesmo
+ * formulário do "/criar-conta" pra cadastrar usuários. A lista e as
+ * operações de criar/editar/excluir vêm do useUsers (src/crud/users);
+ * esta página só cuida da tela.
+ */
 export function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+  const { users, createUser, updateUser, deleteUser } = useUsers();
+  // id do usuário cuja linha está em edição; null = ninguém (só uma linha por vez)
   const [editingId, setEditingId] = useState<string | null>(null);
+  // cópia editável do usuário em edição; só vai pra lista ao clicar em Salvar
   const [editDraft, setEditDraft] = useState<User | null>(null);
+  // controla se o modal de "Novo usuário" está aberto
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  function handleCreate(data: SignupFormData) {
+    createUser(data);
+    setIsCreateOpen(false);
+  }
 
   function startEdit(user: User) {
     setEditingId(user.id);
@@ -56,16 +41,16 @@ export function AdminUsersPage() {
 
   function saveEdit() {
     if (!editDraft) return;
-    setUsers((current) =>
-      current.map((user) => (user.id === editDraft.id ? editDraft : user))
-    );
+    updateUser(editDraft);
     setEditingId(null);
     setEditDraft(null);
   }
 
-  function deleteUser(user: User) {
+  function handleDelete(user: User) {
+    // pede confirmação antes de excluir (a ação não tem desfazer)
     if (!window.confirm(`Excluir o usuário ${user.name}?`)) return;
-    setUsers((current) => current.filter((u) => u.id !== user.id));
+    deleteUser(user.id);
+    // se a linha excluída estava em edição, encerra a edição
     if (editingId === user.id) {
       setEditingId(null);
       setEditDraft(null);
@@ -82,8 +67,17 @@ export function AdminUsersPage() {
 
       <section className="admin-users-page">
         <Container>
-          <h1 className="admin-users-page__title">Gestão de Usuários</h1>
+          <div className="admin-users-page__top">
+            <h1 className="admin-users-page__title">Gestão de Usuários</h1>
+            <button
+              className="admin-users-page__new"
+              onClick={() => setIsCreateOpen(true)}
+            >
+              + Novo usuário
+            </button>
+          </div>
 
+          {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
           <div className="admin-users-page__header-row">
             <span>Nome</span>
             <span>E-mail</span>
@@ -95,6 +89,7 @@ export function AdminUsersPage() {
 
           <div className="admin-users-page__list">
             {users.map((user) => {
+              // só a linha do usuário em edição vira inputs; as outras continuam em modo leitura
               const isEditing = editingId === user.id;
               const draft = isEditing ? editDraft : null;
 
@@ -144,11 +139,13 @@ export function AdminUsersPage() {
                     </>
                   ) : (
                     <>
+                      {/* data-label: rótulo que o CSS mostra no celular, onde não há linha de títulos */}
                       <span data-label="Nome">{user.name}</span>
                       <span data-label="E-mail">{user.email}</span>
-                      <span data-label="Endereço">{user.address}</span>
-                      <span data-label="Telefone">{user.phone}</span>
-                      <span data-label="CPF/CNPJ">{user.document}</span>
+                      {/* campos vazios (ex.: usuário recém-criado pelo modal) mostram "—" */}
+                      <span data-label="Endereço">{user.address || "—"}</span>
+                      <span data-label="Telefone">{user.phone || "—"}</span>
+                      <span data-label="CPF/CNPJ">{user.document || "—"}</span>
                       <div className="admin-users-page__actions">
                         <button
                           className="admin-users-page__edit"
@@ -158,7 +155,7 @@ export function AdminUsersPage() {
                         </button>
                         <button
                           className="admin-users-page__delete"
-                          onClick={() => deleteUser(user)}
+                          onClick={() => handleDelete(user)}
                         >
                           Excluir
                         </button>
@@ -175,6 +172,12 @@ export function AdminUsersPage() {
           </div>
         </Container>
       </section>
+
+      {isCreateOpen && (
+        <Modal title="Novo usuário" onClose={() => setIsCreateOpen(false)}>
+          <SignupForm submitLabel="Criar usuário" onSubmit={handleCreate} />
+        </Modal>
+      )}
     </>
   );
 }
