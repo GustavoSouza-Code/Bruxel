@@ -6,7 +6,7 @@ import { useProdutos } from "../../../crud/produtos/useProdutos";
 import { nomeDaCategoria } from "../../../crud/produtos/categorias";
 import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
-import "./AdminProdutos.css";
+import "./produtos.css";
 
 /**
  * Gestão de produtos do painel admin (rota "/admin/produtos"): o formulário

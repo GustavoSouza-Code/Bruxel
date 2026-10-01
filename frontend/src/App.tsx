@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
-import { PaginaInicio } from "./paginas/portal/Inicio/Inicio";
-import { PaginaSobre } from "./paginas/portal/Sobre/Sobre";
-import { PaginaLoja } from "./paginas/portal/Loja/Loja";
-import { PaginaPiscinator } from "./paginas/portal/Piscinator/Piscinator";
-import { PaginaCarrinho } from "./paginas/portal/Carrinho/Carrinho";
-import { PaginaLogin } from "./paginas/portal/Login/Login";
-import { PaginaCadastro } from "./paginas/portal/Cadastro/Cadastro";
-import { PaginaPerfil } from "./paginas/portal/Perfil/Perfil";
-import { PaginaAdminUsuarios } from "./paginas/admin/AdminUsuarios/AdminUsuarios";
-import { PaginaAdminProdutos } from "./paginas/admin/AdminProdutos/AdminProdutos";
+import { PaginaInicio } from "./paginas/portal/inicio/inicio";
+import { PaginaSobre } from "./paginas/portal/sobre/sobre";
+import { PaginaLoja } from "./paginas/portal/loja/loja";
+import { PaginaPiscinator } from "./paginas/portal/piscinator/piscinator";
+import { PaginaCarrinho } from "./paginas/portal/carrinho/carrinho";
+import { PaginaEntrar } from "./paginas/portal/entrar/entrar";
+import { PaginaCriarConta } from "./paginas/portal/criar-conta/criar-conta";
+import { PaginaPerfil } from "./paginas/portal/perfil/perfil";
+import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
+import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
 
 /**
  * Raiz da aplicação: define as rotas do site.
@@ -30,8 +30,8 @@ function App() {
           <Route path="/loja" element={<PaginaLoja />} />
           <Route path="/piscinator" element={<PaginaPiscinator />} />
           <Route path="/carrinho" element={<PaginaCarrinho />} />
-          <Route path="/entrar" element={<PaginaLogin />} />
-          <Route path="/criar-conta" element={<PaginaCadastro />} />
+          <Route path="/entrar" element={<PaginaEntrar />} />
+          <Route path="/criar-conta" element={<PaginaCriarConta />} />
           <Route path="/perfil" element={<PaginaPerfil />} />
           {/* painel de gestão (usa o NavAdmin no lugar do Cabecalho) */}
           {/* TODO: proteger as rotas /admin/* — hoje qualquer pessoa consegue acessar */}

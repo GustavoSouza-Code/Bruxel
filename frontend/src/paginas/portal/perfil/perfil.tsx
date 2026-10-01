@@ -6,7 +6,7 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import type { Usuario } from "../../../tipos/usuario";
 import { formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
-import "./Perfil.css";
+import "./perfil.css";
 
 /** Abas do menu lateral da conta. */
 type ProfileSection = "perfil" | "enderecos" | "compras";

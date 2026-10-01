@@ -8,7 +8,7 @@ import { useUsuarios } from "../../../crud/usuarios/useUsuarios";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import type { Usuario } from "../../../tipos/usuario";
-import "./AdminUsuarios.css";
+import "./usuarios.css";
 
 /**
  * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com

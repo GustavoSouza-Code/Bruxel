@@ -3,7 +3,7 @@ import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { ItemCarrinho } from "./componentes/ItemCarrinho/ItemCarrinho";
 import { useCarrinho } from "../../../contexto/ContextoCarrinho";
-import "./Carrinho.css";
+import "./carrinho.css";
 
 /**
  * Carrinho de compras (rota "/carrinho"): lista os itens com controle de

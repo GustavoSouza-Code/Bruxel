@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
-import "./Login.css";
+import "./entrar.css";
 
 // vitrine do que a conta oferece, exibida abaixo do formulário (ainda não são links)
 const ACCOUNT_FEATURES = [
@@ -46,20 +46,20 @@ const ACCOUNT_FEATURES = [
  * Tela de login (rota "/entrar"). Por enquanto é só a interface: o envio do
  * formulário é bloqueado (preventDefault) e nada é enviado ao backend.
  */
-export function PaginaLogin() {
+export function PaginaEntrar() {
   return (
     <>
       <Cabecalho />
 
-      <section className="pagina-login">
-        <Container className="pagina-login__interno">
-          <h1 className="pagina-login__mensagem">
+      <section className="pagina-entrar">
+        <Container className="pagina-entrar__interno">
+          <h1 className="pagina-entrar__mensagem">
             Olá! Você precisa realizar o login para entrar no seu perfil
           </h1>
 
           {/* TODO: integrar com o backend (login); hoje o botão "Entrar" não faz nada */}
           <form
-            className="pagina-login__formulario"
+            className="pagina-entrar__formulario"
             onSubmit={(event) => event.preventDefault()}
           >
             <label>
@@ -70,24 +70,24 @@ export function PaginaLogin() {
               Senha
               <input type="password" placeholder="••••••••" required />
             </label>
-            <button type="submit" className="pagina-login__enviar">
+            <button type="submit" className="pagina-entrar__enviar">
               Entrar
             </button>
           </form>
 
-          <Link to="/criar-conta" className="pagina-login__link-cadastro">
+          <Link to="/criar-conta" className="pagina-entrar__link-cadastro">
             Criar conta
           </Link>
         </Container>
 
         <Container>
-          <div className="pagina-login__recursos">
+          <div className="pagina-entrar__recursos">
             {ACCOUNT_FEATURES.map((feature) => (
-              <div key={feature.id} className="pagina-login__recurso">
-                <span className="pagina-login__icone-recurso">
+              <div key={feature.id} className="pagina-entrar__recurso">
+                <span className="pagina-entrar__icone-recurso">
                   {feature.icon}
                 </span>
-                <div className="pagina-login__texto-recurso">
+                <div className="pagina-entrar__texto-recurso">
                   <strong>{feature.title}</strong>
                   <span>{feature.description}</span>
                 </div>
@@ -105,4 +105,4 @@ export function PaginaLogin() {
   );
 }
 
-export default PaginaLogin;
+export default PaginaEntrar;
