@@ -1,0 +1,52 @@
+.banner-loja {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: 0 0 50% 50% / 0 0 40px 40px; /* base curva: só os cantos de baixo arredondam */
+  overflow: hidden;
+}
+
+.banner-loja__interno {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  padding-bottom: clamp(2.5rem, 2rem + 2vw, 4rem);
+  text-align: center;
+}
+
+.banner-loja__titulo {
+  font-size: var(--font-size-hero-title);
+  font-weight: 500;
+  margin: 0;
+}
+
+.banner-loja__titulo strong {
+  font-weight: 700;
+}
+
+/* campo de busca em formato de pílula; o <label> envolve input + ícone */
+.banner-loja__busca {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-white);
+  border-radius: 999px;
+  width: min(100%, 500px); /* largura toda no celular, com teto de 500px */
+  padding: 0.8rem 1.5rem;
+}
+
+/* o input não tem borda própria: o visual é todo do <label> ao redor */
+.banner-loja__busca input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+.banner-loja__busca svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}

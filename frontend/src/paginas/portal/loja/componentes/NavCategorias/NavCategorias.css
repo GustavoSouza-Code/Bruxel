@@ -1,0 +1,31 @@
+.nav-categorias {
+  border-bottom: 1px solid var(--color-border-soft);
+  padding: 1.25rem 0;
+}
+
+.nav-categorias__interno {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(1.5rem, 1rem + 2vw, 4rem);
+}
+
+/* a borda inferior transparente já reserva o espaço; no hover ela ganha cor sem "pular" o layout */
+.nav-categorias__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.5rem 0.25rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.nav-categorias__item:hover {
+  border-bottom-color: var(--color-accent);
+}

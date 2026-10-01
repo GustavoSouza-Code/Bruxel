@@ -1,4 +1,4 @@
-@import "./styles/tokens.css";
+@import "./estilos/tokens.css";
 
 /* reset global: padding e borda passam a contar dentro do width/height do elemento */
 * {
