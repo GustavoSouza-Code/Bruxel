@@ -1,0 +1,98 @@
+/* Formulário de cadastro/edição: grade de 3 colunas (1 no celular) */
+.formulario-produto {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+.formulario-produto label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+}
+
+/* campo que ocupa a linha inteira da grade */
+.formulario-produto__campo--inteiro {
+  grid-column: 1 / -1;
+}
+
+.formulario-produto input,
+.formulario-produto select,
+.formulario-produto textarea {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+}
+
+.formulario-produto input:focus,
+.formulario-produto select:focus,
+.formulario-produto textarea:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.formulario-produto textarea {
+  resize: vertical;
+}
+
+/* checkbox "Ativo": caixa e texto na mesma linha, alinhados com a base dos inputs vizinhos */
+.formulario-produto label.formulario-produto__checkbox {
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  padding-bottom: 0.6rem;
+}
+
+.formulario-produto__acoes {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+}
+
+.formulario-produto__enviar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.formulario-produto__enviar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.formulario-produto__cancelar {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.formulario-produto__cancelar:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Celular e tablet: formulário em 1 coluna */
+@media (max-width: 899px) {
+  .formulario-produto {
+    grid-template-columns: 1fr;
+  }
+}

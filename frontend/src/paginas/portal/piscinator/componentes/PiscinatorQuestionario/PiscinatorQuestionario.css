@@ -1,0 +1,90 @@
+.piscinator-questionario {
+  padding: var(--space-section) 0;
+  display: flex;
+  justify-content: center;
+}
+
+.piscinator-questionario__interno {
+  display: flex;
+  justify-content: center;
+}
+
+.piscinator-questionario__card {
+  width: 100%;
+  max-width: 671px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: clamp(1.5rem, 1.2rem + 1.5vw, 3.5rem);
+  text-align: center;
+}
+
+.piscinator-questionario__progresso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.piscinator-questionario__progresso span {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: var(--font-size-small);
+}
+
+/* trilho da barra de progresso; o overflow: hidden mantém o preenchimento dentro das pontas arredondadas */
+.piscinator-questionario__barra-progresso {
+  height: 6px;
+  border-radius: 999px;
+  background-color: var(--color-border-soft);
+  overflow: hidden;
+}
+
+/* preenchimento: a largura vem do React (style inline) e o transition anima a mudança */
+.piscinator-questionario__preenchimento-progresso {
+  height: 100%;
+  background-color: var(--color-accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.piscinator-questionario__pergunta {
+  font-weight: 600;
+  font-size: var(--font-size-hero-title);
+  line-height: 1.3;
+  margin: 0 0 2.5rem;
+}
+
+.piscinator-questionario__acoes {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.piscinator-questionario__resposta {
+  min-width: 140px;
+  border-radius: 999px;
+  padding: 0.9rem 2rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  border: 2px solid transparent; /* mantém os dois botões do mesmo tamanho (só o "Não" colore a borda) */
+}
+
+.piscinator-questionario__resposta--nao {
+  background-color: var(--color-white);
+  border-color: var(--color-border-soft);
+  color: var(--color-text);
+}
+
+.piscinator-questionario__resposta--nao:hover {
+  border-color: var(--color-primary);
+}
+
+.piscinator-questionario__resposta--sim {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+}
+
+.piscinator-questionario__resposta--sim:hover {
+  background-color: var(--color-primary);
+}

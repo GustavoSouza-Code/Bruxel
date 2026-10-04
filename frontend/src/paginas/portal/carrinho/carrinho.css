@@ -1,0 +1,96 @@
+.pagina-carrinho {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-carrinho__trilha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin-bottom: 1.5rem;
+}
+
+.pagina-carrinho__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0 0 clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+.pagina-carrinho__vazio {
+  color: var(--color-text-muted);
+}
+
+.pagina-carrinho__vazio a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Lista de itens (2/3) + resumo (1/3); align-items: start impede o resumo de esticar até o fim da lista */
+.pagina-carrinho__layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  align-items: start;
+}
+
+.pagina-carrinho__itens {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Resumo do pedido */
+.pagina-carrinho__resumo {
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+.pagina-carrinho__resumo h2 {
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  margin: 0 0 1.25rem;
+}
+
+.pagina-carrinho__linha-resumo {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.pagina-carrinho__linha-resumo--total {
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--font-size-body);
+  border-top: 1px solid var(--color-border-soft);
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+}
+
+.pagina-carrinho__continuar {
+  width: 100%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 10px;
+  padding: 0.9rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  margin-top: 1.5rem;
+}
+
+.pagina-carrinho__continuar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Celular: o resumo do pedido passa pra baixo da lista (coluna única) */
+@media (max-width: 800px) {
+  .pagina-carrinho__layout {
+    /* minmax(0, …) deixa a coluna encolher abaixo do conteúdo dos cards */
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
