@@ -1,0 +1,195 @@
+.pagina-admin-usuarios {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+/* título à esquerda e botão "+ Novo usuário" à direita; no celular o botão desce se não couber */
+.pagina-admin-usuarios__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+.pagina-admin-usuarios__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0;
+}
+
+/* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
+.pagina-admin-usuarios__linha-titulos {
+  display: none;
+}
+
+.pagina-admin-usuarios__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Cada usuário é uma linha (flex) com colunas de mesma largura; no celular vira um cartão empilhado */
+.pagina-admin-usuarios__linha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #f7f7fa;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+/* min-width: 0 deixa a coluna encolher abaixo do conteúdo (senão textos longos alargam a linha);
+   overflow-wrap quebra e-mails e endereços compridos */
+.pagina-admin-usuarios__linha > span,
+.pagina-admin-usuarios__linha > input {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--font-size-small);
+  overflow-wrap: break-word;
+}
+
+.pagina-admin-usuarios__linha > input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-family: inherit;
+}
+
+.pagina-admin-usuarios__linha > input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* edição do endereço: os 6 campos ocupam a coluna "Endereço", 2 por linha */
+.pagina-admin-usuarios__editar-endereco {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.pagina-admin-usuarios__editar-endereco > input {
+  min-width: 0;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+}
+
+.pagina-admin-usuarios__editar-endereco > input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.pagina-admin-usuarios__acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.pagina-admin-usuarios__novo,
+.pagina-admin-usuarios__editar,
+.pagina-admin-usuarios__salvar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pagina-admin-usuarios__novo:hover,
+.pagina-admin-usuarios__editar:hover,
+.pagina-admin-usuarios__salvar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* botões neutros de contorno (Excluir e Cancelar); o hover do Excluir fica vermelho */
+.pagina-admin-usuarios__excluir,
+.pagina-admin-usuarios__cancelar {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pagina-admin-usuarios__excluir:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.pagina-admin-usuarios__cancelar:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagina-admin-usuarios__vazio {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* Desktop: mostra a linha de títulos e trava a coluna de ações em 160px, pra alinhar com o título "Ações" */
+@media (min-width: 900px) {
+  .pagina-admin-usuarios__linha-titulos {
+    display: flex;
+    gap: 1rem;
+    padding: 0 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+  }
+
+  .pagina-admin-usuarios__linha-titulos > span {
+    flex: 1 1 0;
+  }
+
+  .pagina-admin-usuarios__linha-titulos > span:last-child {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
+
+  .pagina-admin-usuarios__linha > .pagina-admin-usuarios__acoes {
+    min-width: 160px;
+  }
+}
+
+/* Celular e tablet: cada linha vira um cartão, com o rótulo de cada campo à esquerda */
+@media (max-width: 899px) {
+  .pagina-admin-usuarios__linha {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagina-admin-usuarios__linha > span,
+  .pagina-admin-usuarios__linha > input {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .pagina-admin-usuarios__linha > span::before {
+    content: attr(data-label); /* usa o atributo data-label do <span> como texto do rótulo */
+    font-weight: 600;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .pagina-admin-usuarios__acoes {
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+}

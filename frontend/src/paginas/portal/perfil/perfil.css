@@ -1,0 +1,309 @@
+.pagina-perfil {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-perfil__trilha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin-bottom: 1.5rem;
+}
+
+.pagina-perfil__trilha a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pagina-perfil__trilha a:hover {
+  text-decoration: underline;
+}
+
+.pagina-perfil__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0 0 clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+/* Menu lateral (260px) + conteúdo; no celular vira uma coluna só */
+.pagina-perfil__layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  align-items: start;
+}
+
+/* Menu lateral */
+.pagina-perfil__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pagina-perfil__item-menu {
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.pagina-perfil__item-menu:hover {
+  background-color: #f7f7fa;
+  color: var(--color-text);
+}
+
+.pagina-perfil__item-menu--ativo {
+  background-color: #f7f7fa;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.pagina-perfil__sair {
+  margin-top: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-top: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.pagina-perfil__sair:hover {
+  color: var(--color-primary);
+}
+
+/* Conteúdo */
+.pagina-perfil__conteudo {
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+.pagina-perfil__cabecalho-conteudo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pagina-perfil__cabecalho-conteudo h2 {
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.pagina-perfil__editar,
+.pagina-perfil__cancelar {
+  background: none;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.pagina-perfil__editar:hover,
+.pagina-perfil__cancelar:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Modo leitura: pares rótulo/valor (<dl>) em 2 colunas */
+.pagina-perfil__info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 2rem;
+  margin: 0;
+}
+
+.pagina-perfil__linha-info dt {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.pagina-perfil__linha-info dd {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-word; /* e-mails e endereços longos quebram em vez de estourar a coluna */
+}
+
+/* Formulário de edição */
+.pagina-perfil__formulario {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem 2rem;
+}
+
+.pagina-perfil__formulario label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+.pagina-perfil__formulario input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+}
+
+.pagina-perfil__formulario input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.pagina-perfil__acoes-formulario {
+  grid-column: 1 / -1; /* os botões ocupam a linha inteira da grade, abaixo dos campos */
+  display: flex;
+  gap: 0.75rem;
+}
+
+.pagina-perfil__salvar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.pagina-perfil__salvar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Cards (endereços e pedidos) */
+.pagina-perfil__card {
+  background-color: var(--color-white);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.pagina-perfil__card p {
+  margin: 0.5rem 0 0;
+}
+
+.pagina-perfil__etiqueta {
+  display: inline-block;
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.pagina-perfil__pedidos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pagina-perfil__pedido {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagina-perfil__pedido-principal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pagina-perfil__pedido-principal span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.pagina-perfil__pedido-total {
+  white-space: nowrap;
+}
+
+.pagina-perfil__status {
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* cores por status do pedido (o sufixo da classe é o valor de OrderStatus) */
+.pagina-perfil__status--entregue {
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+}
+
+.pagina-perfil__status--a-caminho {
+  background-color: #e2effa;
+  color: var(--color-accent);
+}
+
+.pagina-perfil__status--cancelado {
+  background-color: #f1f1f4;
+  color: var(--color-text-muted);
+}
+
+.pagina-perfil__vazio {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.pagina-perfil__vazio a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Celular: o menu vira uma faixa horizontal rolável e tudo empilha em 1 coluna */
+@media (max-width: 768px) {
+  .pagina-perfil__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pagina-perfil__menu {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .pagina-perfil__item-menu {
+    white-space: nowrap;
+  }
+
+  .pagina-perfil__sair {
+    margin-top: 0;
+    border-top: none;
+    border-left: 1px solid var(--color-border-soft);
+    white-space: nowrap;
+  }
+
+  .pagina-perfil__info,
+  .pagina-perfil__formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .pagina-perfil__pedido {
+    flex-wrap: wrap;
+  }
+
+  .pagina-perfil__pedido-principal {
+    flex-basis: 100%; /* os dados do pedido ocupam a linha toda; status e total vão pra linha de baixo */
+  }
+}

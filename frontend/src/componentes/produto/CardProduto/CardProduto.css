@@ -1,0 +1,60 @@
+.card-produto {
+  position: relative; /* referência pro botão de favoritar, que é position: absolute */
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: clamp(1.1rem, 1rem + 0.5vw, 1.5rem);
+}
+
+.card-produto__favorito {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  background: none;
+  border: none;
+  font-size: 1.35rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.card-produto__imagem {
+  align-self: center;
+  height: clamp(120px, 8vw + 90px, 170px);
+  object-fit: contain; /* mostra a imagem inteira, sem cortar nem esticar */
+  margin-bottom: 1.1rem;
+}
+
+/* nome + embalagem, separados do preço por uma linha */
+.card-produto__info {
+  border-bottom: 1px solid var(--color-border-soft);
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.card-produto__nome {
+  font-weight: 500;
+  margin: 0;
+  font-size: var(--font-size-small);
+}
+
+.card-produto__preco {
+  font-weight: 600;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.5rem);
+  margin: 0 0 0.85rem;
+}
+
+/* botão com cara de link: só texto, sem fundo nem borda */
+.card-produto__botao-adicionar {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}

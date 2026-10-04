@@ -1,0 +1,31 @@
+.historia-sobre {
+  padding: var(--space-section) 0;
+}
+
+/* imagem e texto lado a lado; em tela estreita quebram em linhas (flex-wrap) */
+.historia-sobre__interno {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+  flex-wrap: wrap;
+}
+
+/* placeholder em degradê até termos a foto real */
+.historia-sobre__imagem {
+  flex: 1 1 320px; /* cresce e encolhe com base de 320px; sem espaço pra isso, quebra de linha */
+  min-height: clamp(220px, 20vw + 120px, 340px);
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    var(--color-accent-light) 100%
+  );
+}
+
+.historia-sobre__texto {
+  flex: 1 1 380px;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: var(--font-size-body);
+  line-height: 1.7;
+}

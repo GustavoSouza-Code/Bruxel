@@ -1,0 +1,155 @@
+.pagina-admin-produtos {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-admin-produtos__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+/* Títulos das colunas: escondidos por padrão (no celular cada célula mostra o rótulo; ver @media abaixo) */
+.pagina-admin-produtos__linha-titulos {
+  display: none;
+}
+
+.pagina-admin-produtos__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Cada produto é uma linha (flex); no celular vira um cartão empilhado */
+.pagina-admin-produtos__linha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+}
+
+/* min-width: 0 deixa a coluna encolher abaixo do conteúdo (senão textos longos alargam a linha);
+   overflow-wrap quebra nomes compridos */
+.pagina-admin-produtos__linha > span {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--font-size-small);
+  overflow-wrap: break-word;
+}
+
+.pagina-admin-produtos__miniatura {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+/* quadrado cinza quando o produto não tem imagem */
+.pagina-admin-produtos__miniatura--vazio {
+  background-color: var(--color-border-soft);
+}
+
+.pagina-admin-produtos__acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.pagina-admin-produtos__editar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pagina-admin-produtos__editar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.pagina-admin-produtos__excluir {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pagina-admin-produtos__excluir:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.pagina-admin-produtos__vazio {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* Desktop: mostra a linha de títulos e trava a coluna de ações em 140px, pra alinhar com o título "Ações" */
+@media (min-width: 900px) {
+  .pagina-admin-produtos__linha-titulos {
+    display: flex;
+    gap: 1rem;
+    padding: 0 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: var(--font-size-small);
+  }
+
+  .pagina-admin-produtos__linha-titulos > span {
+    flex: 1 1 0;
+  }
+
+  .pagina-admin-produtos__linha-titulos > span:last-child {
+    flex: 0 0 auto;
+    min-width: 140px;
+  }
+
+  .pagina-admin-produtos__linha > .pagina-admin-produtos__acoes {
+    min-width: 140px;
+  }
+}
+
+/* Celular e tablet: cada linha vira um cartão, com o rótulo de cada campo à esquerda */
+@media (max-width: 899px) {
+  .pagina-admin-produtos__linha {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagina-admin-produtos__linha > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .pagina-admin-produtos__linha > span::before {
+    content: attr(data-label); /* usa o atributo data-label do <span> como texto do rótulo */
+    font-weight: 600;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  /* a miniatura fica sem o rótulo "Imagem" no celular (anula o attr(data-label) da regra acima) */
+  .pagina-admin-produtos__celula-miniatura::before {
+    content: "";
+  }
+
+  .pagina-admin-produtos__acoes {
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+}
