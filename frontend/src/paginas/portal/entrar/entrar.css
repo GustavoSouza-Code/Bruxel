@@ -119,3 +119,11 @@
 .pagina-entrar__texto-recurso span {
   font-size: var(--font-size-small);
 }
+
+/* mensagem de erro da integração com o backend (login inválido, etc.) */
+.pagina-entrar__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}

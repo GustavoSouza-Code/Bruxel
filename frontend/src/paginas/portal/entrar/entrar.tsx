@@ -1,16 +1,20 @@
-import { Link } from "react-router-dom";
-import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
-import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
-import { Container } from "../../../componentes/layout/Container/Container";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Cabecalho from "../../../componentes/layout/Cabecalho/Cabecalho";
+import Rodape from "../../../componentes/layout/Rodape/Rodape";
+import Container from "../../../componentes/layout/Container/Container";
+import { useAuth } from "../../../contexto/AuthContext";
+import { ApiError } from "../../../services/api";
 import "./entrar.css";
 
 // vitrine do que a conta oferece, exibida abaixo do formulário (ainda não são links)
-const ACCOUNT_FEATURES = [
+const RECURSOS_CONTA = [
   {
     id: "perfil",
-    title: "Informações do perfil",
-    description: "Dados pessoais e da conta",
-    icon: (
+    titulo: "Informações do perfil",
+    descricao: "Dados pessoais e da conta",
+    icone: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 21a8 8 0 0 1 16 0" />
@@ -19,9 +23,9 @@ const ACCOUNT_FEATURES = [
   },
   {
     id: "enderecos",
-    title: "Endereços",
-    description: "Endereços cadastrados na sua conta",
-    icon: (
+    titulo: "Endereços",
+    descricao: "Endereços cadastrados na sua conta",
+    icone: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
         <path d="M9 22V12h6v10" />
@@ -30,9 +34,9 @@ const ACCOUNT_FEATURES = [
   },
   {
     id: "compras",
-    title: "Compras",
-    description: "Suas compras antigas",
-    icon: (
+    titulo: "Compras",
+    descricao: "Suas compras antigas",
+    icone: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="8" cy="21" r="1" />
         <circle cx="19" cy="21" r="1" />
@@ -43,10 +47,37 @@ const ACCOUNT_FEATURES = [
 ];
 
 /**
- * Tela de login (rota "/entrar"). Por enquanto é só a interface: o envio do
- * formulário é bloqueado (preventDefault) e nada é enviado ao backend.
+ * Tela de login (rota "/entrar"), conectada ao backend via useAuth
+ * (POST /api/auth/login). Em caso de sucesso, manda pro perfil.
  */
-export function PaginaEntrar() {
+export function LoginPage() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      await login(email, senha);
+      navigate("/perfil");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof ApiError
+          ? error.message
+          : "Não foi possível entrar. Tente novamente."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <>
       <Cabecalho />
@@ -57,21 +88,40 @@ export function PaginaEntrar() {
             Olá! Você precisa realizar o login para entrar no seu perfil
           </h1>
 
-          {/* TODO: integrar com o backend (login); hoje o botão "Entrar" não faz nada */}
-          <form
-            className="pagina-entrar__formulario"
-            onSubmit={(event) => event.preventDefault()}
-          >
+          <form className="pagina-entrar__formulario" onSubmit={handleSubmit}>
             <label>
               E-mail
-              <input type="email" placeholder="seu@email.com" required />
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
             </label>
             <label>
               Senha
-              <input type="password" placeholder="••••••••" required />
+              <input
+                type="password"
+                placeholder="••••••••"
+                required
+                value={senha}
+                onChange={(event) => setSenha(event.target.value)}
+              />
             </label>
-            <button type="submit" className="pagina-entrar__enviar">
-              Entrar
+
+            {errorMessage && (
+              <p className="pagina-entrar__erro" role="alert">
+                {errorMessage}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="pagina-entrar__enviar"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
           </form>
 
@@ -82,14 +132,14 @@ export function PaginaEntrar() {
 
         <Container>
           <div className="pagina-entrar__recursos">
-            {ACCOUNT_FEATURES.map((feature) => (
-              <div key={feature.id} className="pagina-entrar__recurso">
+            {RECURSOS_CONTA.map((recurso) => (
+              <div key={recurso.id} className="pagina-entrar__recurso">
                 <span className="pagina-entrar__icone-recurso">
-                  {feature.icon}
+                  {recurso.icone}
                 </span>
                 <div className="pagina-entrar__texto-recurso">
-                  <strong>{feature.title}</strong>
-                  <span>{feature.description}</span>
+                  <strong>{recurso.titulo}</strong>
+                  <span>{recurso.descricao}</span>
                 </div>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m9 18 6-6-6-6" />
@@ -105,4 +155,4 @@ export function PaginaEntrar() {
   );
 }
 
-export default PaginaEntrar;
+export default LoginPage;
