@@ -1,26 +1,30 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { ApiError } from "../../../services/api";
 import "./FormularioCadastro.css";
 
 /** O que o formulário entrega ao ser enviado (a confirmação de senha fica só aqui dentro). */
 export interface DadosFormularioCadastro {
   nome: string;
   email: string;
-  /** só dígitos, igual ao banco */
+  /** CPF como foi digitado; o service de API é quem limpa a pontuação antes de mandar pro backend */
   cpf: string;
   senha: string;
 }
 
 interface FormularioCadastroProps {
-  onEnviar: (dados: DadosFormularioCadastro) => void;
+  /** pode ser async (chamar a API) — o formulário espera terminar antes de limpar os campos */
+  onEnviar: (data: DadosFormularioCadastro) => void | Promise<void>;
   /** texto do botão de enviar; padrão "Criar conta" */
   textoBotao?: string;
 }
 
 /**
  * Formulário de cadastro de usuário, usado no "/criar-conta" e no modal de
- * "Novo usuário" do painel admin. Confere se as duas senhas são iguais antes
- * de chamar onEnviar e limpa os campos depois de enviar.
+ * "Novo usuário" do painel admin. Confere se as duas senhas são iguais,
+ * chama onEnviar e só limpa os campos se ele não lançar erro — assim, se a
+ * API recusar (CPF/e-mail já existe, por exemplo), o que a pessoa digitou
+ * não se perde.
  */
 export function FormularioCadastro({
   onEnviar,
@@ -33,27 +37,38 @@ export function FormularioCadastro({
   const [confirmarSenha, setConfirmarSenha] = useState("");
   // mensagem de erro mostrada acima do botão; null = sem erro
   const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
-  function enviar(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    setErro(null);
 
     if (senha !== confirmarSenha) {
       setErro("As senhas não conferem.");
       return;
     }
 
-    onEnviar({ nome, email, cpf, senha });
-
-    setNome("");
-    setEmail("");
-    setCpf("");
-    setSenha("");
-    setConfirmarSenha("");
-    setErro(null);
+    setEnviando(true);
+    try {
+      await onEnviar({ nome, email, cpf, senha });
+      setNome("");
+      setEmail("");
+      setCpf("");
+      setSenha("");
+      setConfirmarSenha("");
+    } catch (err) {
+      setErro(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível criar a conta. Tente novamente."
+      );
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
-    <form className="formulario-cadastro" onSubmit={enviar}>
+    <form className="formulario-cadastro" onSubmit={handleSubmit}>
       <label>
         Nome completo
         <input
@@ -78,13 +93,11 @@ export function FormularioCadastro({
         CPF
         <input
           type="text"
+          placeholder="Somente números"
           inputMode="numeric"
-          placeholder="Só números"
+          maxLength={14}
           value={cpf}
-          // tira tudo que não é dígito, pra ficar no formato do banco (11 dígitos)
-          onChange={(e) => setCpf(e.target.value.replace(/\D/g, ""))}
-          maxLength={11}
-          minLength={11}
+          onChange={(e) => setCpf(e.target.value)}
           required
         />
       </label>
@@ -115,8 +128,12 @@ export function FormularioCadastro({
         </p>
       )}
 
-      <button type="submit" className="formulario-cadastro__enviar">
-        {textoBotao}
+      <button
+        type="submit"
+        className="formulario-cadastro__enviar"
+        disabled={enviando}
+      >
+        {enviando ? "Enviando..." : textoBotao}
       </button>
     </form>
   );
