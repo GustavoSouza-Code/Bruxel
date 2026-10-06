@@ -1,92 +1,106 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Usuario } from "../../tipos/usuario";
 import type { DadosFormularioCadastro } from "./FormularioCadastro/FormularioCadastro";
-
-// Mock até o backend ter a rota de usuários pronta
-const USUARIOS_INICIAIS: Usuario[] = [
-  {
-    id: "usuario-1",
-    nome: "Marcos Bruxel",
-    email: "marcos@bruxelpiscinas.com",
-    cpf: "12345678900",
-    telefone: "(51) 99307-8577",
-    rua: "Av. Benjamim Constant",
-    numero: "2361",
-    cidade: "Lajeado",
-    estado: "RS",
-    perfil: "ADMINISTRADOR",
-  },
-  {
-    id: "usuario-2",
-    nome: "Ana Paula Martins",
-    email: "ana.paula@email.com",
-    cpf: "98765432100",
-    telefone: "(51) 99123-4567",
-    rua: "Rua das Flores",
-    numero: "120",
-    cidade: "Lajeado",
-    estado: "RS",
-    perfil: "CLIENTE",
-  },
-  {
-    id: "usuario-3",
-    nome: "Eduardo Oliveira",
-    email: "eduardo.oliveira@email.com",
-    cpf: "45678912300",
-    telefone: "(51) 99876-5432",
-    rua: "Rua Sete de Setembro",
-    numero: "850",
-    cidade: "Lajeado",
-    estado: "RS",
-    perfil: "CLIENTE",
-  },
-  {
-    id: "usuario-4",
-    nome: "Luciana Hass",
-    email: "luciana.hass@email.com",
-    cpf: "32165498700",
-    telefone: "(51) 99555-2211",
-    rua: "Av. Presidente Vargas",
-    numero: "45",
-    cidade: "Lajeado",
-    estado: "RS",
-    perfil: "CLIENTE",
-  },
-];
+import { userService } from "../../services/userService";
+import type { ApiUser } from "../../services/userService";
+import { useAuth } from "../../contexto/AuthContext";
 
 /**
- * CRUD de usuários: guarda a lista e é o único lugar que a altera. As telas
- * só chamam essas funções. A lista vive só na memória (começa com
- * USUARIOS_INICIAIS); quando o backend for integrado, as chamadas à API entram
- * aqui dentro sem precisar mexer nas páginas.
+ * Converte o usuário do jeito que o backend devolve (campos nulos quando
+ * vazios, mais criado_em/atualizado_em que a tela não usa) pro tipo
+ * `Usuario` que o resto do front usa (campos opcionais, sem undefined vs
+ * null pra lidar).
+ */
+function toUsuario(apiUser: ApiUser): Usuario {
+  return {
+    id: apiUser.id,
+    nome: apiUser.nome,
+    email: apiUser.email,
+    cpf: apiUser.cpf,
+    telefone: apiUser.telefone ?? undefined,
+    rua: apiUser.rua ?? undefined,
+    numero: apiUser.numero ?? undefined,
+    bairro: apiUser.bairro ?? undefined,
+    cidade: apiUser.cidade ?? undefined,
+    estado: apiUser.estado ?? undefined,
+    cep: apiUser.cep ?? undefined,
+    perfil: apiUser.perfil,
+  };
+}
+
+/**
+ * CRUD de usuários: busca a lista real em GET /api/users (precisa de
+ * login de administrador — ver userRoutes.ts) e cria usuários de verdade
+ * via POST /api/users. Editar e excluir ainda só mudam a lista na tela
+ * (TODO: ligar atualizarUsuario/excluirUsuario em PUT/DELETE /api/users/:id).
  */
 export function useUsuarios() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(USUARIOS_INICIAIS);
+  const { token, isAdmin } = useAuth();
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  function criarUsuario(dados: DadosFormularioCadastro) {
-    const novoUsuario: Usuario = {
-      // TODO: o id virá do backend; por enquanto usa a hora atual só pra ser único na sessão
-      id: `usuario-${Date.now()}`,
-      nome: dados.nome,
-      email: dados.email,
-      cpf: dados.cpf,
-      // o banco já cria todo usuário como CLIENTE; o endereço o admin preenche depois em Editar
-      perfil: "CLIENTE",
+  useEffect(() => {
+    // sem login de admin não tem como listar (a rota exige token+perfil) —
+    // evita disparar uma chamada que vai dar 401/403 de cara
+    if (!token || !isAdmin) return;
+
+    let cancelled = false;
+
+    async function carregarUsuarios() {
+      setIsLoading(true);
+      setLoadError(null);
+      try {
+        const apiUsers = await userService.getAll(token!);
+        if (!cancelled) setUsuarios(apiUsers.map(toUsuario));
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível carregar os usuários."
+          );
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    carregarUsuarios();
+    return () => {
+      cancelled = true;
     };
-    // TODO: enviar dados.senha ao backend (POST /api/users); o Usuario do front não guarda senha
-    setUsuarios((atuais) => [...atuais, novoUsuario]);
+  }, [token, isAdmin]);
+
+  async function criarUsuario(data: DadosFormularioCadastro) {
+    const criado = await userService.create({
+      nome: data.nome,
+      email: data.email,
+      senha: data.senha,
+      cpf: data.cpf.replace(/\D/g, ""),
+    });
+    setUsuarios((current) => [...current, toUsuario(criado)]);
   }
 
   // substitui o usuário que tem o mesmo id pela versão editada
+  // TODO: chamar userService.update(id, ..., token) aqui também
   function atualizarUsuario(atualizado: Usuario) {
-    setUsuarios((atuais) =>
-      atuais.map((usuario) => (usuario.id === atualizado.id ? atualizado : usuario))
+    setUsuarios((current) =>
+      current.map((usuario) => (usuario.id === atualizado.id ? atualizado : usuario))
     );
   }
 
+  // TODO: chamar userService.delete(id, token) aqui também
   function excluirUsuario(id: string) {
-    setUsuarios((atuais) => atuais.filter((usuario) => usuario.id !== id));
+    setUsuarios((current) => current.filter((usuario) => usuario.id !== id));
   }
 
-  return { usuarios, criarUsuario, atualizarUsuario, excluirUsuario };
+  return {
+    usuarios,
+    isLoading,
+    loadError,
+    criarUsuario,
+    atualizarUsuario,
+    excluirUsuario,
+  };
 }
