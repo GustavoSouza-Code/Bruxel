@@ -119,3 +119,27 @@
 .pagina-entrar__texto-recurso span {
   font-size: var(--font-size-small);
 }
+
+/* mensagens acima do botão: erro (vermelho) e "conta criada" (verde) */
+.pagina-entrar__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.pagina-entrar__sucesso {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background-color: #e8f6ee;
+  color: #1e7b45;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+/* enquanto espera a resposta da API */
+.pagina-entrar__enviar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

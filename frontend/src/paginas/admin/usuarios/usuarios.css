@@ -141,6 +141,37 @@
   padding: 2rem 0;
 }
 
+/* aviso de erro (falha ao carregar, salvar ou excluir); o botão "Tentar novamente" fica à direita */
+.pagina-admin-usuarios__aviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid #f5c6c1;
+  border-radius: 12px;
+  background-color: #fdecea;
+  color: #c0392b;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+/* botões travados (salvando, ou Excluir na própria linha) */
+.pagina-admin-usuarios__salvar:disabled,
+.pagina-admin-usuarios__cancelar:disabled,
+.pagina-admin-usuarios__excluir:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* sem o hover vermelho no Excluir travado */
+.pagina-admin-usuarios__excluir:disabled:hover {
+  border-color: var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
 /* Desktop: mostra a linha de títulos e trava a coluna de ações em 160px, pra alinhar com o título "Ações" */
 @media (min-width: 900px) {
   .pagina-admin-usuarios__linha-titulos {
