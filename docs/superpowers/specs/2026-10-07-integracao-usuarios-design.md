@@ -52,9 +52,11 @@ proteger o painel admin e gerenciar usuários com dados reais do banco.
 | Arquivo | Responsabilidade |
 |---|---|
 | `api/cliente.ts` | `requisicao<T>(caminho, { metodo?, corpo?, token? })`: monta a URL com `VITE_API_URL`, envia/recebe JSON, coloca `Authorization: Bearer <token>` quando recebe token e lança `ErroApi` para qualquer resposta não 2xx ou falha de rede. Exporta também a classe `ErroApi`. |
-| `api/autenticacao.ts` | `entrar(email, senha)` → `POST /auth/login`, devolve `{ token, user }`. |
+| `api/autenticacao.ts` | `fazerLogin(email, senha)` → `POST /auth/login`, devolve `{ token, user }`. (Não se chama `entrar` para não colidir com o `entrar()` do contexto.) |
 | `api/usuarios.ts` | `listarUsuarios(token)`, `criarUsuario(dados)`, `atualizarUsuario(token, id, campos)`, `excluirUsuario(token, id)`. |
-| `contexto/ContextoAutenticacao.tsx` | `ProvedorAutenticacao` + hook `useAutenticacao()`, no mesmo modelo do `ContextoCarrinho`. Expõe `usuario`, `token`, `estaLogado`, `ehAdmin`, `entrar(email, senha)` e `sair()`. Lê e grava a sessão no `localStorage`. |
+| `contexto/sessao.ts` | `lerSessao`, `salvarSessao` e `apagarSessao` (localStorage), mais a checagem do `exp` do JWT. |
+| `contexto/useAutenticacao.ts` | O `createContext` e o hook `useAutenticacao()`. Expõe `usuario`, `token`, `estaLogado`, `ehAdmin`, `entrar(email, senha)` e `sair()`. |
+| `contexto/ContextoAutenticacao.tsx` | Só o componente `ProvedorAutenticacao`. Fica separado do hook porque a regra `react-refresh/only-export-components` do lint não aceita componente e hook no mesmo `.tsx` (o `ContextoCarrinho` já tem esse erro). |
 | `componentes/layout/RotaAdmin/RotaAdmin.tsx` | Rota de layout com `<Outlet>`. Sem login → `<Navigate to="/entrar" state={{ de: localização }}>`; logado sem ser admin → `<Navigate to="/">`. |
 | `componentes/layout/MenuUsuario/MenuUsuario.tsx` (+ `.css`) | Pílula "Nome ▾" e menu suspenso do cabeçalho (ver "Cabeçalho"). |
 | `frontend/.env.example` | `VITE_API_URL=http://localhost:3000/api` |
@@ -103,7 +105,9 @@ Erros: `{ mensagem, erros? }`, com 401 (sem token/token inválido/usuário exclu
 
 ### Login (`/entrar`)
 
-1. O formulário chama `entrar(email, senha)` do contexto. O botão fica desabilitado com "Entrando…".
+1. O formulário chama `entrar(email, senha)` do contexto, que manda o e-mail com
+   `trim().toLowerCase()`: o cadastro salva o e-mail em minúsculas e o login do back
+   compara exatamente. O botão fica desabilitado com "Entrando…".
 2. Se der certo, o contexto guarda `{ token, usuario }` no estado e no `localStorage`.
    Depois redireciona: se veio barrado pelo `RotaAdmin` (`location.state.de`), volta
    para lá; senão, admin vai para `/admin/usuarios` e cliente vai para `/`.
@@ -160,7 +164,8 @@ Erros: `{ mensagem, erros? }`, com 401 (sem token/token inválido/usuário exclu
 
 - **Deslogado:** o link "Entrar" de hoje, sem mudança.
 - **Logado:** um botão com o mesmo visual de `.cabecalho__botao-entrar`, com ícone,
-  primeiro nome e seta, e `aria-haspopup="menu"` + `aria-expanded`. Ao clicar, abre
+  primeiro nome e seta. Segue o padrão "disclosure" (`aria-expanded` + `aria-controls`
+  e uma lista de links): `role="menu"` exigiria navegação por setas. Ao clicar, abre
   um menu suspenso branco abaixo, alinhado à direita:
   - topo com nome completo e e-mail;
   - "Minha conta" → `/perfil`;
@@ -168,8 +173,9 @@ Erros: `{ mensagem, erros? }`, com 401 (sem token/token inválido/usuário exclu
   - divisor;
   - "Sair" (vermelho) → `sair()` + `navigate("/")`.
 - **O menu fecha:** ao clicar fora (listener de `mousedown` no `document`, registrado
-  num `useEffect` só enquanto está aberto), com Esc, ao escolher um item e ao mudar
-  de rota.
+  num `useEffect` só enquanto está aberto), com Esc e ao escolher um item. Ao mudar
+  de rota fecha sozinho: cada página renderiza o próprio `<Cabecalho />`, então o menu
+  é montado de novo, fechado.
 - **No celular** (até 640px): o botão usa a altura de 40px que o "Entrar" já usa ali.
 
 ## Documentação
