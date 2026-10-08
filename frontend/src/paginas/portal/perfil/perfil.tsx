@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import type { Usuario } from "../../../tipos/usuario";
-import { formatarEndereco } from "../../../crud/usuarios/camposUsuario";
+import { mensagemDeErro } from "../../../api/cliente";
+import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
+import { usePerfil } from "./usePerfil";
 import "./perfil.css";
 
 /** Abas do menu lateral da conta. */
@@ -23,20 +26,6 @@ interface Order {
   total: number;
   status: OrderStatus;
 }
-
-// Mock até o login estar integrado com o backend
-const MOCK_USER: Usuario = {
-  id: "usuario-3",
-  nome: "Eduardo Oliveira",
-  email: "eduardo.oliveira@email.com",
-  cpf: "45678912300",
-  telefone: "(51) 99876-5432",
-  rua: "Rua Sete de Setembro",
-  numero: "850",
-  cidade: "Lajeado",
-  estado: "RS",
-  perfil: "CLIENTE",
-};
 
 // Mock até o backend ter a rota de pedidos
 const MOCK_ORDERS: Order[] = [
@@ -60,12 +49,20 @@ const SECTIONS: { id: ProfileSection; label: string }[] = [
 ];
 
 // campos do perfil: alimentam tanto a visualização (lista dt/dd) quanto o formulário
-// de edição; `type` é o type do <input>, pra o teclado/validação certos (e-mail, telefone)
-const PROFILE_FIELDS: { field: CampoEditavelUsuario; label: string; type: string }[] = [
-  { field: "nome", label: "Nome completo", type: "text" },
-  { field: "email", label: "E-mail", type: "email" },
-  { field: "telefone", label: "Telefone", type: "tel" },
-  { field: "cpf", label: "CPF", type: "text" },
+// de edição; `type` é o type do <input>, pra o teclado/validação certos (e-mail, telefone).
+// `maxLength` é o tamanho da coluna no banco; `travado` = só aparece, o backend não deixa trocar
+const PROFILE_FIELDS: {
+  field: CampoEditavelUsuario;
+  label: string;
+  type: string;
+  maxLength: number;
+  required?: boolean;
+  travado?: boolean;
+}[] = [
+  { field: "nome", label: "Nome completo", type: "text", maxLength: 150, required: true },
+  { field: "email", label: "E-mail", type: "email", maxLength: 255, required: true },
+  { field: "telefone", label: "Telefone", type: "tel", maxLength: 20 },
+  { field: "cpf", label: "CPF", type: "text", maxLength: 11, travado: true },
 ];
 
 /** Formata um valor em reais no padrão brasileiro: 289.7 → "R$ 289,70". */
@@ -74,35 +71,53 @@ function formatPrice(value: number) {
 }
 
 /**
- * Área "Minha conta" (rota "/perfil"): menu lateral com três abas — dados do
- * perfil (com edição), endereços e histórico de compras.
+ * Área "Minha conta" (rota "/perfil", só pra quem está logado): menu lateral
+ * com três abas — dados do perfil e endereços (os dois vindos do banco e
+ * editáveis) e histórico de compras.
  *
- * Por enquanto usa dados de exemplo (MOCK_USER e MOCK_ORDERS); as alterações
- * feitas na edição valem só até recarregar a página.
+ * As compras ainda são dados de exemplo (MOCK_ORDERS): o backend não tem rota de pedidos.
  */
 export function PaginaPerfil() {
-  // dados salvos do usuário (o que aparece na tela)
-  const [user, setUser] = useState<Usuario>(MOCK_USER);
+  const { usuario: usuarioSessao, sair } = useAutenticacao();
+  const navigate = useNavigate();
+  // dados do banco (null enquanto carrega ou se a busca falhou)
+  const { dados, carregando, erro, recarregar, salvar } = usePerfil();
   // aba selecionada no menu lateral
   const [activeSection, setActiveSection] = useState<ProfileSection>("perfil");
-  // rascunho da edição: cópia de `user` que o formulário altera; null = fora do modo de
-  // edição. Só vira `user` ao salvar; cancelar apenas descarta o rascunho
+  // rascunho da edição: cópia de `dados` que o formulário altera; null = fora do modo de
+  // edição. Só vai pro banco ao salvar; cancelar apenas descarta o rascunho
   const [draft, setDraft] = useState<Usuario | null>(null);
+  // true enquanto o PUT está em andamento (trava o botão Salvar)
+  const [salvando, setSalvando] = useState(false);
+  // erro ao salvar, mostrado acima dos botões; null = sem erro
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
 
   function startEdit() {
+    if (!dados) return;
     // copia pra o formulário editar sem mexer nos dados salvos até clicar em Salvar
-    setDraft({ ...user });
+    setDraft({ ...dados });
+    setErroSalvar(null);
   }
 
   function cancelEdit() {
     setDraft(null);
+    setErroSalvar(null);
   }
 
-  function saveEdit(event: React.FormEvent) {
+  async function saveEdit(event: React.FormEvent) {
     event.preventDefault();
     if (!draft) return;
-    setUser(draft);
-    setDraft(null);
+    setSalvando(true);
+    setErroSalvar(null);
+    try {
+      await salvar(draft);
+      setDraft(null);
+    } catch (falha) {
+      // o formulário continua aberto, com o que a pessoa digitou, pra ela corrigir
+      setErroSalvar(mensagemDeErro(falha));
+    } finally {
+      setSalvando(false);
+    }
   }
 
   function updateDraftField(field: CampoEditavelUsuario, value: string) {
@@ -113,8 +128,65 @@ export function PaginaPerfil() {
   function changeSection(section: ProfileSection) {
     // trocar de aba descarta uma edição em andamento
     setActiveSection(section);
-    setDraft(null);
+    cancelEdit();
   }
+
+  function handleSair() {
+    sair();
+    navigate("/");
+  }
+
+  // título da aba + botão Editar (só fora do modo de edição e com os dados já carregados)
+  function cabecalhoEditavel(titulo: string) {
+    return (
+      <div className="pagina-perfil__cabecalho-conteudo">
+        <h2>{titulo}</h2>
+        {!draft && dados && (
+          <button type="button" className="pagina-perfil__editar" onClick={startEdit}>
+            Editar
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // mensagem de erro do salvar + botões Salvar/Cancelar, iguais nas duas abas editáveis
+  const acoesFormulario = (
+    <>
+      {erroSalvar && (
+        <p className="pagina-perfil__erro" role="alert">
+          {erroSalvar}
+        </p>
+      )}
+      <div className="pagina-perfil__acoes-formulario">
+        <button type="submit" className="pagina-perfil__salvar" disabled={salvando}>
+          {salvando ? "Salvando…" : "Salvar"}
+        </button>
+        <button
+          type="button"
+          className="pagina-perfil__cancelar"
+          onClick={cancelEdit}
+          disabled={salvando}
+        >
+          Cancelar
+        </button>
+      </div>
+    </>
+  );
+
+  // enquanto carrega ou se a busca falhou, as abas de dados mostram isso no lugar do conteúdo
+  const estadoCarregamento = carregando ? (
+    <p className="pagina-perfil__vazio">Carregando seus dados…</p>
+  ) : erro || !dados ? (
+    <div className="pagina-perfil__falha">
+      <p className="pagina-perfil__erro" role="alert">
+        {erro ?? "Não foi possível carregar seus dados."}
+      </p>
+      <button type="button" className="pagina-perfil__cancelar" onClick={recarregar}>
+        Tentar novamente
+      </button>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -128,8 +200,10 @@ export function PaginaPerfil() {
             <span>Minha conta</span>
           </nav>
 
-          {/* saudação só com o primeiro nome */}
-          <h1 className="pagina-perfil__titulo">Olá, {user.nome.split(" ")[0]}!</h1>
+          {/* saudação só com o primeiro nome; vem da sessão, então aparece mesmo carregando */}
+          <h1 className="pagina-perfil__titulo">
+            Olá, {(dados?.nome ?? usuarioSessao?.nome ?? "").split(" ")[0]}!
+          </h1>
 
           <div className="pagina-perfil__layout">
             <aside className="pagina-perfil__menu">
@@ -145,79 +219,88 @@ export function PaginaPerfil() {
                   {section.label}
                 </button>
               ))}
-              {/* TODO: "Sair" só leva pra tela de login; ainda não existe sessão pra encerrar */}
-              <Link to="/entrar" className="pagina-perfil__sair">
+              <button type="button" className="pagina-perfil__sair" onClick={handleSair}>
                 Sair
-              </Link>
+              </button>
             </aside>
 
             <div className="pagina-perfil__conteudo">
               {/* só a aba selecionada é renderizada */}
               {activeSection === "perfil" && (
                 <>
-                  <div className="pagina-perfil__cabecalho-conteudo">
-                    <h2>Informações do perfil</h2>
-                    {/* o botão Editar só aparece fora do modo de edição */}
-                    {!draft && (
-                      <button
-                        type="button"
-                        className="pagina-perfil__editar"
-                        onClick={startEdit}
-                      >
-                        Editar
-                      </button>
-                    )}
-                  </div>
+                  {cabecalhoEditavel("Informações do perfil")}
 
                   {/* com rascunho: formulário de edição; sem rascunho: só leitura */}
-                  {draft ? (
-                    <form className="pagina-perfil__formulario" onSubmit={saveEdit}>
-                      {PROFILE_FIELDS.map(({ field, label, type }) => (
-                        <label key={field}>
-                          {label}
-                          <input
-                            type={type}
-                            value={draft[field] ?? ""}
-                            onChange={(e) => updateDraftField(field, e.target.value)}
-                            required
-                          />
-                        </label>
-                      ))}
-                      <div className="pagina-perfil__acoes-formulario">
-                        <button type="submit" className="pagina-perfil__salvar">
-                          Salvar
-                        </button>
-                        <button
-                          type="button"
-                          className="pagina-perfil__cancelar"
-                          onClick={cancelEdit}
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <dl className="pagina-perfil__info">
-                      {PROFILE_FIELDS.map(({ field, label }) => (
-                        <div key={field} className="pagina-perfil__linha-info">
-                          <dt>{label}</dt>
-                          <dd>{user[field]}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
+                  {estadoCarregamento ??
+                    (draft ? (
+                      <form className="pagina-perfil__formulario" onSubmit={saveEdit}>
+                        {PROFILE_FIELDS.map(({ field, label, type, maxLength, required, travado }) => (
+                          <label key={field}>
+                            {label}
+                            <input
+                              type={type}
+                              value={draft[field] ?? ""}
+                              onChange={(e) => updateDraftField(field, e.target.value)}
+                              maxLength={maxLength}
+                              required={required}
+                              disabled={travado}
+                              title={travado ? "O CPF não pode ser alterado." : undefined}
+                            />
+                          </label>
+                        ))}
+                        {acoesFormulario}
+                      </form>
+                    ) : (
+                      dados && (
+                        <dl className="pagina-perfil__info">
+                          {PROFILE_FIELDS.map(({ field, label }) => (
+                            <div key={field} className="pagina-perfil__linha-info">
+                              <dt>{label}</dt>
+                              <dd>{dados[field] || "—"}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )
+                    ))}
                 </>
               )}
 
               {activeSection === "enderecos" && (
                 <>
-                  <div className="pagina-perfil__cabecalho-conteudo">
-                    <h2>Endereços</h2>
-                  </div>
-                  <div className="pagina-perfil__card">
-                    <span className="pagina-perfil__etiqueta">Principal</span>
-                    <p>{formatarEndereco(user) || "Nenhum endereço cadastrado."}</p>
-                  </div>
+                  {cabecalhoEditavel("Endereços")}
+
+                  {estadoCarregamento ??
+                    (draft ? (
+                      <form className="pagina-perfil__formulario" onSubmit={saveEdit}>
+                        {/* o banco guarda cada parte do endereço numa coluna */}
+                        {CAMPOS_ENDERECO.map(({ campo, label, maxLength, normalizar }) => (
+                          <label key={campo}>
+                            {label}
+                            <input
+                              type="text"
+                              value={draft[campo] ?? ""}
+                              onChange={(e) =>
+                                updateDraftField(
+                                  campo,
+                                  normalizar ? normalizar(e.target.value) : e.target.value
+                                )
+                              }
+                              maxLength={maxLength}
+                            />
+                          </label>
+                        ))}
+                        {acoesFormulario}
+                      </form>
+                    ) : (
+                      dados && (
+                        <div className="pagina-perfil__card">
+                          <span className="pagina-perfil__etiqueta">Principal</span>
+                          <p>{formatarEndereco(dados) || "Nenhum endereço cadastrado."}</p>
+                          {/* o banco guarda só os 8 dígitos; na tela vai com hífen (95900-000) */}
+                          {dados.cep && <p>CEP {dados.cep.replace(/^(\d{5})(\d{3})$/, "$1-$2")}</p>}
+                        </div>
+                      )
+                    ))}
                 </>
               )}
 

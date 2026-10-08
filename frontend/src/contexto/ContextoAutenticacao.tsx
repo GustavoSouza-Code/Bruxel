@@ -1,10 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { startTransition, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { fazerLogin } from "../api/autenticacao";
 import { ContextoAutenticacao } from "./useAutenticacao";
 import type { ValorContextoAutenticacao } from "./useAutenticacao";
 import { apagarSessao, lerSessao, salvarSessao } from "./sessao";
 import type { Sessao } from "./sessao";
+import type { UsuarioSessao } from "../tipos/usuario";
 
 /**
  * Guarda quem está logado e disponibiliza pra árvore inteira (Cabecalho,
@@ -30,7 +31,20 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
 
   const sair = useCallback(() => {
     apagarSessao();
-    setSessao(null);
+    // o React Router troca de página dentro de um startTransition; sem isto, quem faz
+    // sair() + navigate("/") numa página protegida renderizaria "deslogado" ainda na
+    // página antiga, e o RotaLogado/RotaAdmin mandaria pro /entrar em vez de ir pro "/"
+    startTransition(() => setSessao(null));
+  }, []);
+
+  // o Cabecalho lê o nome daqui, então editar o perfil precisa refletir na sessão também
+  const atualizarDadosSessao = useCallback((usuario: UsuarioSessao) => {
+    setSessao((atual) => {
+      if (!atual) return atual;
+      const nova: Sessao = { token: atual.token, usuario };
+      salvarSessao(nova);
+      return nova;
+    });
   }, []);
 
   // useMemo: só cria um objeto novo quando a sessão muda, pra não re-renderizar à toa quem usa o contexto
@@ -42,8 +56,9 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
       ehAdmin: sessao?.usuario.perfil === "ADMINISTRADOR",
       entrar,
       sair,
+      atualizarDadosSessao,
     }),
-    [sessao, entrar, sair]
+    [sessao, entrar, sair, atualizarDadosSessao]
   );
 
   return <ContextoAutenticacao.Provider value={valor}>{children}</ContextoAutenticacao.Provider>;

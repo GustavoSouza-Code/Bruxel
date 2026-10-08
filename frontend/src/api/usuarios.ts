@@ -20,12 +20,24 @@ export function listarUsuarios(token: string) {
   return requisicao<Usuario[]>("/users", { token });
 }
 
+/**
+ * Busca um usuário pelo id. Hoje a rota é só de administrador; o perfil
+ * (/perfil) usa ela com o id de quem está logado, e o backend ainda precisa
+ * liberar o acesso pro próprio usuário.
+ */
+export function buscarUsuario(token: string, id: string) {
+  return requisicao<Usuario>(`/users/${id}`, { token });
+}
+
 // o cadastro é público (não manda token): é assim que um visitante cria a conta
 export function criarUsuario(dados: DadosNovoUsuario) {
   return requisicao<Usuario>("/users", { metodo: "POST", corpo: dados });
 }
 
-/** Altera só os campos enviados e devolve o usuário atualizado (só administrador). */
+/**
+ * Altera só os campos enviados e devolve o usuário atualizado. Hoje é só de
+ * administrador; o perfil também usa, à espera de o backend liberar pro próprio usuário.
+ */
 export function atualizarUsuario(token: string, id: string, campos: CamposAtualizacaoUsuario) {
   return requisicao<Usuario>(`/users/${id}`, { metodo: "PUT", corpo: campos, token });
 }
