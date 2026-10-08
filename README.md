@@ -54,11 +54,22 @@ O servidor sobe em `http://localhost:3000`, com as rotas registradas sob `/api`.
 Dentro de `frontend/`:
 
 ```bash
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-Abre em `http://localhost:5173`.
+O `.env.example` aponta o front para a API local (`VITE_API_URL=http://localhost:3000/api`). Abre em `http://localhost:5173`.
+
+### Primeiro administrador
+
+Toda conta criada pela API (tela "Criar conta" ou `POST /api/users`) nasce com perfil `CLIENTE`. Para acessar o painel `/admin`, crie uma conta pelo site e promova ela no banco:
+
+```bash
+psql -U bruxel -d bruxel -c "UPDATE users SET perfil = 'ADMINISTRADOR' WHERE email = 'seu@email.com';"
+```
+
+Se você já estava logado com essa conta, saia e entre de novo para o site reconhecer o novo perfil.
 
 ### Scripts do backend
 
@@ -86,7 +97,7 @@ O schema tem sete tabelas: `users`, `products`, `categories`, `favorites`, `orde
 
 ## Autenticação
 
-Login é feito em `POST /api/auth/login`, com `email` e `senha` no corpo da requisição. A resposta traz um token JWT, válido por 5 dias, que deve ser enviado nas requisições seguintes no header `Authorization: Bearer <token>`.
+Login é feito em `POST /api/auth/login`, com `email` e `senha` no corpo da requisição. A resposta traz um token JWT, válido por 5 dias, e os dados básicos do usuário (`id`, `nome`, `email`, `perfil`). O token deve ser enviado nas requisições seguintes no header `Authorization: Bearer <token>`. No frontend, a sessão fica salva no `localStorage` (chave `bruxel:sessao`).
 
 Duas camadas de proteção, aplicadas por rota:
 
@@ -111,3 +122,10 @@ Portal público:
 | `/entrar` | Login |
 | `/criar-conta` | Cadastro |
 | `/perfil` | Perfil do usuário logado |
+
+Painel de gestão (exige login de administrador; quem não é admin é redirecionado):
+
+| Rota | Página |
+| --- | --- |
+| `/admin/usuarios` | Gestão de usuários |
+| `/admin/produtos` | Gestão de produtos |
