@@ -20,6 +20,7 @@ export class UserService {
         const validacao = validarCamposObrigatorios(user ?? {}, regrasCriarUser);
 
         if (validacao.length > 0) {
+            console.log("VALIDAÇÃO:", JSON.stringify(validacao, null, 2));
             throw new AppError(400, "Dados inválidos.", validacao);
         }
 

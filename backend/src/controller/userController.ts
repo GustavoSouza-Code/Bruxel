@@ -1,40 +1,65 @@
-import {Request, Response} from "express";
-import {UserService} from "../service/userService";
+import { NextFunction, Request, Response } from "express";
+import { UserService } from "../service/userService";
 
 // controller de usuários, cuida da parte de requisições e respostas HTTP
-// sem try/catch: no Express 5, um erro lançado num handler async vai direto pro
-// handler global do server.ts, que devolve o status certo (AppError: 400/404/409;
-// Prisma: P2002 → 409, P2025 → 404)
 export class UserController {
-    private userService = new UserService();
+  private userService = new UserService();
 
-    create = async (req: Request, res: Response) => {
-        const user = req.body;
-        const result = await this.userService.create(user);
-        return res.status(201).json(result);
-    }
+  create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.userService.create(req.body);
 
-    getAll = async (req: Request, res: Response) => {
-        const result = await this.userService.getAll();
-        return res.status(200).json(result);
+      return res.status(201).json(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    getById = async (req: Request, res: Response) => {
-        const id = req.params.id as string;
-        const result = await this.userService.getById(id);
-        return res.status(200).json(result);
-    }
+  getAll = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.userService.getAll();
 
-    update = async (req: Request, res: Response) => {
-        const id = req.params.id as string;
-        const data = req.body;
-        const result = await this.userService.update(id, data);
-        return res.status(200).json(result);
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
     }
+  };
 
-    delete = async (req: Request, res: Response) => {
-        const id = String(req.params.id);
-        const result = await this.userService.delete(id);
-        return res.status(200).json(result);
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id as string;
+
+      const result = await this.userService.getById(id);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
     }
+  };
+
+  update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id as string;
+
+      const data = req.body;
+
+      const result = await this.userService.update(id, data);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = String(req.params.id);
+
+      const result = await this.userService.delete(id);
+
+      return res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
