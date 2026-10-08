@@ -15,45 +15,51 @@ export class UserController {
     }
   };
 
-  getAll = async (req: Request, res: Response) => {
+  getAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.userService.getAll();
+
       return res.status(200).json(result);
-    } catch (error: any) {
-      return res
-        .status(500)
-        .json({ mensagem: error.message || "Erro ao buscar usuários." });
+    } catch (error) {
+      next(error);
     }
   };
 
-  getById = async (req: Request, res: Response) => {
+  getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string;
+
       const result = await this.userService.getById(id);
+
       return res.status(200).json(result);
-    } catch (error: any) {
-      return res.status(404).json({ mensagem: "Usuário não encontrado." });
+    } catch (error) {
+      next(error);
     }
   };
 
-  update = async (req: Request, res: Response) => {
+  update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string;
+
       const data = req.body;
+
       const result = await this.userService.update(id, data);
+
       return res.status(200).json(result);
-    } catch (error: any) {
-      return res.status(400).json({ mensagem: "Erro ao atualizar usuário." });
+    } catch (error) {
+      next(error);
     }
   };
 
-  delete = async (req: Request, res: Response) => {
+  delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = String(req.params.id);
+
       const result = await this.userService.delete(id);
+
       return res.status(200).json(result);
-    } catch (error: any) {
-      return res.status(400).json({ mensagem: "Erro ao deletar usuário." });
+    } catch (error) {
+      next(error);
     }
   };
 }
