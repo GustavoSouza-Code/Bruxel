@@ -8,7 +8,7 @@ export type CampoEditavelUsuario = Exclude<keyof Usuario, "id" | "perfil">;
 interface CampoEndereco {
   campo: CampoEditavelUsuario;
   label: string;
-  /** tamanho da coluna no banco: acima disso o PostgreSQL recusa e a API devolve erro */
+  /** limite do input; sem normalizar, é o tamanho da coluna no banco (acima disso o PostgreSQL recusa) */
   maxLength: number;
   /** ajusta o texto digitado antes de guardar (ex.: CEP só com dígitos) */
   normalizar?: (valor: string) => string;
@@ -26,7 +26,14 @@ export const CAMPOS_ENDERECO: CampoEndereco[] = [
     maxLength: 2,
     normalizar: (valor) => valor.replace(/[^a-zA-Z]/g, "").toUpperCase(),
   },
-  { campo: "cep", label: "CEP", maxLength: 8, normalizar: (valor) => valor.replace(/\D/g, "") },
+  // o input aceita 9 caracteres pra caber o hífen ao colar "95900-000"; o normalizar
+  // tira o hífen e corta em 8 dígitos (o tamanho da coluna)
+  {
+    campo: "cep",
+    label: "CEP",
+    maxLength: 9,
+    normalizar: (valor) => valor.replace(/\D/g, "").slice(0, 8),
+  },
 ];
 
 /**
