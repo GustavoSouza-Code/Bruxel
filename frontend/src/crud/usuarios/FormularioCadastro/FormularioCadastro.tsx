@@ -1,26 +1,24 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { mensagemDeErro } from "../../../api/cliente";
+import type { DadosNovoUsuario } from "../../../api/usuarios";
 import "./FormularioCadastro.css";
 
 /** O que o formulário entrega ao ser enviado (a confirmação de senha fica só aqui dentro). */
-export interface DadosFormularioCadastro {
-  nome: string;
-  email: string;
-  /** só dígitos, igual ao banco */
-  cpf: string;
-  senha: string;
-}
+export type DadosFormularioCadastro = DadosNovoUsuario;
 
 interface FormularioCadastroProps {
-  onEnviar: (dados: DadosFormularioCadastro) => void;
+  /** salva os dados; se a promessa rejeitar, a mensagem do erro aparece no formulário */
+  onEnviar: (dados: DadosFormularioCadastro) => Promise<void>;
   /** texto do botão de enviar; padrão "Criar conta" */
   textoBotao?: string;
 }
 
 /**
  * Formulário de cadastro de usuário, usado no "/criar-conta" e no modal de
- * "Novo usuário" do painel admin. Confere se as duas senhas são iguais antes
- * de chamar onEnviar e limpa os campos depois de enviar.
+ * "Novo usuário" do painel admin. Confere se as duas senhas são iguais, espera
+ * o onEnviar terminar e só limpa os campos se der certo. Se der erro (ex.: CPF
+ * já cadastrado), mostra a mensagem e mantém o que foi digitado.
  */
 export function FormularioCadastro({
   onEnviar,
@@ -33,8 +31,10 @@ export function FormularioCadastro({
   const [confirmarSenha, setConfirmarSenha] = useState("");
   // mensagem de erro mostrada acima do botão; null = sem erro
   const [erro, setErro] = useState<string | null>(null);
+  // true enquanto espera a API: desabilita o botão pra não cadastrar duas vezes
+  const [enviando, setEnviando] = useState(false);
 
-  function enviar(event: FormEvent) {
+  async function enviar(event: FormEvent) {
     event.preventDefault();
 
     if (senha !== confirmarSenha) {
@@ -42,14 +42,23 @@ export function FormularioCadastro({
       return;
     }
 
-    onEnviar({ nome, email, cpf, senha });
+    setEnviando(true);
+    setErro(null);
+    try {
+      await onEnviar({ nome: nome.trim(), email: email.trim(), cpf, senha });
+    } catch (falha) {
+      // mantém os campos pra pessoa só corrigir o que deu problema
+      setErro(mensagemDeErro(falha));
+      setEnviando(false);
+      return;
+    }
 
+    setEnviando(false);
     setNome("");
     setEmail("");
     setCpf("");
     setSenha("");
     setConfirmarSenha("");
-    setErro(null);
   }
 
   return (
@@ -61,6 +70,7 @@ export function FormularioCadastro({
           placeholder="Seu nome completo"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
+          maxLength={150}
           required
         />
       </label>
@@ -71,6 +81,8 @@ export function FormularioCadastro({
           placeholder="seu@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          maxLength={255}
+          autoComplete="email"
           required
         />
       </label>
@@ -95,6 +107,7 @@ export function FormularioCadastro({
           placeholder="••••••••"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
+          autoComplete="new-password"
           required
         />
       </label>
@@ -105,6 +118,7 @@ export function FormularioCadastro({
           placeholder="••••••••"
           value={confirmarSenha}
           onChange={(e) => setConfirmarSenha(e.target.value)}
+          autoComplete="new-password"
           required
         />
       </label>
@@ -115,8 +129,8 @@ export function FormularioCadastro({
         </p>
       )}
 
-      <button type="submit" className="formulario-cadastro__enviar">
-        {textoBotao}
+      <button type="submit" className="formulario-cadastro__enviar" disabled={enviando}>
+        {enviando ? "Enviando…" : textoBotao}
       </button>
     </form>
   );

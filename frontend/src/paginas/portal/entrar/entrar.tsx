@@ -1,4 +1,8 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { mensagemDeErro } from "../../../api/cliente";
+import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
@@ -43,10 +47,40 @@ const ACCOUNT_FEATURES = [
 ];
 
 /**
- * Tela de login (rota "/entrar"). Por enquanto é só a interface: o envio do
- * formulário é bloqueado (preventDefault) e nada é enviado ao backend.
+ * Tela de login (rota "/entrar"): envia e-mail e senha pelo entrar() do
+ * ContextoAutenticacao. Se der certo, leva o admin pro painel e o cliente pra
+ * Home (ou de volta pra página que o RotaAdmin barrou); se der errado, mostra
+ * a mensagem da API acima do botão.
  */
 export function PaginaEntrar() {
+  const { entrar } = useAutenticacao();
+  const navigate = useNavigate();
+  // recados que outras telas mandam pelo state do navigate: o aviso do /criar-conta
+  // (mensagem) e a página que o RotaAdmin barrou (de)
+  const recado = useLocation().state as { mensagem?: string; de?: string } | null;
+
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  // mensagem de erro mostrada acima do botão; null = sem erro
+  const [erro, setErro] = useState<string | null>(null);
+  // true enquanto espera a API: desabilita o botão pra não enviar duas vezes
+  const [enviando, setEnviando] = useState(false);
+
+  async function enviar(event: FormEvent) {
+    event.preventDefault();
+    setEnviando(true);
+    setErro(null);
+    try {
+      const usuario = await entrar(email, senha);
+      const destino = recado?.de ?? (usuario.perfil === "ADMINISTRADOR" ? "/admin/usuarios" : "/");
+      // replace: o "voltar" do navegador não traz de novo pra tela de login
+      navigate(destino, { replace: true });
+    } catch (falha) {
+      setErro(mensagemDeErro(falha));
+      setEnviando(false);
+    }
+  }
+
   return (
     <>
       <Cabecalho />
@@ -57,21 +91,42 @@ export function PaginaEntrar() {
             Olá! Você precisa realizar o login para entrar no seu perfil
           </h1>
 
-          {/* TODO: integrar com o backend (login); hoje o botão "Entrar" não faz nada */}
-          <form
-            className="pagina-entrar__formulario"
-            onSubmit={(event) => event.preventDefault()}
-          >
+          <form className="pagina-entrar__formulario" onSubmit={enviar}>
+            {/* aviso de "conta criada" vindo do /criar-conta; some se aparecer um erro */}
+            {recado?.mensagem && !erro && (
+              <p className="pagina-entrar__sucesso" role="status">
+                {recado.mensagem}
+              </p>
+            )}
             <label>
               E-mail
-              <input type="email" placeholder="seu@email.com" required />
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
             </label>
             <label>
               Senha
-              <input type="password" placeholder="••••••••" required />
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
             </label>
-            <button type="submit" className="pagina-entrar__enviar">
-              Entrar
+            {erro && (
+              <p className="pagina-entrar__erro" role="alert">
+                {erro}
+              </p>
+            )}
+            <button type="submit" className="pagina-entrar__enviar" disabled={enviando}>
+              {enviando ? "Entrando…" : "Entrar"}
             </button>
           </form>
 

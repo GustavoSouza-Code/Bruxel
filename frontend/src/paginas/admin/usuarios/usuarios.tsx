@@ -26,7 +26,7 @@ export function PaginaAdminUsuarios() {
   // controla se o modal de "Novo usuário" está aberto
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  function handleCreate(data: DadosFormularioCadastro) {
+  async function handleCreate(data: DadosFormularioCadastro) {
     criarUsuario(data);
     setIsCreateOpen(false);
   }

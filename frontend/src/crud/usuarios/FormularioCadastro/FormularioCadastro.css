@@ -50,3 +50,9 @@
 .formulario-cadastro__enviar:hover {
   background-color: var(--color-primary-dark);
 }
+
+/* enquanto espera a resposta da API */
+.formulario-cadastro__enviar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
