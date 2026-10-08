@@ -29,6 +29,11 @@ export class UserController {
     try {
       const id = req.params.id as string;
 
+      const usuarioLogado = (req as any).usuario;
+      if (usuarioLogado.perfil !== "ADMINISTRADOR" && usuarioLogado.id !== id) {
+        return res.status(403).json({ mensagem: "Não autorizado." });
+      }
+
       const result = await this.userService.getById(id);
 
       return res.status(200).json(result);
@@ -40,6 +45,11 @@ export class UserController {
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string;
+
+      const usuarioLogado = (req as any).usuario;
+      if (usuarioLogado.perfil !== "ADMINISTRADOR" && usuarioLogado.id !== id) {
+        return res.status(403).json({ mensagem: "Não autorizado." });
+      }
 
       const data = req.body;
 

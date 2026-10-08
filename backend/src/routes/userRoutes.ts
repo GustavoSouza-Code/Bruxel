@@ -10,8 +10,8 @@ const userController = new UserController();
 
 router.post("/users", userController.create);
 router.get("/users", verificaToken, verificaAdmin, userController.getAll);
-router.get("/users/:id", verificaToken, verificaAdmin, userController.getById);
-router.put("/users/:id", verificaToken, verificaAdmin, userController.update);
+router.get("/users/:id", verificaToken, userController.getById);
+router.put("/users/:id", verificaToken, userController.update);
 router.delete("/users/:id", verificaToken, verificaAdmin, userController.delete);
 
 export default router;
