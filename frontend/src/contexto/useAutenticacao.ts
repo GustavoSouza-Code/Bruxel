@@ -13,6 +13,8 @@ export interface ValorContextoAutenticacao {
   entrar: (email: string, senha: string) => Promise<UsuarioSessao>;
   /** encerra a sessão (quem chama decide pra onde navegar depois) */
   sair: () => void;
+  /** troca os dados do usuário guardados na sessão (ex.: depois de editar o perfil), mantendo o token */
+  atualizarDadosSessao: (usuario: UsuarioSessao) => void;
 }
 
 // começa como null pra useAutenticacao() conseguir detectar o uso fora do ProvedorAutenticacao.

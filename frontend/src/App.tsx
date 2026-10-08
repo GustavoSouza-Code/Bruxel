@@ -3,6 +3,7 @@ import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
 import { RotaAdmin } from "./componentes/layout/RotaAdmin/RotaAdmin";
+import { RotaLogado } from "./componentes/layout/RotaLogado/RotaLogado";
 import { PaginaInicio } from "./paginas/portal/inicio/inicio";
 import { PaginaSobre } from "./paginas/portal/sobre/sobre";
 import { PaginaLoja } from "./paginas/portal/loja/loja";
@@ -36,7 +37,10 @@ function App() {
             <Route path="/carrinho" element={<PaginaCarrinho />} />
             <Route path="/entrar" element={<PaginaEntrar />} />
             <Route path="/criar-conta" element={<PaginaCriarConta />} />
-            <Route path="/perfil" element={<PaginaPerfil />} />
+            {/* área do cliente: o RotaLogado manda quem não está logado pro /entrar */}
+            <Route element={<RotaLogado />}>
+              <Route path="/perfil" element={<PaginaPerfil />} />
+            </Route>
             {/* painel de gestão (usa o NavAdmin no lugar do Cabecalho);
                 o RotaAdmin só deixa passar quem está logado como administrador */}
             <Route element={<RotaAdmin />}>

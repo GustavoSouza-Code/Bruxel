@@ -64,13 +64,18 @@
   font-weight: 600;
 }
 
+/* é um <button>, então zera o visual padrão e fica só a linha de cima */
 .pagina-perfil__sair {
   margin-top: 0.5rem;
   padding: 0.85rem 1rem;
+  background: none;
+  border: none;
   border-top: 1px solid var(--color-border-soft);
+  text-align: left;
+  font-family: inherit;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
-  text-decoration: none;
+  cursor: pointer;
 }
 
 .pagina-perfil__sair:hover {
@@ -162,6 +167,12 @@
   background-color: var(--color-white);
 }
 
+.pagina-perfil__formulario input:disabled {
+  color: var(--color-text-muted);
+  background-color: #f1f1f4;
+  cursor: not-allowed;
+}
+
 .pagina-perfil__formulario input:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
@@ -187,6 +198,28 @@
 
 .pagina-perfil__salvar:hover {
   background-color: var(--color-primary-dark);
+}
+
+.pagina-perfil__salvar:disabled,
+.pagina-perfil__cancelar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* erro ao carregar (com "Tentar novamente") ou ao salvar (acima dos botões) */
+.pagina-perfil__erro {
+  grid-column: 1 / -1; /* dentro do formulário, ocupa a linha inteira */
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.pagina-perfil__falha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 /* Cards (endereços e pedidos) */
