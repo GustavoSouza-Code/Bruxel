@@ -2,6 +2,7 @@ import {CreateUserDTO, UpdateUserDTO} from "../models/user";
 import {UserRepository} from "../repository/userRepository";
 import {validarCamposObrigatorios, regraValidacao} from "../utils/validaObrigatorios";
 import {AppError} from "../errors/AppError";
+import bcrypt from 'bcrypt';
 
 // array de regras
 const regrasCriarUser: regraValidacao[] = [
@@ -64,8 +65,23 @@ export class UserService {
         return usuario;
     }
 
-    async update(id: string, data: UpdateUserDTO) {
+    // exigirSenhaAtual: true quando a pessoa altera a própria conta; o admin
+    // redefinindo a senha de outro usuário não precisa saber a senha antiga
+    async update(id: string, data: UpdateUserDTO, exigirSenhaAtual: boolean) {
         await this.getById(id);
+
+        if (data.senha !== undefined) {
+            if (typeof data.senha !== "string" || data.senha.trim() === "") {
+                throw new AppError(400, "Informe uma senha válida.");
+            }
+            if (exigirSenhaAtual) {
+                const senhaAtual = data.senhaAtual;
+                const hashAtual = await this.userRepository.getSenhaById(id);
+                if (typeof senhaAtual !== "string" || !hashAtual || !(await bcrypt.compare(senhaAtual, hashAtual))) {
+                    throw new AppError(400, "Senha atual incorreta.");
+                }
+            }
+        }
 
         const permitidos = ["nome", "email", "senha", "telefone", "rua", "numero", "bairro", "cidade", "estado", "cep"] as const;
         const dados: Record<string, unknown> = {};

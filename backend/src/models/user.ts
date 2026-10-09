@@ -32,6 +32,8 @@ export interface UpdateUserDTO {
     nome?: string
     email?: string
     senha?: string
+    // obrigatória junto com `senha` quando o usuário troca a própria senha
+    senhaAtual?: string
     phone?: string
     rua?: string
     cidade?: string
