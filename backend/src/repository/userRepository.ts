@@ -50,6 +50,22 @@ export class UserRepository {
         }
     }
 
+    // GET necessário para conferir a senha atual antes de trocar a senha
+    async getSenhaById(id: string) {
+        try {
+            const user = await prisma.users.findUnique({
+                where: {
+                    id: id,
+                },
+                select: {senha: true}
+            })
+            return user?.senha ?? null;
+        } catch (error) {
+            console.error(`Erro ao buscar senha do usuário: ${id}:`, error);
+            throw error;
+        }
+    }
+
     // GET necessário para verificar se usuário com o mesmo CPF já existe no banco
     async getByCPF(cpf: string) {
         try {
@@ -84,7 +100,8 @@ export class UserRepository {
         try {
             const dadosParaAtualizar = { ...data };
 
-            if (dadosParaAtualizar.senha) {
+            // !== undefined (e não só truthy) pra senha nunca ir pro banco sem hash
+            if (dadosParaAtualizar.senha !== undefined) {
                 dadosParaAtualizar.senha = await bcrypt.hash(dadosParaAtualizar.senha, 10);
             }
 

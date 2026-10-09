@@ -53,7 +53,8 @@ export class UserController {
 
       const data = req.body;
 
-      const result = await this.userService.update(id, data);
+      // trocando a própria senha (inclusive admin), precisa confirmar a atual
+      const result = await this.userService.update(id, data, usuarioLogado.id === id);
 
       return res.status(200).json(result);
     } catch (error) {
