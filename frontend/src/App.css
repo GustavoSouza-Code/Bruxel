@@ -19,6 +19,14 @@ body {
   background-color: var(--color-white);
 }
 
+/* a página ocupa no mínimo a altura da tela: em páginas curtas (ex.: carrinho vazio)
+   o Rodape, com margin-top: auto, desce até o fim em vez de ficar no meio */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 /* tira as margens padrão do navegador; o espaçamento é definido em cada componente */
 h1,
 h2,
