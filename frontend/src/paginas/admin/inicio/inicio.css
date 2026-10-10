@@ -1,0 +1,132 @@
+.pagina-admin-inicio {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-admin-inicio__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  color: var(--color-primary);
+  margin: 0 0 0.25rem;
+}
+
+.pagina-admin-inicio__subtitulo {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+/* Celular (padrão): uma área por linha, como uma lista de atalhos */
+.pagina-admin-inicio__areas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pagina-admin-inicio__area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background-color: #f7f7fa;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.pagina-admin-inicio__area:hover {
+  border-color: var(--color-accent);
+}
+
+/* "Em breve" fica apagado e tracejado pra não parecer clicável */
+.pagina-admin-inicio__area--em-breve {
+  background-color: transparent;
+  border-style: dashed;
+  color: var(--color-text-muted);
+}
+
+.pagina-admin-inicio__icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.pagina-admin-inicio__area--em-breve .pagina-admin-inicio__icone {
+  color: var(--color-text-muted);
+}
+
+/* min-width: 0 deixa o texto encolher e quebrar em vez de alargar a linha */
+.pagina-admin-inicio__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.pagina-admin-inicio__texto strong {
+  font-size: var(--font-size-body);
+}
+
+.pagina-admin-inicio__texto span {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.pagina-admin-inicio__seta {
+  flex-shrink: 0;
+}
+
+/* no celular a seta ">" já indica o clique */
+.pagina-admin-inicio__acessar {
+  display: none;
+}
+
+/* Desktop: grade de cartões, com o ícone em cima e o "Acessar →" embaixo */
+@media (min-width: 900px) {
+  .pagina-admin-inicio__areas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .pagina-admin-inicio__area {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  .pagina-admin-inicio__icone {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: var(--color-store-button);
+  }
+
+  .pagina-admin-inicio__area--em-breve .pagina-admin-inicio__icone {
+    background-color: #f1f1f4;
+  }
+
+  .pagina-admin-inicio__texto strong {
+    color: var(--color-primary);
+  }
+
+  .pagina-admin-inicio__area--em-breve .pagina-admin-inicio__texto strong {
+    color: inherit;
+  }
+
+  .pagina-admin-inicio__acessar {
+    display: block;
+    margin-top: auto; /* alinha o "Acessar →" no rodapé de cartões de alturas diferentes */
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .pagina-admin-inicio__seta {
+    display: none;
+  }
+}

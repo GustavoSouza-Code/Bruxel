@@ -1,0 +1,24 @@
+/* cor herdada do header (branco nos dois) e sem o sublinhado padrão de link */
+.logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  font-weight: 700;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+}
+
+.logo:hover {
+  opacity: 0.85;
+}
+
+.logo__principal {
+  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem);
+}
+
+.logo__secundario {
+  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.95rem);
+  font-weight: 500;
+  opacity: 0.85;
+}

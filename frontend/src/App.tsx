@@ -12,6 +12,7 @@ import { PaginaCarrinho } from "./paginas/portal/carrinho/carrinho";
 import { PaginaEntrar } from "./paginas/portal/entrar/entrar";
 import { PaginaCriarConta } from "./paginas/portal/criar-conta/criar-conta";
 import { PaginaPerfil } from "./paginas/portal/perfil/perfil";
+import { PaginaAdminInicio } from "./paginas/admin/inicio/inicio";
 import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
 import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
 
@@ -41,9 +42,10 @@ function App() {
             <Route element={<RotaLogado />}>
               <Route path="/perfil" element={<PaginaPerfil />} />
             </Route>
-            {/* painel de gestão (usa o NavAdmin no lugar do Cabecalho);
+            {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
                 o RotaAdmin só deixa passar quem está logado como administrador */}
             <Route element={<RotaAdmin />}>
+              <Route path="/admin" element={<PaginaAdminInicio />} />
               <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
               <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
             </Route>

@@ -48,9 +48,9 @@ const ACCOUNT_FEATURES = [
 
 /**
  * Tela de login (rota "/entrar"): envia e-mail e senha pelo entrar() do
- * ContextoAutenticacao. Se der certo, leva o admin pro painel e o cliente pra
- * Home (ou de volta pra página que o RotaAdmin barrou); se der errado, mostra
- * a mensagem da API acima do botão.
+ * ContextoAutenticacao. Se der certo, leva pra Home (ou de volta pra página
+ * que o RotaAdmin barrou); se der errado, mostra a mensagem da API acima do
+ * botão.
  */
 export function PaginaEntrar() {
   const { entrar } = useAutenticacao();
@@ -71,8 +71,9 @@ export function PaginaEntrar() {
     setEnviando(true);
     setErro(null);
     try {
-      const usuario = await entrar(email, senha);
-      const destino = recado?.de ?? (usuario.perfil === "ADMINISTRADOR" ? "/admin/usuarios" : "/");
+      await entrar(email, senha);
+      // admin e cliente vão pra Home; o admin chega no painel pelo menu do usuário
+      const destino = recado?.de ?? "/";
       // replace: o "voltar" do navegador não traz de novo pra tela de login
       navigate(destino, { replace: true });
     } catch (falha) {
