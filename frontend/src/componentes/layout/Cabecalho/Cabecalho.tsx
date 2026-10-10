@@ -5,6 +5,7 @@ import { useCarrinho } from "../../../contexto/ContextoCarrinho";
 import { useBordasRolagem } from "../../../hooks/useBordasRolagem";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { MenuUsuario } from "../MenuUsuario/MenuUsuario";
+import { Logo } from "../Logo/Logo";
 import "./Cabecalho.css";
 
 // links do menu principal, na ordem em que aparecem
@@ -93,10 +94,7 @@ export function Cabecalho() {
         className={`cabecalho${scrolled ? " cabecalho--rolado" : ""}`}
       >
         <Container className="cabecalho__interno">
-          <div className="cabecalho__logo">
-            <span className="cabecalho__logo-principal">Bruxel</span>
-            <span className="cabecalho__logo-secundario">Piscinas</span>
-          </div>
+          <Logo />
 
           {/* menu principal; as classes fade-* esmaecem a borda quando há links escondidos (só no celular) */}
           <nav

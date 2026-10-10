@@ -2,53 +2,45 @@
 .nav-admin {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1rem var(--gutter);
+  gap: 1rem;
+  padding: 0.75rem var(--gutter);
   background-color: var(--color-primary-dark);
   color: var(--color-white);
-  flex-wrap: wrap;
 }
 
+/* linha à esquerda separa o "Painel de gestão" do logo */
 .nav-admin__titulo {
-  font-weight: 700;
-  font-size: var(--font-size-body);
-  margin-right: auto; /* empurra os links e o "Voltar ao site" pra direita */
-  white-space: nowrap;
-}
-
-.nav-admin__links {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-admin__link,
-.nav-admin__voltar,
-.nav-admin__sair {
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  padding-left: 1rem;
+  margin-right: auto; /* empurra a pílula do usuário pra direita */
   color: var(--color-white);
-  text-decoration: none;
+  font-weight: 600;
   font-size: var(--font-size-small);
-  opacity: 0.85;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.nav-admin__link:hover,
-.nav-admin__voltar:hover,
-.nav-admin__sair:hover {
-  opacity: 1;
+.nav-admin__titulo:hover {
   text-decoration: underline;
 }
 
-/* linha à esquerda separa "Voltar ao site" dos atalhos do painel */
-.nav-admin__voltar {
-  border-left: 1px solid rgba(255, 255, 255, 0.3);
-  padding-left: 1rem;
+/* Celular: título encurtado ("Painel") e espaços menores, pra tudo caber numa linha */
+@media (max-width: 640px) {
+  .nav-admin {
+    gap: 0.75rem;
+  }
+
+  .nav-admin__titulo {
+    padding-left: 0.75rem;
+  }
+
+  .nav-admin__titulo-extra {
+    display: none;
+  }
 }
 
-/* <button> com cara de link, igual aos outros itens da barra */
-.nav-admin__sair {
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: inherit;
-  cursor: pointer;
+/* pílula do usuário um pouco mais baixa que no Cabecalho, pra barra não ficar alta */
+.nav-admin .cabecalho__botao-entrar {
+  height: 40px;
+  padding: 0 1.1rem;
 }

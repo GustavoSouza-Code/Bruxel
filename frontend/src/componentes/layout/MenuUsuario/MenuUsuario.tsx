@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+// a pílula usa a classe .cabecalho__botao-entrar; o NavAdmin não renderiza o Cabecalho, então importa aqui
+import "../Cabecalho/Cabecalho.css";
 import "./MenuUsuario.css";
 
 /**
- * Botão do usuário logado no Cabecalho, no lugar do "Entrar": mostra o
+ * Botão do usuário logado no Cabecalho (no lugar do "Entrar") e no NavAdmin: mostra o
  * primeiro nome e, ao clicar, abre um menu com Minha conta, Painel de gestão
  * (só admin) e Sair.
  *
@@ -85,7 +87,7 @@ export function MenuUsuario() {
             Minha conta
           </Link>
           {ehAdmin && (
-            <Link to="/admin/usuarios" className="menu-usuario__item" onClick={() => setAberto(false)}>
+            <Link to="/admin" className="menu-usuario__item" onClick={() => setAberto(false)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="7" height="9" rx="1" />
                 <rect x="14" y="3" width="7" height="5" rx="1" />
