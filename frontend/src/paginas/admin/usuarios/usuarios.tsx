@@ -1,43 +1,99 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
+import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
+import { PainelFiltros } from "../../../componentes/ui/PainelFiltros/PainelFiltros";
+import { ChipsFiltro } from "../../../componentes/ui/ChipsFiltro/ChipsFiltro";
+import { AlternarVisualizacao } from "../../../componentes/ui/AlternarVisualizacao/AlternarVisualizacao";
+import { IconeEditar, IconeLixeira } from "../../../componentes/ui/Icones/Icones";
 import { FormularioCadastro } from "../../../crud/usuarios/FormularioCadastro/FormularioCadastro";
 import type { DadosFormularioCadastro } from "../../../crud/usuarios/FormularioCadastro/FormularioCadastro";
+import { FormularioEdicaoUsuario } from "../../../crud/usuarios/FormularioEdicaoUsuario/FormularioEdicaoUsuario";
 import { useUsuarios } from "../../../crud/usuarios/useUsuarios";
 import {
-  CAMPOS_ENDERECO,
-  formatarEndereco,
-  paraCamposAtualizacao,
-} from "../../../crud/usuarios/camposUsuario";
-import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
+  FILTROS_USUARIO_INICIAIS,
+  contarFiltrosAtivosUsuario,
+  filtrarUsuarios,
+  opcoesDeEstado,
+} from "../../../crud/usuarios/filtrarUsuarios";
+import type { FiltrosUsuario, OrdemUsuario } from "../../../crud/usuarios/filtrarUsuarios";
+import type { CamposAtualizacaoUsuario } from "../../../api/usuarios";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { useCarregarMais } from "../../../hooks/useCarregarMais";
+import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
 import type { Usuario } from "../../../tipos/usuario";
+import "../lista-admin.css";
 import "./usuarios.css";
 
+const OPCOES_PERFIL: { valor: FiltrosUsuario["perfil"]; rotulo: string }[] = [
+  { valor: "", rotulo: "Todos" },
+  { valor: "CLIENTE", rotulo: "Clientes" },
+  { valor: "ADMINISTRADOR", rotulo: "Administradores" },
+];
+
+// quantos itens aparecem de cada vez (a lista compacta cabe mais na tela)
+const POR_VEZ = { cards: 12, lista: 20 };
+
+const ID_PAINEL = "filtros-usuarios";
+
+/** "Ana Paula Souza" → "AS": primeira letra do primeiro e do último nome. */
+function iniciais(nome: string) {
+  const partes = nome.trim().split(/\s+/);
+  const primeira = partes[0]?.[0] ?? "";
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
+  return (primeira + ultima).toUpperCase();
+}
+
+function cidadeUf(usuario: Usuario) {
+  return [usuario.cidade, usuario.estado].filter(Boolean).join(" - ");
+}
+
 /**
- * Gestão de usuários do painel admin (rota "/admin/usuarios"): tabela com
- * edição inline e exclusão, e um botão que abre um modal com o mesmo
- * formulário do "/criar-conta" pra cadastrar usuários. A lista e as
- * operações de criar/editar/excluir vêm do useUsuarios (src/crud/usuarios),
- * que conversa com a API; esta página só cuida da tela.
+ * Gestão de usuários do painel admin (rota "/admin/usuarios"): busca, chips
+ * de perfil, painel de filtros e a lista em cards ou em lista compacta.
+ * "+ Novo usuário" abre o mesmo formulário do "/criar-conta" num modal, e
+ * "Editar" abre o FormularioEdicaoUsuario. A lista e as operações vêm do
+ * useUsuarios (src/crud/usuarios), que conversa com a API; esta página só
+ * cuida da tela.
  */
 export function PaginaAdminUsuarios() {
   const { usuarios, carregando, erro, recarregar, criarUsuario, atualizarUsuario, excluirUsuario } =
     useUsuarios();
-  // admin logado: a linha dele não pode ser excluída
+  // admin logado: a conta dele não pode ser excluída
   const { usuario: usuarioLogado } = useAutenticacao();
-  // id do usuário cuja linha está em edição; null = ninguém (só uma linha por vez)
-  const [editingId, setEditingId] = useState<string | null>(null);
-  // cópia editável do usuário em edição; só vai pra API ao clicar em Salvar
-  const [editDraft, setEditDraft] = useState<Usuario | null>(null);
+  const [filtros, setFiltros] = useState<FiltrosUsuario>(FILTROS_USUARIO_INICIAIS);
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+  const [modo, setModo] = useModoVisualizacao("admin-usuarios");
   // controla se o modal de "Novo usuário" está aberto
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  // erro ao salvar ou excluir, mostrado acima da lista; null = sem erro
+  // id do usuário no modal de edição; null = modal fechado
+  const [editingId, setEditingId] = useState<string | null>(null);
+  // erro ao excluir, mostrado acima da lista; null = sem erro
   const [erroAcao, setErroAcao] = useState<string | null>(null);
-  // true enquanto o PUT da edição não volta (desabilita Salvar e Cancelar)
-  const [salvando, setSalvando] = useState(false);
+
+  // só refiltra quando a lista ou os filtros mudam (não a cada renderização)
+  const filtrados = useMemo(() => filtrarUsuarios(usuarios, filtros), [usuarios, filtros]);
+  const estados = useMemo(() => opcoesDeEstado(usuarios), [usuarios]);
+  // a chave muda com os filtros e o modo: aí a lista volta a mostrar só o começo
+  const { visiveis, temMais, carregarMais } = useCarregarMais(
+    filtrados,
+    JSON.stringify(filtros) + modo,
+    POR_VEZ[modo]
+  );
+
+  const editingUser = usuarios.find((u) => u.id === editingId) ?? null;
+
+  // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "ordem" só aceita OrdemUsuario)
+  function atualizarFiltro<K extends keyof FiltrosUsuario>(campo: K, valor: FiltrosUsuario[K]) {
+    setFiltros((atuais) => ({ ...atuais, [campo]: valor }));
+  }
+
+  // "Limpar filtros" do painel: zera tudo menos o texto da busca, que a pessoa vê e apaga no campo
+  function limparFiltros() {
+    setFiltros((atuais) => ({ ...FILTROS_USUARIO_INICIAIS, busca: atuais.busca }));
+  }
 
   // se a API recusar, o erro sobe pro FormularioCadastro, que mostra a mensagem e deixa o modal aberto
   async function handleCreate(data: DadosFormularioCadastro) {
@@ -47,35 +103,14 @@ export function PaginaAdminUsuarios() {
 
   function startEdit(user: Usuario) {
     setEditingId(user.id);
-    setEditDraft({ ...user });
     setErroAcao(null);
   }
 
-  function cancelEdit() {
+  // se a API recusar, o erro sobe pro FormularioEdicaoUsuario, que mostra a mensagem e deixa o modal aberto
+  async function saveEdit(campos: CamposAtualizacaoUsuario) {
+    if (!editingId) return;
+    await atualizarUsuario(editingId, campos);
     setEditingId(null);
-    setEditDraft(null);
-    setErroAcao(null);
-  }
-
-  async function saveEdit() {
-    if (!editDraft) return;
-    // o backend não valida o update: sem isso daria pra salvar um usuário sem nome
-    if (!editDraft.nome.trim() || !editDraft.email.trim()) {
-      setErroAcao("Nome e e-mail são obrigatórios.");
-      return;
-    }
-    setSalvando(true);
-    setErroAcao(null);
-    try {
-      await atualizarUsuario(editDraft.id, paraCamposAtualizacao(editDraft));
-      setEditingId(null);
-      setEditDraft(null);
-    } catch (falha) {
-      // a linha continua em edição pra pessoa corrigir (ex.: e-mail que já existe)
-      setErroAcao(mensagemDeErro(falha));
-    } finally {
-      setSalvando(false);
-    }
   }
 
   async function handleDelete(user: Usuario) {
@@ -84,19 +119,34 @@ export function PaginaAdminUsuarios() {
     setErroAcao(null);
     try {
       await excluirUsuario(user.id);
-      // se a linha excluída estava em edição, encerra a edição
-      if (editingId === user.id) {
-        setEditingId(null);
-        setEditDraft(null);
-      }
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
     }
   }
 
-  function updateDraftField(field: CampoEditavelUsuario, value: string) {
-    setEditDraft((current) => (current ? { ...current, [field]: value } : current));
+  const contador =
+    filtrados.length === usuarios.length
+      ? `${usuarios.length} ${usuarios.length === 1 ? "usuário" : "usuários"}`
+      : `${filtrados.length} de ${usuarios.length} usuários`;
+
+  // botão Excluir com o mesmo jeito nos dois modos; travado na conta do próprio admin
+  function botaoExcluir(user: Usuario) {
+    const ehVoceMesmo = user.id === usuarioLogado?.id;
+    return (
+      <button
+        className="lista-admin__icone-botao lista-admin__icone-botao--perigo"
+        onClick={() => handleDelete(user)}
+        // excluir a própria conta derrubaria a sessão no meio do uso
+        disabled={ehVoceMesmo}
+        aria-label={`Excluir ${user.nome}`}
+        title={ehVoceMesmo ? "Você não pode excluir a própria conta" : "Excluir"}
+      >
+        <IconeLixeira />
+      </button>
+    );
   }
+
+  const prontos = !carregando && !erro;
 
   return (
     <>
@@ -104,152 +154,195 @@ export function PaginaAdminUsuarios() {
 
       <section className="pagina-admin-usuarios">
         <Container>
-          <div className="pagina-admin-usuarios__topo">
-            <h1 className="pagina-admin-usuarios__titulo">Gestão de Usuários</h1>
-            <button
-              className="pagina-admin-usuarios__novo"
-              onClick={() => setIsCreateOpen(true)}
-            >
+          <div className="lista-admin__topo">
+            <h1 className="lista-admin__titulo">Gestão de Usuários</h1>
+            <button className="lista-admin__botao" onClick={() => setIsCreateOpen(true)}>
               + Novo usuário
             </button>
           </div>
 
+          <BarraBusca
+            valor={filtros.busca}
+            onMudar={(valor) => atualizarFiltro("busca", valor)}
+            placeholder="Buscar por nome, e-mail ou CPF"
+            rotulo="Buscar usuários"
+            filtrosAbertos={filtrosAbertos}
+            onAlternarFiltros={() => setFiltrosAbertos((aberto) => !aberto)}
+            qtdFiltrosAtivos={contarFiltrosAtivosUsuario(filtros)}
+            idPainel={ID_PAINEL}
+          />
+
+          <PainelFiltros id={ID_PAINEL} aberto={filtrosAbertos} onLimpar={limparFiltros}>
+            <label>
+              Cidade
+              <input
+                placeholder="Ex.: Lajeado"
+                value={filtros.cidade}
+                onChange={(e) => atualizarFiltro("cidade", e.target.value)}
+              />
+            </label>
+            <label>
+              UF
+              <select
+                value={filtros.estado}
+                onChange={(e) => atualizarFiltro("estado", e.target.value)}
+              >
+                <option value="">Qualquer</option>
+                {estados.map((uf) => (
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Ordenar por
+              <select
+                value={filtros.ordem}
+                onChange={(e) => atualizarFiltro("ordem", e.target.value as OrdemUsuario)}
+              >
+                <option value="nome">Nome (A–Z)</option>
+                <option value="nome-desc">Nome (Z–A)</option>
+              </select>
+            </label>
+          </PainelFiltros>
+
+          <div className="lista-admin__linha-chips">
+            <ChipsFiltro
+              opcoes={OPCOES_PERFIL}
+              selecionado={filtros.perfil}
+              onSelecionar={(valor) => atualizarFiltro("perfil", valor)}
+              rotulo="Perfil"
+            />
+            <AlternarVisualizacao modo={modo} onMudar={setModo} />
+          </div>
+
+          {prontos && (
+            // aria-live: leitores de tela anunciam o novo total quando um filtro muda
+            <p className="lista-admin__contador" aria-live="polite">
+              {contador}
+            </p>
+          )}
+
           {erroAcao && (
-            <p className="pagina-admin-usuarios__aviso" role="alert">
+            <p className="lista-admin__aviso" role="alert">
               {erroAcao}
             </p>
           )}
 
-          {/* títulos das colunas (só em telas largas; no celular o rótulo vem do data-label) */}
-          <div className="pagina-admin-usuarios__linha-titulos">
-            <span>Nome</span>
-            <span>E-mail</span>
-            <span>Endereço</span>
-            <span>Telefone</span>
-            <span>CPF</span>
-            <span>Ações</span>
-          </div>
+          {carregando && <p className="lista-admin__vazio">Carregando usuários…</p>}
 
-          <div className="pagina-admin-usuarios__lista">
-            {carregando && <p className="pagina-admin-usuarios__vazio">Carregando usuários…</p>}
+          {!carregando && erro && (
+            <div className="lista-admin__aviso" role="alert">
+              <span>{erro}</span>
+              <button
+                type="button"
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={recarregar}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
 
-            {!carregando && erro && (
-              <div className="pagina-admin-usuarios__aviso" role="alert">
-                <span>{erro}</span>
-                <button
-                  type="button"
-                  className="pagina-admin-usuarios__cancelar"
-                  onClick={recarregar}
-                >
-                  Tentar novamente
-                </button>
-              </div>
-            )}
+          {prontos && usuarios.length === 0 && (
+            <p className="lista-admin__vazio">Nenhum usuário cadastrado.</p>
+          )}
 
-            {!carregando &&
-              !erro &&
-              usuarios.map((user) => {
-                // só a linha do usuário em edição vira inputs; as outras continuam em modo leitura
-                const isEditing = editingId === user.id;
-                const draft = isEditing ? editDraft : null;
-                const ehVoceMesmo = user.id === usuarioLogado?.id;
+          {prontos && usuarios.length > 0 && filtrados.length === 0 && (
+            <div className="lista-admin__vazio">
+              <p>Nenhum usuário encontrado. Tente outro termo ou limpe os filtros.</p>
+              <button
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={() => setFiltros(FILTROS_USUARIO_INICIAIS)}
+              >
+                Limpar busca e filtros
+              </button>
+            </div>
+          )}
 
-                return (
-                  <div key={user.id} className="pagina-admin-usuarios__linha">
-                    {isEditing && draft ? (
-                      <>
-                        <input
-                          value={draft.nome}
-                          onChange={(e) => updateDraftField("nome", e.target.value)}
-                          maxLength={150}
-                          aria-label="Nome"
-                        />
-                        <input
-                          type="email"
-                          value={draft.email}
-                          onChange={(e) => updateDraftField("email", e.target.value)}
-                          maxLength={255}
-                          aria-label="E-mail"
-                        />
-                        {/* o endereço tem uma coluna por campo no banco, então vira um grupo de inputs */}
-                        <div className="pagina-admin-usuarios__editar-endereco">
-                          {CAMPOS_ENDERECO.map(({ campo, label, maxLength, normalizar }) => (
-                            <input
-                              key={campo}
-                              value={draft[campo] ?? ""}
-                              onChange={(e) =>
-                                updateDraftField(
-                                  campo,
-                                  normalizar ? normalizar(e.target.value) : e.target.value
-                                )
-                              }
-                              maxLength={maxLength}
-                              placeholder={label}
-                              aria-label={label}
-                            />
-                          ))}
-                        </div>
-                        <input
-                          value={draft.telefone ?? ""}
-                          onChange={(e) => updateDraftField("telefone", e.target.value)}
-                          maxLength={20}
-                          aria-label="Telefone"
-                        />
-                        {/* o backend não deixa trocar o CPF, então na edição ele só aparece */}
-                        <span data-label="CPF">{draft.cpf}</span>
-                        <div className="pagina-admin-usuarios__acoes">
-                          <button
-                            className="pagina-admin-usuarios__salvar"
-                            onClick={saveEdit}
-                            disabled={salvando}
-                          >
-                            {salvando ? "Salvando…" : "Salvar"}
-                          </button>
-                          <button
-                            className="pagina-admin-usuarios__cancelar"
-                            onClick={cancelEdit}
-                            disabled={salvando}
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* data-label: rótulo que o CSS mostra no celular, onde não há linha de títulos */}
-                        <span data-label="Nome">{user.nome}</span>
-                        <span data-label="E-mail">{user.email}</span>
-                        {/* campos vazios (ex.: usuário recém-criado) mostram "—" */}
-                        <span data-label="Endereço">{formatarEndereco(user) || "—"}</span>
-                        <span data-label="Telefone">{user.telefone || "—"}</span>
-                        <span data-label="CPF">{user.cpf || "—"}</span>
-                        <div className="pagina-admin-usuarios__acoes">
-                          <button
-                            className="pagina-admin-usuarios__editar"
-                            onClick={() => startEdit(user)}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            className="pagina-admin-usuarios__excluir"
-                            onClick={() => handleDelete(user)}
-                            // excluir a própria conta derrubaria a sessão no meio do uso
-                            disabled={ehVoceMesmo}
-                            title={ehVoceMesmo ? "Você não pode excluir a própria conta" : undefined}
-                          >
-                            Excluir
-                          </button>
-                        </div>
-                      </>
-                    )}
+          {prontos && filtrados.length > 0 && modo === "cards" && (
+            <ul className="lista-admin__grade">
+              {visiveis.map((user) => (
+                <li key={user.id} className="lista-admin__card">
+                  <div className="pagina-admin-usuarios__cabecalho-card">
+                    <span className="pagina-admin-usuarios__avatar" aria-hidden="true">
+                      {iniciais(user.nome)}
+                    </span>
+                    <span className="lista-admin__card-titulo">
+                      {user.nome}
+                      {user.perfil === "ADMINISTRADOR" && <SeloAdmin />}
+                    </span>
                   </div>
-                );
-              })}
+                  {/* o e-mail fica fora do cabeçalho pra ter a largura toda do card e não quebrar no meio */}
+                  <div className="lista-admin__card-corpo">
+                    <span className="lista-admin__card-detalhe" title={user.email}>
+                      {user.email}
+                    </span>
+                    {/* campos vazios (ex.: usuário recém-criado) mostram "—" */}
+                    <span className="lista-admin__card-detalhe">
+                      Telefone: {user.telefone || "—"}
+                    </span>
+                    <span className="lista-admin__card-detalhe">Cidade: {cidadeUf(user) || "—"}</span>
+                  </div>
+                  <div className="lista-admin__card-acoes">
+                    <button className="lista-admin__botao" onClick={() => startEdit(user)}>
+                      Editar
+                    </button>
+                    {botaoExcluir(user)}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
-            {!carregando && !erro && usuarios.length === 0 && (
-              <p className="pagina-admin-usuarios__vazio">Nenhum usuário cadastrado.</p>
-            )}
-          </div>
+          {prontos && filtrados.length > 0 && modo === "lista" && (
+            <ul className="lista-admin__compacta pagina-admin-usuarios__compacta">
+              {/* títulos das colunas; aria-hidden porque cada linha já é lida inteira */}
+              <li className="lista-admin__linha lista-admin__linha--titulos" aria-hidden="true">
+                <span>Nome</span>
+                <span className="lista-admin__so-largo">E-mail</span>
+                <span className="lista-admin__so-largo">Telefone</span>
+                <span className="lista-admin__so-largo">Cidade</span>
+                <span />
+              </li>
+              {visiveis.map((user) => (
+                <li key={user.id} className="lista-admin__linha">
+                  <span title={user.nome}>
+                    {user.nome}
+                    {user.perfil === "ADMINISTRADOR" && <SeloAdmin />}
+                  </span>
+                  <span className="lista-admin__so-largo" title={user.email}>
+                    {user.email}
+                  </span>
+                  <span className="lista-admin__so-largo">{user.telefone || "—"}</span>
+                  <span className="lista-admin__so-largo">{cidadeUf(user) || "—"}</span>
+                  <span className="lista-admin__linha-acoes">
+                    <button
+                      className="lista-admin__icone-botao"
+                      onClick={() => startEdit(user)}
+                      aria-label={`Editar ${user.nome}`}
+                      title="Editar"
+                    >
+                      <IconeEditar />
+                    </button>
+                    {botaoExcluir(user)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {prontos && temMais && (
+            <div className="lista-admin__carregar-mais">
+              <button
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={carregarMais}
+              >
+                Carregar mais ({filtrados.length - visiveis.length} restantes)
+              </button>
+            </div>
+          )}
         </Container>
       </section>
 
@@ -258,8 +351,23 @@ export function PaginaAdminUsuarios() {
           <FormularioCadastro textoBotao="Criar usuário" onEnviar={handleCreate} />
         </Modal>
       )}
+
+      {editingUser && (
+        <Modal titulo="Editar usuário" onFechar={() => setEditingId(null)} largo>
+          <FormularioEdicaoUsuario
+            key={editingUser.id}
+            usuario={editingUser}
+            onSalvar={saveEdit}
+            onCancelar={() => setEditingId(null)}
+          />
+        </Modal>
+      )}
     </>
   );
+}
+
+function SeloAdmin() {
+  return <span className="lista-admin__selo lista-admin__selo--destaque">admin</span>;
 }
 
 export default PaginaAdminUsuarios;
