@@ -1,12 +1,8 @@
-/* Formulário de cadastro/edição: grade de 3 colunas (1 no celular) */
+/* Formulário de cadastro/edição dentro do modal: grade de 2 colunas (1 no celular) */
 .formulario-produto {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
-  background-color: #f7f7fa;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
 }
 
 .formulario-produto label {

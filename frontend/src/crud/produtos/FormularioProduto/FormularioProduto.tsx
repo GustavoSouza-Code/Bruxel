@@ -11,7 +11,7 @@ interface FormularioProdutoProps {
   /** produto em edição; null = o formulário está cadastrando um produto novo */
   produto: Produto | null;
   onEnviar: (dados: DadosFormularioProduto) => void;
-  /** chamado pelo botão "Cancelar edição" (só aparece editando) */
+  /** chamado pelo botão "Cancelar" (a página fecha o modal) */
   onCancelar: () => void;
 }
 
@@ -42,10 +42,10 @@ function paraDadosFormulario(produto: Produto): DadosFormularioProduto {
 }
 
 /**
- * Formulário de produto do painel admin, que serve tanto pra cadastrar
- * quanto pra editar. Os campos começam com os dados de `produto` (ou em
- * branco); pra trocar o produto em edição, a página muda a `key` do
- * componente, e o React cria um formulário novo.
+ * Formulário de produto do painel admin (aberto num modal), que serve tanto
+ * pra cadastrar quanto pra editar. Os campos começam com os dados de
+ * `produto` (ou em branco); pra trocar o produto em edição, a página muda a
+ * `key` do componente, e o React cria um formulário novo.
  */
 export function FormularioProduto({ produto, onEnviar, onCancelar }: FormularioProdutoProps) {
   const editando = produto !== null;
@@ -64,9 +64,8 @@ export function FormularioProduto({ produto, onEnviar, onCancelar }: FormularioP
 
   function enviar(event: FormEvent) {
     event.preventDefault();
+    // a página salva e fecha o modal; na próxima abertura o formulário nasce de novo
     onEnviar(formulario);
-    // no cadastro, limpa os campos pro próximo produto (na edição a página troca a key e recria o form)
-    if (!editando) setFormulario(FORMULARIO_VAZIO);
   }
 
   return (
@@ -162,15 +161,13 @@ export function FormularioProduto({ produto, onEnviar, onCancelar }: FormularioP
         <button type="submit" className="formulario-produto__enviar">
           {editando ? "Salvar alterações" : "Adicionar produto"}
         </button>
-        {editando && (
-          <button
-            type="button"
-            className="formulario-produto__cancelar"
-            onClick={onCancelar}
-          >
-            Cancelar edição
-          </button>
-        )}
+        <button
+          type="button"
+          className="formulario-produto__cancelar"
+          onClick={onCancelar}
+        >
+          Cancelar
+        </button>
       </div>
     </form>
   );
