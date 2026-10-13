@@ -171,12 +171,18 @@ export function PaginaSolicitarAtendimento() {
     (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
 
-  // outro cliente, outro contato: o que foi digitado pro cliente anterior é descartado
+  // outro cliente, outro contato: o que foi digitado pro cliente anterior é descartado.
+  // Corrigir só o nome de quem não tem cadastro não é trocar de cliente: o contato fica
   function escolherCliente(escolha: EscolhaCliente) {
+    const mesmoCliente =
+      escolha.tipo === escolhaCliente.tipo &&
+      (escolha.tipo === "sem-cadastro" ||
+        (escolhaCliente.tipo === "cadastrado" && escolha.usuario?.id === escolhaCliente.usuario?.id));
     setEscolhaCliente(escolha);
+    setErroCliente(null);
+    if (mesmoCliente) return;
     setContatoEditado(null);
     setEditandoContato(false);
-    setErroCliente(null);
     setAvisoLoja(null);
     (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
@@ -333,7 +339,7 @@ export function PaginaSolicitarAtendimento() {
               <legend className="pagina-atendimento__titulo-bloco">
                 Fotos do problema <span className="pagina-atendimento__opcional">(opcional)</span>
               </legend>
-              <CampoFotos fotos={fotos} onChange={mudarFotos} />
+              <CampoFotos key={envios} fotos={fotos} onChange={mudarFotos} />
             </fieldset>
 
             <fieldset className="pagina-atendimento__bloco">
