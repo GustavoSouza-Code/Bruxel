@@ -4,7 +4,7 @@ import type { Ocupacao } from "../tipos/tecnico";
 
 /** Tudo que os componentes conseguem ler e usar dos atendimentos via useAtendimentos(). */
 export interface ValorContextoAtendimentos {
-  /** atendimentos do cliente, do mais novo pro mais antigo */
+  /** atendimentos da conta logada (inclusive os abertos pela loja pra ela) e os exemplos, do mais novo pro mais antigo */
   atendimentos: Atendimento[];
   /** horários ocupados na agenda dos atendentes, juntando os pedidos de todas as contas */
   ocupacoes: Ocupacao[];

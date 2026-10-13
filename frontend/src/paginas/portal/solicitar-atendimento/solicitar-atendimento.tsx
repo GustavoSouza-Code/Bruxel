@@ -36,7 +36,7 @@ import { CampoFotos } from "./componentes/CampoFotos/CampoFotos";
 import type { FotoSelecionada } from "./componentes/CampoFotos/CampoFotos";
 import "./solicitar-atendimento.css";
 
-/** O rascunho sem o contato: o contato é calculado à parte, a partir do perfil. */
+/** O rascunho sem o contato: o contato é calculado à parte (do perfil do cliente, ou da conta escolhida pelo admin). */
 type CamposRascunho = Omit<RascunhoSolicitacao, "contato">;
 
 const RASCUNHO_INICIAL: CamposRascunho = {
@@ -47,18 +47,28 @@ const RASCUNHO_INICIAL: CamposRascunho = {
   horario: null,
 };
 
+// depois de um envio pela loja, cliques no "Enviar" dentro deste intervalo são o resto de um duplo clique
+const INTERVALO_DUPLO_CLIQUE_MS = 1000;
+
+/** A conta do cliente escolhido; null quando ninguém foi escolhido ou o cliente não tem cadastro. */
+function contaDaEscolha(escolha: EscolhaCliente) {
+  return escolha.tipo === "cadastrado" ? (escolha.usuario?.id ?? null) : null;
+}
+
 /**
- * Formulário em que o cliente pede uma visita técnica (rota "/solicitar-atendimento",
- * só pra quem está logado). Cinco blocos — tipo, descrição, fotos, atendente e
- * horário, e contato — numerados pelo CSS (counter), então dá pra incluir um bloco no
- * meio sem renumerar nada.
+ * Formulário de pedido de visita técnica (rota "/solicitar-atendimento", só pra quem está logado).
+ * Os blocos — tipo, descrição, fotos, atendente e horário, e contato — são numerados pelo CSS
+ * (counter), então dá pra incluir um bloco no meio sem renumerar nada.
  *
- * O contato vem do perfil: completo, aparece só um resumo com "Alterar";
- * incompleto (ou se a busca do perfil falhar), os campos já abrem pra digitar.
- * Mudar o contato aqui vale só pra este atendimento.
+ * Cliente: o contato vem do próprio perfil — completo, aparece só um resumo com "Alterar";
+ * incompleto (ou se a busca do perfil falhar), os campos já abrem pra digitar. Mudar o contato
+ * aqui vale só pra este atendimento. Ao enviar, vai pra aba "Atendimentos" do /perfil com um aviso.
  *
- * Ao enviar, guarda no ProvedorAtendimentos (em memória, sem backend ainda) e
- * leva pra aba "Atendimentos" do /perfil com um aviso.
+ * Administrador (abrindo pela loja): ganha o bloco "Cliente" no topo (uma conta cadastrada ou só o
+ * nome de quem não tem conta), o contato vem da conta escolhida e, ao enviar, fica na página com
+ * um aviso e o formulário limpo, pronto pro próximo cliente.
+ *
+ * Os pedidos vão pro ProvedorAtendimentos (em memória, sem backend ainda).
  */
 export function PaginaSolicitarAtendimento() {
   const { solicitarAtendimento, ocupacoes } = useAtendimentos();
@@ -75,10 +85,14 @@ export function PaginaSolicitarAtendimento() {
   const [editandoContato, setEditandoContato] = useState(false);
   // erros da última tentativa de envio; cada um some quando a pessoa mexe no campo
   const [erros, setErros] = useState<ErrosSolicitacao>({});
-  // dias da faixa (amanhã em diante, sem domingo); o inicializador roda uma vez só (o render não pode chamar new Date())
-  const [dias] = useState(() => diasDaAgenda(new Date()));
+  // dias da faixa (amanhã em diante, sem domingo): calculados na montagem (o render não pode chamar
+  // new Date()) e de novo no envio, caso a página tenha ficado aberta de um dia pro outro
+  const [dias, setDias] = useState(() => diasDaAgenda(new Date()));
   // trava contra duplo clique: um segundo submit antes de a página trocar não cria outro atendimento
   const enviadoRef = useRef(false);
+  // quando foi o último envio pela loja: o formulário volta limpo na hora, então o 2º clique de um
+  // duplo clique validaria o formulário vazio e encheria a tela de erros logo depois do aviso
+  const ultimoEnvioLojaRef = useRef(0);
   // admin abrindo pela loja: quem é o cliente, o erro do bloco "Cliente" e o aviso depois do envio
   const [escolhaCliente, setEscolhaCliente] = useState<EscolhaCliente>(ESCOLHA_CLIENTE_INICIAL);
   const [erroCliente, setErroCliente] = useState<string | null>(null);
@@ -131,20 +145,21 @@ export function PaginaSolicitarAtendimento() {
 
   // trocar de atendente pode deixar o dia ou o horário escolhidos sem vaga: aí eles são limpos
   function escolherTecnico(escolha: string) {
-    setRascunho((atual) => {
-      const diaContinua = atual.data !== "" && diaTemHorarioLivre(escolha, atual.data, ocupacoes);
-      const horarioContinua =
-        diaContinua &&
-        atual.horario !== null &&
-        horarioEstaLivre(escolha, atual.data, atual.horario, ocupacoes);
-      return {
-        ...atual,
-        tecnico: escolha,
-        data: diaContinua ? atual.data : "",
-        horario: horarioContinua ? atual.horario : null,
-      };
-    });
+    const diaContinua = rascunho.data !== "" && diaTemHorarioLivre(escolha, rascunho.data, ocupacoes);
+    const horarioContinua =
+      diaContinua &&
+      rascunho.horario !== null &&
+      horarioEstaLivre(escolha, rascunho.data, rascunho.horario, ocupacoes);
+    setRascunho((atual) => ({
+      ...atual,
+      tecnico: escolha,
+      data: diaContinua ? atual.data : "",
+      horario: horarioContinua ? atual.horario : null,
+    }));
     limparErro("tecnico");
+    // o dia ou o horário que foi limpo leva junto o erro que era dele
+    if (rascunho.data !== "" && !diaContinua) limparErro("data");
+    if (rascunho.horario !== null && !horarioContinua) limparErro("horario");
   }
 
   // outro dia, outros horários: o horário escolhido antes é limpo
@@ -171,28 +186,41 @@ export function PaginaSolicitarAtendimento() {
     (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
 
-  // outro cliente, outro contato: o que foi digitado pro cliente anterior é descartado.
-  // Corrigir só o nome de quem não tem cadastro não é trocar de cliente: o contato fica
+  // o contato digitado é de quem está no balcão: só é descartado quando a conta do cliente muda
+  // (escolher, trocar ou largar uma conta cadastrada, que traz o próprio contato). Passar de
+  // "ninguém escolhido" pra "sem cadastro" (ou voltar pra busca), ou corrigir o nome, mantém o contato
   function escolherCliente(escolha: EscolhaCliente) {
-    const mesmoCliente =
-      escolha.tipo === escolhaCliente.tipo &&
-      (escolha.tipo === "sem-cadastro" ||
-        (escolhaCliente.tipo === "cadastrado" && escolha.usuario?.id === escolhaCliente.usuario?.id));
+    const mesmaConta = contaDaEscolha(escolha) === contaDaEscolha(escolhaCliente);
     setEscolhaCliente(escolha);
     setErroCliente(null);
-    if (mesmoCliente) return;
+    // o aviso do envio anterior sai quando o atendente começa o próximo cliente
+    if (escolha.tipo !== escolhaCliente.tipo || !mesmaConta) setAvisoLoja(null);
+    if (mesmaConta) return;
     setContatoEditado(null);
     setEditandoContato(false);
-    setAvisoLoja(null);
     (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
 
   function enviar(evento: FormEvent) {
     evento.preventDefault();
     if (enviadoRef.current) return;
+    // resto de um duplo clique logo depois de um envio pela loja: ignora
+    if (ehAdmin && Date.now() - ultimoEnvioLojaRef.current < INTERVALO_DUPLO_CLIQUE_MS) return;
 
-    const completo: RascunhoSolicitacao = { ...rascunho, contato };
-    const encontrados = validarSolicitacao(completo, new Date(), ocupacoes);
+    // a página pode ficar aberta de um dia pro outro (a do balcão fica o dia todo): se a faixa de
+    // dias mudou, ela é atualizada, e um dia escolhido que saiu dela deixa de valer
+    const hoje = new Date();
+    const diasDeHoje = diasDaAgenda(hoje);
+    let rascunhoAtual = rascunho;
+    if (diasDeHoje[0] !== dias[0]) {
+      setDias(diasDeHoje);
+      if (rascunhoAtual.data !== "" && !diasDeHoje.includes(rascunhoAtual.data)) {
+        rascunhoAtual = { ...rascunhoAtual, data: "", horario: null };
+        setRascunho(rascunhoAtual);
+      }
+    }
+    const completo: RascunhoSolicitacao = { ...rascunhoAtual, contato };
+    const encontrados = validarSolicitacao(completo, hoje, ocupacoes);
     // pela loja, o cliente também precisa estar escolhido
     const problemaCliente = ehAdmin ? validarClienteDaLoja(escolhaCliente) : null;
     setErroCliente(problemaCliente);
@@ -247,8 +275,9 @@ export function PaginaSolicitarAtendimento() {
       setErros({});
       // as fotos foram pro pedido: só esvazia o campo, sem revogar as URLs
       mudarFotos([]);
-      // libera o próximo envio (o formulário já está limpo, então um clique repetido só mostra os erros)
+      // libera o próximo envio; o resto de um duplo clique é barrado pelo ultimoEnvioLojaRef
       enviadoRef.current = false;
+      ultimoEnvioLojaRef.current = Date.now();
       window.scrollTo(0, 0);
       return;
     }
@@ -280,10 +309,11 @@ export function PaginaSolicitarAtendimento() {
               ? "Preencha com os dados do cliente que está sendo atendido."
               : "Conte o que está acontecendo com a sua piscina e a Bruxel confirma a visita com você."}
           </p>
-          {avisoLoja && (
-            <p className="pagina-atendimento__aviso" role="status">
-              {avisoLoja}
-            </p>
+          {/* a região fica sempre montada pro admin: o leitor de tela só anuncia texto que entra numa região que já existia */}
+          {ehAdmin && (
+            <div role="status">
+              {avisoLoja && <p className="pagina-atendimento__aviso">{avisoLoja}</p>}
+            </div>
           )}
 
           {/* noValidate: as mensagens vêm do validarSolicitacao, não dos balões do navegador */}

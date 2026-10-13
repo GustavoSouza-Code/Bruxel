@@ -24,7 +24,7 @@ const CHAVE_BALCAO = "balcao";
  * os atendimentos do próprio usuário e confere os conflitos de horário).
  */
 export function ProvedorAtendimentos({ children }: { children: ReactNode }) {
-  // pedidos novos de cada conta, pelo id do usuário logado (os exemplos ficam de fora)
+  // pedidos novos de cada cliente, pela conta do cliente do pedido ("balcao" pra quem não tem conta); os exemplos ficam de fora
   const [novosPorUsuario, setNovosPorUsuario] = useState<Record<string, Atendimento[]>>({});
   const { usuario } = useAutenticacao();
   const idUsuario = usuario?.id ?? null;
