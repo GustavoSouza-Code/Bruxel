@@ -69,4 +69,9 @@
   .cartao-cliente-os__whatsapp {
     margin-left: calc(44px + 0.85rem);
   }
+
+  /* os dados ocupam a linha toda ao lado do avatar; assim o WhatsApp desce em vez de espremer o texto */
+  .cartao-cliente-os__dados {
+    flex: 1 1 calc(100% - 44px - 0.85rem);
+  }
 }
