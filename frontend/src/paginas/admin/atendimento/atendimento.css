@@ -1,0 +1,175 @@
+.pagina-admin-atendimento {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-admin-atendimento__voltar {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.pagina-admin-atendimento__voltar:hover {
+  color: var(--color-primary);
+}
+
+.pagina-admin-atendimento__link-botao {
+  display: inline-block;
+  margin-top: 0.75rem;
+  text-decoration: none;
+}
+
+.pagina-admin-atendimento__topo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.pagina-admin-atendimento__titulo {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  color: var(--color-primary);
+}
+
+.pagina-admin-atendimento__subtitulo {
+  margin: 0.25rem 0 1rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* aviso verde depois de cada ação */
+.pagina-admin-atendimento__aviso {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+/* uma coluna só, como a OS da imagem da issue; no desktop fica com largura de leitura */
+.pagina-admin-atendimento__blocos {
+  display: grid;
+  gap: 1rem;
+  max-width: 760px;
+}
+
+.pagina-admin-atendimento__bloco {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  min-width: 0;
+}
+
+.pagina-admin-atendimento__bloco h2 {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+}
+
+.pagina-admin-atendimento__bloco p {
+  margin: 0;
+}
+
+.pagina-admin-atendimento__detalhe {
+  margin-top: 0.2rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.pagina-admin-atendimento__texto {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pagina-admin-atendimento__descricao {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: #f4f5f8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pagina-admin-atendimento__bloco--mensagem {
+  border-color: #f5c6c1;
+  background-color: #fdf6f5;
+}
+
+.pagina-admin-atendimento__whatsapp {
+  display: inline-block;
+  margin-top: 0.75rem;
+  border: 1px solid #1e7a3c;
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.pagina-admin-atendimento__whatsapp:hover {
+  background-color: #e3f5e8;
+}
+
+/* barra de ações presa no pé da tela enquanto a OS rola, como o botão da imagem da issue */
+.pagina-admin-atendimento__acoes {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  max-width: 760px;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--color-border-soft);
+  background-color: var(--color-white);
+}
+
+.pagina-admin-atendimento__botao {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.65rem 1.25rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.pagina-admin-atendimento__botao--principal {
+  background-color: #1e7a3c;
+  color: var(--color-white);
+}
+
+.pagina-admin-atendimento__botao--principal:hover {
+  background-color: #17602f;
+}
+
+.pagina-admin-atendimento__botao--perigo {
+  background: none;
+  border-color: #e3a39b;
+  color: #c0392b;
+}
+
+.pagina-admin-atendimento__botao--perigo:hover {
+  background-color: #fdecea;
+}
+
+.pagina-admin-atendimento__botao:focus-visible,
+.pagina-admin-atendimento__whatsapp:focus-visible,
+.pagina-admin-atendimento__voltar:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* celular: cada botão ocupa a largura toda */
+@media (max-width: 599px) {
+  .pagina-admin-atendimento__botao {
+    flex: 1 1 100%;
+  }
+}
