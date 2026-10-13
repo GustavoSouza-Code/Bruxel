@@ -127,7 +127,8 @@ export function Cabecalho() {
 
           <div className="cabecalho__acoes">
             {/* segunda pílula: leva pro pedido de visita técnica (o RotaLogado pede login antes, se precisar).
-                O aria-label mantém o nome completo pro leitor de tela quando o celular mostra só "Atendimento" */}
+                O aria-label e o title mantêm o nome completo "Solicitar atendimento" quando a pílula
+                mostra só o ícone (tablets e celulares) */}
             <Link
               to="/solicitar-atendimento"
               className="cabecalho__botao-atendimento"

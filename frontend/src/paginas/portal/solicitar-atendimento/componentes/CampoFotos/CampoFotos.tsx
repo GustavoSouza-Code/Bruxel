@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { MAX_FOTOS, validarFotos } from "../../../../../crud/atendimentos/validarSolicitacao";
 import { IconeFechar, IconeMais } from "../../../../../componentes/ui/Icones/Icones";
@@ -24,6 +24,8 @@ interface CampoFotosProps {
 export function CampoFotos({ fotos, onChange }: CampoFotosProps) {
   // por que alguma foto ficou de fora (não é imagem, grande demais, passou do limite)
   const [erro, setErro] = useState<string | null>(null);
+  // número do id da próxima foto (crypto.randomUUID só existe em HTTPS ou localhost)
+  const proximoIdRef = useRef(0);
 
   function adicionar(evento: ChangeEvent<HTMLInputElement>) {
     const escolhidos = Array.from(evento.target.files ?? []);
@@ -35,7 +37,7 @@ export function CampoFotos({ fotos, onChange }: CampoFotosProps) {
     if (aceitas.length === 0) return;
 
     const novas = aceitas.map((arquivo) => ({
-      id: crypto.randomUUID(),
+      id: `foto-${++proximoIdRef.current}`,
       arquivo,
       url: URL.createObjectURL(arquivo),
     }));
