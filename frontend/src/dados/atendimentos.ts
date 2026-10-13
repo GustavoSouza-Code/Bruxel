@@ -11,8 +11,9 @@ export const ATENDIMENTOS_EXEMPLO: Atendimento[] = [
     tipo: "bomba-filtro",
     descricao: "A bomba faz um barulho alto quando liga e o filtro está perdendo pressão.",
     fotos: [],
-    dataPreferida: "2026-10-16",
-    periodo: "manha",
+    tecnicoId: "carlos",
+    data: "2026-10-16",
+    horario: "08:00",
     contato: {
       telefone: "51999990000",
       rua: "Rua Bento Gonçalves",
@@ -30,8 +31,9 @@ export const ATENDIMENTOS_EXEMPLO: Atendimento[] = [
     tipo: "limpeza",
     descricao: "Limpeza completa antes do verão: a água está turva e com folhas no fundo.",
     fotos: [],
-    dataPreferida: "2026-09-15",
-    periodo: "tarde",
+    tecnicoId: "marcos",
+    data: "2026-09-15",
+    horario: "13:30",
     contato: {
       telefone: "51999990000",
       rua: "Rua Bento Gonçalves",

@@ -1,7 +1,9 @@
-import type { ContatoAtendimento, PeriodoAtendimento, TipoServico } from "../../tipos/atendimento";
+import type { ContatoAtendimento, HorarioVisita, TipoServico } from "../../tipos/atendimento";
+import type { Ocupacao } from "../../tipos/tecnico";
+import { TECNICOS } from "../../dados/tecnicos";
 import { validarContato } from "./contatoAtendimento";
 import type { ErrosContato } from "./contatoAtendimento";
-import { dataMinima } from "./datasAtendimento";
+import { SEM_PREFERENCIA, diasDaAgenda, horarioEstaLivre, horariosDoDia } from "./agenda";
 
 /** Limites da descrição do problema (o textarea usa o máximo no maxLength). */
 export const DESCRICAO_MIN = 10;
@@ -12,26 +14,34 @@ export const MAX_FOTOS = 5;
 export const MAX_TAMANHO_FOTO = 5 * 1024 * 1024; // 5 MB, em bytes
 
 /**
- * O formulário enquanto a pessoa preenche: tipo e período começam sem
- * escolha (null) e a data começa vazia ("").
+ * O formulário enquanto a pessoa preenche: o tipo e o horário começam sem
+ * escolha (null), o dia começa vazio ("") e o atendente começa em "Sem preferência".
  */
 export interface RascunhoSolicitacao {
   tipo: TipoServico | null;
   descricao: string;
-  dataPreferida: string;
-  periodo: PeriodoAtendimento | null;
+  /** id do atendente, ou SEM_PREFERENCIA */
+  tecnico: string;
+  /** "aaaa-mm-dd"; "" = ainda não escolheu */
+  data: string;
+  horario: HorarioVisita | null;
   contato: ContatoAtendimento;
 }
 
 /** Uma mensagem por campo com problema; a página mostra cada uma no bloco do campo. */
 export type ErrosSolicitacao = ErrosContato &
-  Partial<Record<"tipo" | "descricao" | "dataPreferida" | "periodo", string>>;
+  Partial<Record<"tipo" | "descricao" | "tecnico" | "data" | "horario", string>>;
 
 /**
  * Confere o rascunho e devolve os erros por campo. Objeto vazio = pode enviar.
- * `hoje` vem de fora pra os testes não dependerem do relógio.
+ * `hoje` vem de fora pra os testes não dependerem do relógio; `ocupacoes` são os
+ * horários já tomados na agenda dos atendentes.
  */
-export function validarSolicitacao(rascunho: RascunhoSolicitacao, hoje: Date): ErrosSolicitacao {
+export function validarSolicitacao(
+  rascunho: RascunhoSolicitacao,
+  hoje: Date,
+  ocupacoes: Ocupacao[]
+): ErrosSolicitacao {
   const erros: ErrosSolicitacao = { ...validarContato(rascunho.contato) };
 
   if (!rascunho.tipo) erros.tipo = "Escolha o tipo de serviço.";
@@ -43,14 +53,29 @@ export function validarSolicitacao(rascunho: RascunhoSolicitacao, hoje: Date): E
     erros.descricao = `A descrição pode ter até ${DESCRICAO_MAX} caracteres.`;
   }
 
-  if (!rascunho.dataPreferida) {
-    erros.dataPreferida = "Escolha uma data.";
-  } else if (rascunho.dataPreferida < dataMinima(hoje)) {
-    // datas "aaaa-mm-dd" em ordem alfabética também estão em ordem de calendário
-    erros.dataPreferida = "Escolha uma data a partir de amanhã.";
+  // a tela só oferece "Sem preferência" ou um dos atendentes; qualquer outro valor é dado inválido
+  if (rascunho.tecnico !== SEM_PREFERENCIA && !TECNICOS.some((tecnico) => tecnico.id === rascunho.tecnico)) {
+    erros.tecnico = "Escolha o atendente.";
   }
 
-  if (!rascunho.periodo) erros.periodo = "Escolha manhã ou tarde.";
+  if (!rascunho.data) {
+    erros.data = "Escolha o dia.";
+  } else if (!diasDaAgenda(hoje).includes(rascunho.data)) {
+    erros.data = "Escolha um dia da lista.";
+  }
+
+  if (!rascunho.horario) {
+    erros.horario = "Escolha um horário.";
+  } else if (rascunho.data && !horariosDoDia(rascunho.data).includes(rascunho.horario)) {
+    // ex.: 15:30 num sábado, que só tem horários de manhã
+    erros.horario = "Escolha um horário da lista.";
+  } else if (
+    rascunho.data &&
+    !horarioEstaLivre(rascunho.tecnico, rascunho.data, rascunho.horario, ocupacoes)
+  ) {
+    // outro pedido pode ter pego o horário enquanto a pessoa preenchia o resto
+    erros.horario = "Esse horário acabou de ser ocupado. Escolha outro.";
+  }
 
   return erros;
 }

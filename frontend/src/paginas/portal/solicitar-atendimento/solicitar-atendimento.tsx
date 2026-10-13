@@ -7,13 +7,23 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import { useAtendimentos } from "../../../contexto/useAtendimentos";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import { contatoDoUsuario, validarContato } from "../../../crud/atendimentos/contatoAtendimento";
-import { dataMinima } from "../../../crud/atendimentos/datasAtendimento";
 import { DESCRICAO_MAX, validarSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
 import type { ErrosSolicitacao, RascunhoSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
-import type { ContatoAtendimento } from "../../../tipos/atendimento";
+import {
+  SEM_PREFERENCIA,
+  diaTemHorarioLivre,
+  diasDaAgenda,
+  formatarAgendamento,
+  horarioEstaLivre,
+  nomeDoTecnico,
+  primeiroTecnicoLivre,
+} from "../../../crud/atendimentos/agenda";
+import { TECNICOS } from "../../../dados/tecnicos";
+import type { ContatoAtendimento, HorarioVisita } from "../../../tipos/atendimento";
 import { usePerfil } from "../perfil/usePerfil";
 import { SeletorTipoServico } from "./componentes/SeletorTipoServico/SeletorTipoServico";
-import { SeletorQuando } from "./componentes/SeletorQuando/SeletorQuando";
+import { SeletorAtendente } from "./componentes/SeletorAtendente/SeletorAtendente";
+import { SeletorDiaHorario } from "./componentes/SeletorDiaHorario/SeletorDiaHorario";
 import { CampoFotos } from "./componentes/CampoFotos/CampoFotos";
 import type { FotoSelecionada } from "./componentes/CampoFotos/CampoFotos";
 import "./solicitar-atendimento.css";
@@ -21,15 +31,18 @@ import "./solicitar-atendimento.css";
 /** O rascunho sem o contato: o contato é calculado à parte, a partir do perfil. */
 type CamposRascunho = Omit<RascunhoSolicitacao, "contato">;
 
-const RASCUNHO_INICIAL: CamposRascunho = { tipo: null, descricao: "", dataPreferida: "", periodo: null };
-
-// aviso que o /perfil mostra na aba Atendimentos depois do envio
-const MENSAGEM_ENVIADO = "Solicitação enviada! A Bruxel vai entrar em contato pra confirmar a visita.";
+const RASCUNHO_INICIAL: CamposRascunho = {
+  tipo: null,
+  descricao: "",
+  tecnico: SEM_PREFERENCIA,
+  data: "",
+  horario: null,
+};
 
 /**
  * Formulário em que o cliente pede uma visita técnica (rota "/solicitar-atendimento",
- * só pra quem está logado). Cinco blocos — tipo, descrição, fotos, quando e
- * contato — numerados pelo CSS (counter), então dá pra incluir um bloco no
+ * só pra quem está logado). Cinco blocos — tipo, descrição, fotos, atendente e
+ * horário, e contato — numerados pelo CSS (counter), então dá pra incluir um bloco no
  * meio sem renumerar nada.
  *
  * O contato vem do perfil: completo, aparece só um resumo com "Alterar";
@@ -40,7 +53,7 @@ const MENSAGEM_ENVIADO = "Solicitação enviada! A Bruxel vai entrar em contato 
  * leva pra aba "Atendimentos" do /perfil com um aviso.
  */
 export function PaginaSolicitarAtendimento() {
-  const { solicitarAtendimento } = useAtendimentos();
+  const { solicitarAtendimento, ocupacoes } = useAtendimentos();
   const navigate = useNavigate();
   // perfil de quem está logado, pra pré-preencher o contato; se a busca falhar
   // (ex.: 403 enquanto o backend não libera o próprio usuário), o cliente digita
@@ -53,8 +66,8 @@ export function PaginaSolicitarAtendimento() {
   const [editandoContato, setEditandoContato] = useState(false);
   // erros da última tentativa de envio; cada um some quando a pessoa mexe no campo
   const [erros, setErros] = useState<ErrosSolicitacao>({});
-  // primeiro dia aceito no calendário; o inicializador roda uma vez só (o render não pode chamar new Date())
-  const [minimo] = useState(() => dataMinima(new Date()));
+  // dias da faixa (amanhã em diante, sem domingo); o inicializador roda uma vez só (o render não pode chamar new Date())
+  const [dias] = useState(() => diasDaAgenda(new Date()));
   // trava contra duplo clique: um segundo submit antes de a página trocar não cria outro atendimento
   const enviadoRef = useRef(false);
   const [fotos, setFotos] = useState<FotoSelecionada[]>([]);
@@ -96,6 +109,30 @@ export function PaginaSolicitarAtendimento() {
     limparErro(campo);
   }
 
+  // trocar de atendente pode deixar o dia ou o horário escolhidos sem vaga: aí eles são limpos
+  function escolherTecnico(escolha: string) {
+    setRascunho((atual) => {
+      const diaContinua = atual.data !== "" && diaTemHorarioLivre(escolha, atual.data, ocupacoes);
+      const horarioContinua =
+        diaContinua &&
+        atual.horario !== null &&
+        horarioEstaLivre(escolha, atual.data, atual.horario, ocupacoes);
+      return {
+        ...atual,
+        tecnico: escolha,
+        data: diaContinua ? atual.data : "",
+        horario: horarioContinua ? atual.horario : null,
+      };
+    });
+    limparErro("tecnico");
+  }
+
+  // outro dia, outros horários: o horário escolhido antes é limpo
+  function escolherDia(data: string) {
+    setRascunho((atual) => ({ ...atual, data, horario: null }));
+    limparErro("data");
+  }
+
   function atualizarContato(campo: keyof ContatoAtendimento, valor: string) {
     // a primeira edição parte do contato do perfil
     setContatoEditado((atual) => ({ ...(atual ?? contatoPerfil), [campo]: valor }));
@@ -119,7 +156,7 @@ export function PaginaSolicitarAtendimento() {
     if (enviadoRef.current) return;
 
     const completo: RascunhoSolicitacao = { ...rascunho, contato };
-    const encontrados = validarSolicitacao(completo, new Date());
+    const encontrados = validarSolicitacao(completo, new Date(), ocupacoes);
     if (Object.keys(encontrados).length > 0) {
       setErros(encontrados);
       // depois que o React mostrar as mensagens, rola até o primeiro bloco com erro
@@ -132,23 +169,33 @@ export function PaginaSolicitarAtendimento() {
       return;
     }
 
-    const { tipo, periodo } = completo;
+    const { tipo, horario } = completo;
     // a validação já garante os dois; o if é só pro TypeScript saber que não são null
-    if (!tipo || !periodo) return;
+    if (!tipo || !horario) return;
+    // "Sem preferência" vira o primeiro atendente livre naquele dia e horário
+    const tecnicoId =
+      completo.tecnico === SEM_PREFERENCIA
+        ? primeiroTecnicoLivre(completo.data, horario, ocupacoes)
+        : completo.tecnico;
+    // a validação também já garantiu que tem alguém livre
+    if (!tecnicoId) return;
 
     enviadoRef.current = true;
     solicitarAtendimento({
       tipo,
-      periodo,
       descricao: completo.descricao.trim(),
-      dataPreferida: completo.dataPreferida,
       fotos: fotos.map((foto) => foto.url),
+      tecnicoId,
+      data: completo.data,
+      horario,
       contato,
     });
+    const agendamento = formatarAgendamento(completo.data, horario, nomeDoTecnico(tecnicoId));
+    const mensagem = `Pedido enviado! Horário reservado pra ${agendamento}. A Bruxel confirma a visita com você.`;
     // o /perfil abre na mesma rolagem desta página (lá embaixo); volta pro topo pra o aviso aparecer
     window.scrollTo(0, 0);
     // replace: o botão Voltar do navegador não retorna pro formulário que já foi enviado
-    navigate("/perfil", { replace: true, state: { aba: "atendimentos", mensagem: MENSAGEM_ENVIADO } });
+    navigate("/perfil", { replace: true, state: { aba: "atendimentos", mensagem } });
   }
 
   return (
@@ -214,23 +261,33 @@ export function PaginaSolicitarAtendimento() {
             </fieldset>
 
             <fieldset className="pagina-atendimento__bloco">
-              <legend className="pagina-atendimento__titulo-bloco">Quando você prefere?</legend>
-              <SeletorQuando
-                data={rascunho.dataPreferida}
-                periodo={rascunho.periodo}
-                dataMinima={minimo}
-                onChangeData={(data) => atualizarCampo("dataPreferida", data)}
-                onChangePeriodo={(periodo) => atualizarCampo("periodo", periodo)}
-              />
-              <p className="pagina-atendimento__dica">A Bruxel confirma o dia e o horário com você.</p>
-              {erros.dataPreferida && (
+              <legend className="pagina-atendimento__titulo-bloco">Atendente e horário</legend>
+              <SeletorAtendente tecnicos={TECNICOS} valor={rascunho.tecnico} onChange={escolherTecnico} />
+              {erros.tecnico && (
                 <p className="pagina-atendimento__erro" role="alert">
-                  {erros.dataPreferida}
+                  {erros.tecnico}
                 </p>
               )}
-              {erros.periodo && (
+              <SeletorDiaHorario
+                dias={dias}
+                escolha={rascunho.tecnico}
+                ocupacoes={ocupacoes}
+                data={rascunho.data}
+                horario={rascunho.horario}
+                onChangeData={escolherDia}
+                onChangeHorario={(horario: HorarioVisita) => atualizarCampo("horario", horario)}
+              />
+              <p className="pagina-atendimento__dica">
+                O horário fica reservado e a Bruxel confirma a visita com você.
+              </p>
+              {erros.data && (
                 <p className="pagina-atendimento__erro" role="alert">
-                  {erros.periodo}
+                  {erros.data}
+                </p>
+              )}
+              {erros.horario && (
+                <p className="pagina-atendimento__erro" role="alert">
+                  {erros.horario}
                 </p>
               )}
             </fieldset>

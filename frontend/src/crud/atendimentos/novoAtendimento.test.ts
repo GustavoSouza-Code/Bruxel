@@ -6,8 +6,9 @@ const DADOS: DadosSolicitacao = {
   tipo: "vazamento",
   descricao: "Está vazando água perto da escada.",
   fotos: ["blob:foto-1"],
-  dataPreferida: "2026-10-20",
-  periodo: "tarde",
+  tecnicoId: "rafael",
+  data: "2026-10-20",
+  horario: "13:30",
   contato: {
     telefone: "51999990000",
     rua: "Rua Bento Gonçalves",

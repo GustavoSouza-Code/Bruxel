@@ -7,9 +7,6 @@
 /** Tipo de serviço escolhido no bloco 1 do formulário. */
 export type TipoServico = "limpeza" | "bomba-filtro" | "vazamento" | "instalacao" | "outro";
 
-/** Turno preferido pra visita. */
-export type PeriodoAtendimento = "manha" | "tarde";
-
 /** Início de um bloco de visita de 2h na agenda do atendente. */
 export type HorarioVisita = "08:00" | "10:00" | "13:30" | "15:30";
 
@@ -36,9 +33,12 @@ export interface Atendimento {
   descricao: string;
   /** URLs das fotos pra exibir (por enquanto blob:, criadas no navegador) */
   fotos: string[];
-  /** "aaaa-mm-dd", o mesmo formato do <input type="date"> */
-  dataPreferida: string;
-  periodo: PeriodoAtendimento;
+  /** id do atendente (dados/tecnicos.ts); o "Sem preferência" já vira um atendente de verdade no envio */
+  tecnicoId: string;
+  /** dia da visita, "aaaa-mm-dd" */
+  data: string;
+  /** início do bloco de 2h da visita */
+  horario: HorarioVisita;
   contato: ContatoAtendimento;
   status: StatusAtendimento;
   /** data e hora do envio, em ISO */

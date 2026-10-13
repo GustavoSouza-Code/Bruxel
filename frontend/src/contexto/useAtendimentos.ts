@@ -1,10 +1,13 @@
 import { createContext, useContext } from "react";
 import type { Atendimento, DadosSolicitacao } from "../tipos/atendimento";
+import type { Ocupacao } from "../tipos/tecnico";
 
 /** Tudo que os componentes conseguem ler e usar dos atendimentos via useAtendimentos(). */
 export interface ValorContextoAtendimentos {
   /** atendimentos do cliente, do mais novo pro mais antigo */
   atendimentos: Atendimento[];
+  /** horários ocupados na agenda dos atendentes, juntando os pedidos de todas as contas */
+  ocupacoes: Ocupacao[];
   /** guarda uma solicitação nova no topo da lista, com status "aguardando" */
   solicitarAtendimento: (dados: DadosSolicitacao) => void;
 }

@@ -3,6 +3,7 @@
 - **Issue:** [GustavoSouza-Code/Bruxel#22](https://github.com/GustavoSouza-Code/Bruxel/issues/22) — "Desenvolvimento da tela de lançamento e acompanhamento de serviços" (esta entrega **não fecha** a issue)
 - **Data:** 12/10/2026
 - **Branch:** `feat/solicitar-atendimento` (criada a partir da `eduardo`)
+- **Atualização 13/10/2026:** o bloco de data e período virou a escolha de atendente, dia e horário — ver [2026-10-13-agenda-atendente-design.md](2026-10-13-agenda-atendente-design.md). As partes deste spec sobre `dataPreferida`, `periodo`, `dataMinima`, `formatarPreferencia` e `SeletorQuando` ficaram pra trás.
 
 ## Objetivo
 
@@ -131,6 +132,8 @@ O `hoje` entra por parâmetro, pra os testes não dependerem do relógio.
 - Faltam as rotas `POST /appointments` (cliente cria) e `GET /appointments` (só os do próprio cliente).
 
 ## Futuro
+
+**Feito em 13/10/2026** (sem backend ainda) — ver [2026-10-13-agenda-atendente-design.md](2026-10-13-agenda-atendente-design.md).
 
 - **Não deixar marcar um horário que já tem atendimento.** Ideia do Eduardo: o cliente escolhe
   o **piscineiro** e depois um **horário livre na agenda dele**. O `DISPONIVEL` do enum já

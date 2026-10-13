@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAtendimentos } from "../../../../../contexto/useAtendimentos";
 import { STATUS_LABELS, TIPO_SERVICO_LABELS } from "../../../../../crud/atendimentos/opcoesAtendimento";
-import { formatarPreferencia } from "../../../../../crud/atendimentos/datasAtendimento";
+import { formatarData } from "../../../../../crud/atendimentos/datasAtendimento";
+import { nomeDoTecnico } from "../../../../../crud/atendimentos/agenda";
 import { IconeFerramenta } from "../../../../../componentes/ui/Icones/Icones";
 import "./AbaAtendimentos.css";
 
@@ -50,7 +51,8 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                     #{atendimento.id} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                   </strong>
                   <span>
-                    Preferência: {formatarPreferencia(atendimento.dataPreferida, atendimento.periodo)}
+                    Visita: {formatarData(atendimento.data)} às {atendimento.horario} ·{" "}
+                    {nomeDoTecnico(atendimento.tecnicoId)}
                   </span>
                   <span>
                     Enviado em {new Date(atendimento.criadoEm).toLocaleDateString("pt-BR")}
