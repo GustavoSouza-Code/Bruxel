@@ -162,7 +162,7 @@
   outline-offset: 2px;
 }
 
-/* o texto curto só aparece no celular (ver @media abaixo) */
+/* o texto curto só aparece entre 1101 e 1200px (ver @media abaixo) */
 .cabecalho__texto-curto {
   display: none;
 }
@@ -237,31 +237,17 @@
     padding: 0 1.1rem;
   }
 
+  /* no celular a pílula é só o ícone (o aria-label e o title dizem "Solicitar atendimento");
+     o texto não cabe ao lado do carrinho e do Entrar/nome do usuário */
   .cabecalho__botao-atendimento {
+    width: 40px;
     height: 40px;
-    padding: 0 1rem;
-    width: auto; /* volta a largura do texto (a regra de 960px fixa 48px) */
-  }
-
-  /* trocar o texto é só visual, então é com media query mesmo (não precisa de JS) */
-  .cabecalho__texto-longo {
-    display: none;
-  }
-
-  .cabecalho__texto-curto {
-    display: inline;
   }
 }
 
-/* celular estreito: só o ícone (o aria-label e o title continuam dizendo "Solicitar atendimento") */
+/* celular estreito: menos espaço entre pílula, carrinho e Entrar/nome, pra caberem na linha do logo */
 @media (max-width: 420px) {
-  .cabecalho__botao-atendimento {
-    width: 40px;
-    padding: 0;
-    justify-content: center;
-  }
-
-  .cabecalho__texto-curto {
-    display: none;
+  .cabecalho__acoes {
+    gap: 0.6rem;
   }
 }
