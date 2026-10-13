@@ -99,7 +99,7 @@ backend precisa está no "Recado pro backend" no fim deste documento, pra passar
 - `filtrarAtendimentos(lista, filtros)`: busca (com `contemTexto` de `crud/busca.ts`) no nome do cliente, no
   número do pedido e no bairro; `pagamento` só olha concluídos; ordena pela data + horário da visita.
 - `contarPorStatus(lista): Record<FiltroStatus, number>` (pros números nos chips e no card do painel).
-- `contarFiltrosAtivosAtendimento(filtros)`: conta `tecnico` e `pagamento` (como o de usuários, sem busca e chip).
+- `contarFiltrosAtivosAtendimento(filtros)`: conta `tecnico`, `pagamento` e `ordem` fora do padrão (como o de usuários, sem busca e chip).
 
 ### `whatsapp.ts`
 - `linkWhatsApp(telefone, texto): string | null` → `https://wa.me/55{DDD}{número}?text={texto codificado}`;
@@ -120,8 +120,8 @@ backend precisa está no "Recado pro backend" no fim deste documento, pra passar
 
 - Molde da `paginas/admin/usuarios/usuarios.tsx`: `NavAdmin`, `BarraBusca`, `PainelFiltros`, `ChipsFiltro`,
   `AlternarVisualizacao` com `useModoVisualizacao("admin-atendimentos")`, `useCarregarMais` e o `lista-admin.css`.
-- Chips: "Aguardando (n)" (marcado ao abrir), "Agendados", "Em andamento", "Concluídos",
-  "Recusados e cancelados", "Todos".
+- Chips, cada um com a quantidade entre parênteses: "Aguardando (n)" (marcado ao abrir), "Agendados",
+  "Em andamento", "Concluídos", "Recusados e cancelados", "Todos".
 - Busca: "Buscar por cliente, número ou bairro". Painel de filtros: atendente (`TECNICOS`), pagamento, ordem.
 - Contador "N atendimentos" / "X de N atendimentos"; vazio: "Nenhum atendimento por aqui." com dica pra trocar o filtro.
 - Cada item (card ou linha): "#AT-2026-0003 · Vazamento", nome do cliente (+ selo "loja" se `abertoNaLoja`),
@@ -140,14 +140,17 @@ backend precisa está no "Recado pro backend" no fim deste documento, pra passar
 - Bloco "Visita": "21/10/2026 às 13:30 com Rafael" (`formatarAgendamento`) + tipo do serviço.
 - `GaleriaFotosOs`: primeira foto grande, as outras em miniatura (clicar troca a grande); sem fotos, "O cliente
   não mandou fotos.". Bloco "Descrição do problema".
-- "Observações do técnico": textarea, editável só com `osEditavel`; senão, o texto (ou "Sem observações.").
+- "Observações do técnico" (aparece a partir de Em andamento, junto com os produtos): textarea, editável só
+  com `osEditavel`; senão, o texto (ou "Sem observações.").
 - `ProdutosDaOs` (aparece a partir de Em andamento):
-  - campo de busca de produto (`useProdutos()`, só ativos, mostrando "nome · R$ · N em estoque"), quantidade e
+  - lista de escolha dos produtos (`useProdutos()`, só ativos, em ordem alfabética, mostrando
+    "nome · R$ · N em estoque"; o catálogo de hoje é pequeno, então um `<select>` basta), quantidade e
     "Adicionar", com o erro do `validarQuantidade`;
   - linhas: nome, quantidade, preço unitário, subtotal e "Remover" (só com `osEditavel`);
   - "Mão de obra (R$)" com o erro do `validarMaoDeObra`;
   - "Total: R$ …";
-  - lista de produtos carregando/erro com "Tentar novamente" (padrão do `useUsuarios`).
+  - o `useProdutos()` de hoje é uma lista em memória (`TODOS_PRODUTOS`), sem carregando nem erro; quando ele
+    passar a usar a API, a seção ganha esses estados.
 - Barra de ações (rodapé) com `acoesDoStatus`:
   - principal verde: "Confirmar visita", "Iniciar atendimento", "Marcar como concluído", "Marcar como pago",
     cada uma com `window.confirm` (padrão do painel);
@@ -163,6 +166,12 @@ backend precisa está no "Recado pro backend" no fim deste documento, pra passar
 - Dica: "O cliente vai ver esta mensagem no Minha conta."
 - Textarea com contador (`0/500`) e o erro do `validarMensagemCliente`.
 - Botões "Voltar" e "Recusar pedido" / "Cancelar atendimento".
+
+## Estoque de exemplo
+
+Os produtos de exemplo do front (`frontend/src/dados/produtos.ts`) estão todos com `estoque: 0`, o que
+impediria lançar qualquer produto na OS. Eles ganham estoques de exemplo (um fica em 0 de propósito, pra mostrar
+"Produto sem estoque."). É só dado de exemplo do front; o banco não muda.
 
 ## Lado do cliente (`paginas/portal/perfil/componentes/AbaAtendimentos/`)
 - Selo "Recusado" (`--recusado`).
