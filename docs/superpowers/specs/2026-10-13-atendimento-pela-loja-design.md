@@ -126,6 +126,14 @@ junta todas as chaves.
 - `POST /appointments` aceito também pra administrador, com `usuario_id` do cliente escolhido ou nulo,
   e um campo de nome pro cliente sem cadastro.
 - Registrar que o pedido foi aberto pela loja e, de preferência, por qual administrador.
+- Pra perfil CLIENTE, ignorar o `usuario_id` do corpo e usar o do token: só administrador abre pedido pra
+  outra conta (no front, o `ehAdmin` só decide o que aparece na tela).
+- O `GET /appointments` do cliente filtra pelo `usuario_id` do pedido (o cliente), não por quem criou;
+  senão o pedido aberto na loja some do Minha conta dele.
+- Uma busca de clientes no servidor (ex.: `GET /users?perfil=CLIENTE&busca=…`), em vez de o front baixar a
+  lista inteira de usuários (com CPF e endereço) cada vez que a página monta e a cada envio.
+- O contato do pedido é uma cópia por atendimento (telefone e endereço daquele pedido), não um vínculo com o
+  endereço da conta.
 
 ## Testes
 
