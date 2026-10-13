@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { useAtendimentos } from "../../../contexto/useAtendimentos";
+import { contarPorStatus } from "../../../crud/atendimentos/filtrarAtendimentos";
 import "./inicio.css";
 
 // áreas do painel; pra uma funcionalidade nova aparecer aqui, é só adicionar um item
@@ -34,6 +36,20 @@ const AREAS_ADMIN = [
     ),
   },
   {
+    id: "atendimentos",
+    titulo: "Atendimentos",
+    descricao: "Pedidos e ordens de serviço",
+    rota: "/admin/atendimentos",
+    icone: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="8" y="2" width="8" height="4" rx="1" />
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <path d="M9 12h6" />
+        <path d="M9 16h4" />
+      </svg>
+    ),
+  },
+  {
     id: "atendimento",
     titulo: "Abrir atendimento",
     descricao: "Para um cliente que está na loja",
@@ -53,6 +69,9 @@ const AREAS_ADMIN = [
  */
 export function PaginaAdminInicio() {
   const { usuario } = useAutenticacao();
+  // o card de atendimentos avisa quantos pedidos esperam confirmação
+  const { todosAtendimentos } = useAtendimentos();
+  const aguardando = contarPorStatus(todosAtendimentos).aguardando;
 
   return (
     <>
@@ -70,7 +89,11 @@ export function PaginaAdminInicio() {
                 <span className="pagina-admin-inicio__icone">{area.icone}</span>
                 <span className="pagina-admin-inicio__texto">
                   <strong>{area.titulo}</strong>
-                  <span>{area.descricao}</span>
+                  <span>
+                    {area.id === "atendimentos" && aguardando > 0
+                      ? `${aguardando} aguardando confirmação`
+                      : area.descricao}
+                  </span>
                 </span>
                 {/* "Acessar →" aparece no desktop; a seta ">" no celular (ver inicio.css) */}
                 <span className="pagina-admin-inicio__acessar">Acessar →</span>

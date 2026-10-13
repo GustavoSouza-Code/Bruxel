@@ -1,0 +1,45 @@
+/* etiqueta de status do atendimento no painel; o sufixo da classe é o valor de StatusAtendimento */
+.selo-atendimento {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.selo-atendimento--aguardando {
+  background-color: #fdf3d7;
+  color: #8a6100;
+}
+
+.selo-atendimento--agendado {
+  background-color: #e2effa;
+  color: #1f5f99;
+}
+
+.selo-atendimento--em-andamento {
+  background-color: #dcdcff;
+  color: var(--color-primary);
+}
+
+.selo-atendimento--concluido,
+.selo-atendimento--pago {
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+}
+
+.selo-atendimento--cancelado {
+  background-color: #f1f1f4;
+  color: #5c5c66;
+}
+
+.selo-atendimento--recusado {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+.selo-atendimento--a-pagar {
+  background-color: #fdf2d8;
+  color: #8a5a00;
+}
