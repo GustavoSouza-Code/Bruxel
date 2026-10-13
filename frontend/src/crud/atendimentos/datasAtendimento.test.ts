@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dataMinima, formatarData, formatarPreferencia } from "./datasAtendimento";
+import { dataMinima, formatarData, formatarPreferencia, paraDataIso } from "./datasAtendimento";
 
 describe("dataMinima", () => {
   it("é o dia seguinte, no formato do input de data", () => {
@@ -27,5 +27,11 @@ describe("formatarPreferencia", () => {
   it("junta a data e o período, em minúsculas", () => {
     expect(formatarPreferencia("2026-10-20", "manha")).toBe("20/10/2026, manhã");
     expect(formatarPreferencia("2026-10-20", "tarde")).toBe("20/10/2026, tarde");
+  });
+});
+
+describe("paraDataIso", () => {
+  it("usa o dia do relógio local, mesmo tarde da noite", () => {
+    expect(paraDataIso(new Date(2026, 9, 12, 23, 30))).toBe("2026-10-12");
   });
 });

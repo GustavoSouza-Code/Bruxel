@@ -1,9 +1,11 @@
 import type { PeriodoAtendimento } from "../../tipos/atendimento";
 import { PERIODO_LABELS } from "./opcoesAtendimento";
 
-// "aaaa-mm-dd" no fuso do navegador (o toISOString usaria UTC e, à noite no Brasil,
-// já daria o dia seguinte)
-function paraDataIso(data: Date) {
+/**
+ * Data no formato "aaaa-mm-dd", no fuso do navegador (o toISOString usaria UTC e,
+ * à noite no Brasil, já daria o dia seguinte).
+ */
+export function paraDataIso(data: Date) {
   const mes = String(data.getMonth() + 1).padStart(2, "0");
   const dia = String(data.getDate()).padStart(2, "0");
   return `${data.getFullYear()}-${mes}-${dia}`;

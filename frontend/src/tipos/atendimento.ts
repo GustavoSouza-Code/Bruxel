@@ -10,6 +10,9 @@ export type TipoServico = "limpeza" | "bomba-filtro" | "vazamento" | "instalacao
 /** Turno preferido pra visita. */
 export type PeriodoAtendimento = "manha" | "tarde";
 
+/** Início de um bloco de visita de 2h na agenda do atendente. */
+export type HorarioVisita = "08:00" | "10:00" | "13:30" | "15:30";
+
 /** Situação do atendimento; também vira o sufixo da classe CSS da etiqueta de status. */
 export type StatusAtendimento = "aguardando" | "agendado" | "em-andamento" | "concluido" | "cancelado";
 
