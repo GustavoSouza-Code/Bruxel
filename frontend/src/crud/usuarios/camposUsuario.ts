@@ -4,9 +4,12 @@ import type { CamposAtualizacaoUsuario } from "../../api/usuarios";
 /** Campos de texto que as telas deixam editar (id e perfil ficam de fora). */
 export type CampoEditavelUsuario = Exclude<keyof Usuario, "id" | "perfil">;
 
+/** Partes do endereço: cada uma é uma coluna da tabela users (e um campo do ContatoAtendimento). */
+export type ParteEndereco = "rua" | "numero" | "bairro" | "cidade" | "estado" | "cep";
+
 /** Um campo de endereço como aparece no formulário de edição. */
 interface CampoEndereco {
-  campo: CampoEditavelUsuario;
+  campo: ParteEndereco;
   label: string;
   /** limite do input; sem normalizar, é o tamanho da coluna no banco (acima disso o PostgreSQL recusa) */
   maxLength: number;
@@ -37,13 +40,13 @@ export const CAMPOS_ENDERECO: CampoEndereco[] = [
 ];
 
 /**
- * Monta o endereço num texto só pra exibir, ex.: "Rua X, 850 - Centro, Lajeado - RS".
+ * Monta o endereço (do usuário ou de um atendimento) num texto só pra exibir, ex.: "Rua X, 850 - Centro, Lajeado - RS".
  * Pula as partes vazias; sem endereço nenhum devolve "".
  */
-export function formatarEndereco(usuario: Usuario) {
-  const logradouro = [usuario.rua, usuario.numero].filter(Boolean).join(", ");
-  const cidadeUf = [usuario.cidade, usuario.estado].filter(Boolean).join(" - ");
-  return [logradouro, usuario.bairro, cidadeUf].filter(Boolean).join(" - ");
+export function formatarEndereco(endereco: Pick<Usuario, Exclude<ParteEndereco, "cep">>) {
+  const logradouro = [endereco.rua, endereco.numero].filter(Boolean).join(", ");
+  const cidadeUf = [endereco.cidade, endereco.estado].filter(Boolean).join(" - ");
+  return [logradouro, endereco.bairro, cidadeUf].filter(Boolean).join(" - ");
 }
 
 // texto vazio vira null: assim o PUT apaga o valor no banco em vez de gravar ""

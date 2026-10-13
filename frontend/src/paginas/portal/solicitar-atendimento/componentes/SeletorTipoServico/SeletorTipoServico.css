@@ -1,0 +1,58 @@
+/* quantas colunas couberem: 5 no computador, 2 no celular */
+.seletor-tipo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.75rem;
+}
+
+.seletor-tipo__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 96px;
+  padding: 1rem 0.75rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* o svg do Icones.tsx tem 18px; aqui o ícone é o destaque do card */
+.seletor-tipo__card svg {
+  width: 28px;
+  height: 28px;
+}
+
+.seletor-tipo__card:hover {
+  border-color: var(--color-accent);
+}
+
+/* selecionado: borda azul mais grossa (box-shadow, pra o card não mudar de tamanho) */
+.seletor-tipo__card--ativo {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+  background-color: #e2effa;
+}
+
+/* foco do teclado no radio escondido aparece no card */
+.seletor-tipo__card:has(.seletor-tipo__radio:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* o radio continua existindo (teclado e leitor de tela), só não aparece */
+.seletor-tipo__radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
