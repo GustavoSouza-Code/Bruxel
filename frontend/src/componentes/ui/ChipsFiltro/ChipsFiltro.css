@@ -1,0 +1,31 @@
+/* os chips quebram linha quando não cabem */
+.chips-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.chips-filtro__chip {
+  background: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chips-filtro__chip:hover {
+  border-color: var(--color-primary);
+}
+
+.chips-filtro__chip--marcado {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+}

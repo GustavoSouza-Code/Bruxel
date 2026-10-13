@@ -53,7 +53,7 @@ function vazioParaNull(valor?: string | null) {
 }
 
 /**
- * Monta o corpo do PUT /users/:id a partir do usuário editado na tabela: só
+ * Monta o corpo do PUT /users/:id a partir do usuário editado no formulário: só
  * os campos que o backend aceita (CPF, id e perfil ficam de fora).
  */
 export function paraCamposAtualizacao(usuario: Usuario): CamposAtualizacaoUsuario {

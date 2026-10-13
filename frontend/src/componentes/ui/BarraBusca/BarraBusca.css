@@ -1,0 +1,64 @@
+.barra-busca {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* a lupa fica por cima do input, à esquerda; o padding do input abre espaço pra ela */
+.barra-busca__campo {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.barra-busca__campo > svg {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.barra-busca__campo > input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.7rem 1rem 0.7rem 2.6rem;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  background-color: var(--color-white);
+}
+
+.barra-busca__campo > input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.barra-busca__filtros {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.barra-busca__filtros:hover {
+  border-color: var(--color-primary);
+}
+
+/* painel aberto: o botão fica "afundado" no mesmo tom do painel */
+.barra-busca__filtros--aberto {
+  background-color: #f7f7fa;
+  border-color: var(--color-primary);
+}
