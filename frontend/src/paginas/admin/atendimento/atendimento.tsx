@@ -5,13 +5,16 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import { useAtendimentos } from "../../../contexto/useAtendimentos";
 import {
   acoesDoStatus,
+  atualizarOs,
   cancelar,
   concluir,
   confirmar,
   iniciar,
   marcarPago,
+  osEditavel,
   recusar,
 } from "../../../crud/atendimentos/andamento";
+import type { CamposOs } from "../../../crud/atendimentos/andamento";
 import { TIPO_SERVICO_LABELS } from "../../../crud/atendimentos/opcoesAtendimento";
 import { formatarAgendamento, nomeDoTecnico } from "../../../crud/atendimentos/agenda";
 import { formatarDataHora } from "../../../crud/atendimentos/datasAtendimento";
@@ -22,6 +25,7 @@ import { SeloPagamento, SeloStatusAtendimento } from "../atendimentos/componente
 import { CartaoClienteOs } from "./componentes/CartaoClienteOs/CartaoClienteOs";
 import { GaleriaFotosOs } from "./componentes/GaleriaFotosOs/GaleriaFotosOs";
 import { ModalMensagemCliente } from "./componentes/ModalMensagemCliente/ModalMensagemCliente";
+import { ProdutosDaOs } from "./componentes/ProdutosDaOs/ProdutosDaOs";
 import "../lista-admin.css";
 import "./atendimento.css";
 
@@ -97,6 +101,13 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
   const whatsappMensagem = atendimento.mensagemCliente
     ? linkWhatsApp(atendimento.contato.telefone, textoMensagemCliente(atendimento))
     : null;
+  // a OS (observações, produtos, mão de obra) aparece a partir do início do atendimento
+  const mostrarOs = atendimento.status === "em-andamento" || atendimento.status === "concluido";
+  const editavel = osEditavel(atendimento);
+
+  function mudarOs(campos: CamposOs) {
+    atualizarAtendimento(atendimento.id, (atual) => atualizarOs(atual, campos));
+  }
 
   function fazerAcaoDireta(acao: AcaoDireta) {
     const { pergunta, aviso: textoAviso, aplicar } = ACOES_DIRETAS[acao];
@@ -187,6 +198,34 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
               <h2>Descrição do problema</h2>
               <p className="pagina-admin-atendimento__descricao">{atendimento.descricao}</p>
             </section>
+
+            {mostrarOs && (
+              <section className="pagina-admin-atendimento__bloco">
+                <h2 id="titulo-observacoes">Observações do técnico</h2>
+                {editavel ? (
+                  <textarea
+                    className="pagina-admin-atendimento__observacoes"
+                    aria-labelledby="titulo-observacoes"
+                    placeholder="Descreva o diagnóstico, as peças e os reparos feitos na visita."
+                    value={atendimento.observacoesTecnico}
+                    onChange={(e) => mudarOs({ observacoesTecnico: e.target.value })}
+                    maxLength={2000}
+                    rows={5}
+                  />
+                ) : (
+                  <p className="pagina-admin-atendimento__texto">
+                    {atendimento.observacoesTecnico || "Sem observações."}
+                  </p>
+                )}
+              </section>
+            )}
+
+            {mostrarOs && (
+              <section className="pagina-admin-atendimento__bloco">
+                <h2>Produtos e valor</h2>
+                <ProdutosDaOs atendimento={atendimento} editavel={editavel} onMudar={mudarOs} />
+              </section>
+            )}
           </div>
 
           {acoes.length > 0 && (

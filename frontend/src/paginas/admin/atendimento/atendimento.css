@@ -95,6 +95,17 @@
   overflow-wrap: anywhere;
 }
 
+.pagina-admin-atendimento__observacoes {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  resize: vertical;
+}
+
 .pagina-admin-atendimento__bloco--mensagem {
   border-color: #f5c6c1;
   background-color: #fdf6f5;
