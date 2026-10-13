@@ -30,12 +30,17 @@ describe("novoAtendimento", () => {
     expect(novoAtendimento(DADOS, 2, AGORA).id).toBe("AT-2026-0003");
   });
 
-  it("começa aguardando confirmação, com a data do envio e os dados do formulário", () => {
+  it("começa aguardando confirmação, com a data do envio, os dados do formulário e a OS vazia", () => {
     expect(novoAtendimento(DADOS, 2, AGORA)).toEqual({
       ...DADOS,
       id: "AT-2026-0003",
       status: "aguardando",
       criadoEm: AGORA.toISOString(),
+      mensagemCliente: null,
+      observacoesTecnico: "",
+      produtosUsados: [],
+      valorMaoDeObra: null,
+      pagoEm: null,
     });
   });
 });

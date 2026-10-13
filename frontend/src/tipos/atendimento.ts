@@ -11,7 +11,13 @@ export type TipoServico = "limpeza" | "bomba-filtro" | "vazamento" | "instalacao
 export type HorarioVisita = "08:00" | "10:00" | "13:30" | "15:30";
 
 /** Situação do atendimento; também vira o sufixo da classe CSS da etiqueta de status. */
-export type StatusAtendimento = "aguardando" | "agendado" | "em-andamento" | "concluido" | "cancelado";
+export type StatusAtendimento =
+  | "aguardando"
+  | "agendado"
+  | "em-andamento"
+  | "concluido"
+  | "cancelado"
+  | "recusado";
 
 /** Onde fazer o serviço e como falar com o cliente; os nomes são os mesmos de `Usuario`. */
 export interface ContatoAtendimento {
@@ -31,6 +37,15 @@ export interface ClienteDoAtendimento {
   /** id da conta do cliente; null = cliente sem cadastro (atendido no balcão da loja) */
   id: string | null;
   nome: string;
+}
+
+/** Produto da loja usado no serviço; nome e preço ficam guardados como eram na hora. */
+export interface ProdutoUsado {
+  produtoId: string;
+  nome: string;
+  /** preço da loja na hora em que foi lançado na OS, em reais */
+  precoUnitario: number;
+  quantidade: number;
 }
 
 export interface Atendimento {
@@ -54,7 +69,19 @@ export interface Atendimento {
   status: StatusAtendimento;
   /** data e hora do envio, em ISO */
   criadoEm: string;
+  /** texto que o cliente vê quando o pedido é recusado ou cancelado; null = sem mensagem */
+  mensagemCliente: string | null;
+  /** o que o técnico anotou na OS (diagnóstico, peças, reparos) */
+  observacoesTecnico: string;
+  produtosUsados: ProdutoUsado[];
+  /** valor do serviço em reais, sem os produtos; null = ainda não informado */
+  valorMaoDeObra: number | null;
+  /** data e hora do pagamento, em ISO; null = a pagar */
+  pagoEm: string | null;
 }
 
-/** O que o formulário envia; id, status e criadoEm quem define é o contexto. */
-export type DadosSolicitacao = Omit<Atendimento, "id" | "status" | "criadoEm">;
+/** Campos que só a gestão (painel) preenche; o pedido nasce com eles vazios. */
+type CamposDaGestao = "mensagemCliente" | "observacoesTecnico" | "produtosUsados" | "valorMaoDeObra" | "pagoEm";
+
+/** O que o formulário envia; id, status, criadoEm e os campos da gestão quem define é o contexto. */
+export type DadosSolicitacao = Omit<Atendimento, "id" | "status" | "criadoEm" | CamposDaGestao>;

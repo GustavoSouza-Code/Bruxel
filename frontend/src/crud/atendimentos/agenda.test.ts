@@ -68,6 +68,16 @@ describe("ocupacoesDosAtendimentos", () => {
       { tecnicoId: "carlos", data: "2026-10-20", horario: "08:00" },
     ]);
   });
+
+  it("pedido recusado também libera o horário", () => {
+    const pedidos = [
+      { tecnicoId: "rafael", data: "2026-10-21", horario: "13:30" as const, status: "recusado" as const },
+      { tecnicoId: "rafael", data: "2026-10-21", horario: "15:30" as const, status: "agendado" as const },
+    ];
+    expect(ocupacoesDosAtendimentos(pedidos)).toEqual([
+      { tecnicoId: "rafael", data: "2026-10-21", horario: "15:30" },
+    ]);
+  });
 });
 
 describe("tecnicoEstaLivre", () => {

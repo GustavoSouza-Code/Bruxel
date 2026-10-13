@@ -11,11 +11,12 @@ export const TIPO_SERVICO_LABELS: Record<TipoServico, string> = {
 
 export const TIPOS_SERVICO = Object.keys(TIPO_SERVICO_LABELS) as TipoServico[];
 
-// texto da etiqueta de cada status na aba "Atendimentos" do /perfil
+// texto da etiqueta de cada status (aba "Atendimentos" do /perfil e painel admin)
 export const STATUS_LABELS: Record<StatusAtendimento, string> = {
   aguardando: "Aguardando confirmação",
   agendado: "Agendado",
   "em-andamento": "Em andamento",
   concluido: "Concluído",
   cancelado: "Cancelado",
+  recusado: "Recusado",
 };
