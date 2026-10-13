@@ -45,9 +45,12 @@ export function clienteDoAtendimento(escolha: EscolhaCliente): ClienteDoAtendime
   return { id: escolha.usuario?.id ?? null, nome: escolha.usuario?.nome ?? "" };
 }
 
-/** "12345678901" → "•••.456.789-••": o atendente confere o cliente sem expor o CPF inteiro na tela. */
+/**
+ * "12345678901" → "•••.456.789-••": o atendente confere o cliente sem expor o CPF inteiro na tela.
+ * Fora do formato, não mostra nada do número.
+ */
 export function mascararCpf(cpf: string) {
   const digitos = cpf.replace(/\D/g, "");
-  if (digitos.length !== 11) return cpf;
+  if (digitos.length !== 11) return "•••";
   return `•••.${digitos.slice(3, 6)}.${digitos.slice(6, 9)}-••`;
 }

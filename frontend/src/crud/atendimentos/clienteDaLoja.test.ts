@@ -12,7 +12,7 @@ function usuario(dados: Partial<Usuario> & Pick<Usuario, "id" | "nome">): Usuari
 }
 
 const USUARIOS: Usuario[] = [
-  usuario({ id: "1", nome: "João Silva", email: "joao@email.com", cpf: "12345678901" }),
+  usuario({ id: "1", nome: "João Silva", email: "js@email.com", cpf: "12345678901" }),
   usuario({ id: "2", nome: "Maria Oliveira", email: "maria@email.com", cpf: "98765432100" }),
   usuario({ id: "3", nome: "Joana Gerente", email: "joana@bruxel.com", perfil: "ADMINISTRADOR" }),
 ];
@@ -84,7 +84,7 @@ describe("mascararCpf", () => {
     expect(mascararCpf("12345678901")).toBe("•••.456.789-••");
   });
 
-  it("CPF fora do formato fica como veio", () => {
-    expect(mascararCpf("123")).toBe("123");
+  it("CPF fora do formato não aparece na tela", () => {
+    expect(mascararCpf("123")).toBe("•••");
   });
 });
