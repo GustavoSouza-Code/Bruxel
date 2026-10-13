@@ -203,11 +203,17 @@ Nada disto foi feito no backend; é o que o frontend vai precisar quando as tela
   guardado na hora).
 - **Estoque**: dar baixa no `products.estoque` ao concluir a OS, numa transação, e recusar se não tiver estoque;
   devolver se a OS for reaberta (hoje o front só confere, não baixa).
+- **Agenda**: a checagem de conflito de horário (`tecnico_id` + data e horário) ignora os pedidos `CANCELADO`
+  **e** `RECUSADO` — recusar um pedido libera o horário, como o front já faz. Isso substitui o "quando o status não
+  for cancelado" do recado da agenda (`2026-10-13-agenda-atendente-design.md`).
+- **Contagem por status**: a lista do painel precisa da quantidade de pedidos em cada status (os números dos
+  chips e o "N aguardando confirmação" do `/admin`), mesmo quando a lista vier paginada.
 - **Rotas de admin** (`verificaToken` + `verificaAdmin`):
   - `GET /appointments` (todos, com filtros de status, técnico, pagamento e busca) e `GET /appointments/:id`;
-  - `PATCH /appointments/:id/status` — só transições válidas; mensagem obrigatória (mín. 10 caracteres) pra
-    recusar e cancelar;
+  - `PATCH /appointments/:id/status` — só transições válidas; mensagem obrigatória pra recusar e cancelar
+    (de 10 a 500 caracteres depois do trim);
   - `PUT /appointments/:id/os` (observações, itens, mão de obra) — só em andamento ou concluído não pago;
+    mão de obra ≥ 0 e quantidade de cada item ≥ 1;
   - `PATCH /appointments/:id/pagamento` (marca `pago_em`).
 - **Cliente**: `GET /appointments` do cliente devolve os pedidos em que ele é o `usuario_id` (inclusive os
   abertos pela loja), com `mensagem_cliente` e o total, mas sem dados internos.
