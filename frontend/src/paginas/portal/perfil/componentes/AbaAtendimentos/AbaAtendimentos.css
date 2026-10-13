@@ -56,6 +56,13 @@
   font-size: var(--font-size-small);
 }
 
+/* a mensagem da recusa/cancelamento é pra ler: cor de texto normal e quebra de linha mantida */
+.aba-atendimentos__principal .aba-atendimentos__mensagem {
+  color: var(--color-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .aba-atendimentos__status {
   border-radius: 999px;
   padding: 0.2rem 0.75rem;
@@ -88,6 +95,11 @@
 .aba-atendimentos__status--cancelado {
   background-color: #f1f1f4;
   color: var(--color-text-muted);
+}
+
+.aba-atendimentos__status--recusado {
+  background-color: #fdecea;
+  color: #c0392b;
 }
 
 /* celular: os dados ocupam a linha toda e o status desce pra baixo */
