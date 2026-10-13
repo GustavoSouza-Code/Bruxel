@@ -145,6 +145,8 @@ export function PaginaSolicitarAtendimento() {
       fotos: fotos.map((foto) => foto.url),
       contato,
     });
+    // o /perfil abre na mesma rolagem desta página (lá embaixo); volta pro topo pra o aviso aparecer
+    window.scrollTo(0, 0);
     navigate("/perfil", { state: { aba: "atendimentos", mensagem: MENSAGEM_ENVIADO } });
   }
 
