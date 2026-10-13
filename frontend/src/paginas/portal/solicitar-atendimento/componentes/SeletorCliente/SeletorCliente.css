@@ -1,0 +1,148 @@
+.seletor-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.seletor-cliente__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+/* campos no padrão do formulário do perfil */
+.seletor-cliente__busca,
+.seletor-cliente__campo input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+}
+
+.seletor-cliente__busca:focus,
+.seletor-cliente__campo input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+/* sugestões da busca: uma lista colada embaixo do campo */
+.seletor-cliente__sugestoes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.seletor-cliente__sugestoes li + li {
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.seletor-cliente__sugestao {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.7rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.seletor-cliente__sugestao span {
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere; /* e-mail comprido quebra em vez de estourar no celular */
+}
+
+.seletor-cliente__sugestao:hover {
+  background-color: #e2effa;
+}
+
+.seletor-cliente__sugestao:focus-visible {
+  background-color: #e2effa;
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* cliente escolhido: card com borda azul, como um card selecionado */
+.seletor-cliente__escolhido {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-white);
+  border: 2px solid var(--color-accent);
+  border-radius: 10px;
+}
+
+.seletor-cliente__avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: var(--font-size-small);
+}
+
+.seletor-cliente__dados {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.seletor-cliente__dados strong {
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+}
+
+.seletor-cliente__dados span {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+/* botões com cara de link (Trocar, sem cadastro, voltar pra busca, tentar de novo) */
+.seletor-cliente__trocar,
+.seletor-cliente__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.seletor-cliente__link {
+  align-self: flex-start;
+}
+
+.seletor-cliente__trocar:hover,
+.seletor-cliente__link:hover {
+  text-decoration: underline;
+}
+
+.seletor-cliente__estado {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
