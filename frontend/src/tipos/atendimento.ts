@@ -26,6 +26,13 @@ export interface ContatoAtendimento {
   cep: string;
 }
 
+/** De quem é o atendimento. */
+export interface ClienteDoAtendimento {
+  /** id da conta do cliente; null = cliente sem cadastro (atendido no balcão da loja) */
+  id: string | null;
+  nome: string;
+}
+
 export interface Atendimento {
   /** ex.: "AT-2026-0003" */
   id: string;
