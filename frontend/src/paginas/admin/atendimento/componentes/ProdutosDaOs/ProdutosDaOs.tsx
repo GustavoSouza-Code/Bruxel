@@ -69,6 +69,14 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
     if (!problema) onMudar({ valorMaoDeObra: paraValorEmReais(texto) });
   }
 
+  // ao sair do campo com um texto que não vale, ele volta pro valor que está na OS:
+  // o que fica na tela é sempre o que vai ser cobrado
+  function sairDaMaoDeObra() {
+    if (!validarMaoDeObra(textoMaoDeObra)) return;
+    setTextoMaoDeObra(maoDeObraParaTexto(atendimento.valorMaoDeObra));
+    setErroMaoDeObra(null);
+  }
+
   return (
     <div className="produtos-os">
       {usados.length === 0 ? (
@@ -151,6 +159,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
               placeholder="150,00"
               value={textoMaoDeObra}
               onChange={(e) => mudarMaoDeObra(e.target.value)}
+              onBlur={sairDaMaoDeObra}
               aria-invalid={Boolean(erroMaoDeObra)}
             />
           </label>
@@ -160,7 +169,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
             {atendimento.valorMaoDeObra === null ? "não informada" : formatarReais(atendimento.valorMaoDeObra)}
           </p>
         )}
-        {erroMaoDeObra && (
+        {editavel && erroMaoDeObra && (
           <p className="produtos-os__erro" role="alert">
             {erroMaoDeObra}
           </p>

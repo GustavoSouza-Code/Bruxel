@@ -2,7 +2,9 @@ import type { Atendimento, ProdutoUsado } from "../../tipos/atendimento";
 import type { Produto } from "../../tipos/produto";
 
 // "150", "150,5", "150.50": só dígitos, com até 2 casas depois da vírgula ou do ponto
-const FORMATO_REAIS = /^\d+([.,]\d{1,2})?$/;
+const FORMATO_SIMPLES = /^\d+([.,]\d{1,2})?$/;
+// "1.500", "1.500,00", "12.345,6": pontos separando os milhares (grupos de 3) e vírgula nos centavos
+const FORMATO_MILHAR = /^\d{1,3}(\.\d{3})+(,\d{1,2})?$/;
 
 const FORMATADOR_REAIS = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -62,15 +64,17 @@ export function removerProduto(produtos: ProdutoUsado[], produtoId: string) {
 /** null se o texto é um valor em reais (ou vazio = sem mão de obra); senão, o erro. */
 export function validarMaoDeObra(texto: string): string | null {
   const limpo = texto.trim();
-  if (limpo === "" || FORMATO_REAIS.test(limpo)) return null;
+  if (limpo === "" || FORMATO_SIMPLES.test(limpo) || FORMATO_MILHAR.test(limpo)) return null;
   return "Informe um valor em reais, ex.: 150,00.";
 }
 
-/** "150,50" → 150.5; vazio ou inválido → null. */
+/** "150,50" → 150.5; "1.500,00" → 1500; vazio ou inválido → null. */
 export function paraValorEmReais(texto: string): number | null {
   const limpo = texto.trim();
-  if (!FORMATO_REAIS.test(limpo)) return null;
-  return Number(limpo.replace(",", "."));
+  // com milhar, os pontos só separam os grupos: saem antes de a vírgula virar ponto
+  if (FORMATO_MILHAR.test(limpo)) return Number(limpo.replace(/\./g, "").replace(",", "."));
+  if (FORMATO_SIMPLES.test(limpo)) return Number(limpo.replace(",", "."));
+  return null;
 }
 
 /** 150.5 → "150,50" (pro campo); null → "". */

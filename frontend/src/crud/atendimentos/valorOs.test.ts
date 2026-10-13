@@ -71,11 +71,21 @@ describe("mão de obra", () => {
     expect(paraValorEmReais("")).toBeNull();
   });
 
-  it("recusa negativo, texto e milhar com ponto", () => {
+  it("aceita o milhar com ponto, do jeito brasileiro", () => {
+    expect(validarMaoDeObra("1.500,00")).toBeNull();
+    expect(paraValorEmReais("1.500,00")).toBe(1500);
+    expect(paraValorEmReais("1.500")).toBe(1500);
+    expect(paraValorEmReais("12.345,6")).toBe(12345.6);
+    // ponto com 1 ou 2 casas continua sendo decimal
+    expect(paraValorEmReais("1.50")).toBe(1.5);
+  });
+
+  it("recusa negativo, texto e número mal formado", () => {
     const erro = "Informe um valor em reais, ex.: 150,00.";
     expect(validarMaoDeObra("-10")).toBe(erro);
     expect(validarMaoDeObra("abc")).toBe(erro);
-    expect(validarMaoDeObra("1.500,00")).toBe(erro);
+    expect(validarMaoDeObra("1.5000")).toBe(erro);
+    expect(validarMaoDeObra("1,500.00")).toBe(erro);
     expect(paraValorEmReais("abc")).toBeNull();
   });
 
