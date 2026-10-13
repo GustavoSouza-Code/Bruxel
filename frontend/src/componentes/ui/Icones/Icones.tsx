@@ -123,3 +123,21 @@ export function IconeMaisOpcoes() {
     </Icone>
   );
 }
+
+/** Mais: adicionar foto. */
+export function IconeMais() {
+  return (
+    <Icone>
+      <path d="M12 5v14M5 12h14" />
+    </Icone>
+  );
+}
+
+/** X: remover foto. */
+export function IconeFechar() {
+  return (
+    <Icone>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </Icone>
+  );
+}

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
@@ -14,6 +14,8 @@ import type { ContatoAtendimento } from "../../../tipos/atendimento";
 import { usePerfil } from "../perfil/usePerfil";
 import { SeletorTipoServico } from "./componentes/SeletorTipoServico/SeletorTipoServico";
 import { SeletorQuando } from "./componentes/SeletorQuando/SeletorQuando";
+import { CampoFotos } from "./componentes/CampoFotos/CampoFotos";
+import type { FotoSelecionada } from "./componentes/CampoFotos/CampoFotos";
 import "./solicitar-atendimento.css";
 
 /** O rascunho sem o contato: o contato é calculado à parte, a partir do perfil. */
@@ -26,8 +28,9 @@ const MENSAGEM_ENVIADO = "Solicitação enviada! A Bruxel vai entrar em contato 
 
 /**
  * Formulário em que o cliente pede uma visita técnica (rota "/solicitar-atendimento",
- * só pra quem está logado). Os blocos são numerados pelo CSS (counter), então
- * dá pra incluir um bloco no meio sem renumerar nada.
+ * só pra quem está logado). Cinco blocos — tipo, descrição, fotos, quando e
+ * contato — numerados pelo CSS (counter), então dá pra incluir um bloco no
+ * meio sem renumerar nada.
  *
  * O contato vem do perfil: completo, aparece só um resumo com "Alterar";
  * incompleto (ou se a busca do perfil falhar), os campos já abrem pra digitar.
@@ -54,6 +57,23 @@ export function PaginaSolicitarAtendimento() {
   const [minimo] = useState(() => dataMinima(new Date()));
   // trava contra duplo clique: um segundo submit antes de a página trocar não cria outro atendimento
   const enviadoRef = useRef(false);
+  const [fotos, setFotos] = useState<FotoSelecionada[]>([]);
+  // cópia das fotos pra limpeza ao sair da página (o cleanup do useEffect não enxerga o estado atual)
+  const fotosRef = useRef<FotoSelecionada[]>([]);
+
+  // ao sair sem enviar, libera as URLs temporárias das miniaturas; se enviou,
+  // as URLs continuam valendo, porque foram pro ProvedorAtendimentos
+  useEffect(() => {
+    return () => {
+      if (enviadoRef.current) return;
+      fotosRef.current.forEach((foto) => URL.revokeObjectURL(foto.url));
+    };
+  }, []);
+
+  function mudarFotos(novas: FotoSelecionada[]) {
+    setFotos(novas);
+    fotosRef.current = novas;
+  }
 
   // o contato é derivado a cada renderização, em vez de um useEffect copiar o perfil pro estado
   const contatoPerfil = contatoDoUsuario(perfil);
@@ -122,7 +142,7 @@ export function PaginaSolicitarAtendimento() {
       periodo,
       descricao: completo.descricao.trim(),
       dataPreferida: completo.dataPreferida,
-      fotos: [],
+      fotos: fotos.map((foto) => foto.url),
       contato,
     });
     navigate("/perfil", { state: { aba: "atendimentos", mensagem: MENSAGEM_ENVIADO } });
@@ -181,6 +201,13 @@ export function PaginaSolicitarAtendimento() {
                   {erros.descricao}
                 </p>
               )}
+            </fieldset>
+
+            <fieldset className="pagina-atendimento__bloco">
+              <legend className="pagina-atendimento__titulo-bloco">
+                Fotos do problema <span className="pagina-atendimento__opcional">(opcional)</span>
+              </legend>
+              <CampoFotos fotos={fotos} onChange={mudarFotos} />
             </fieldset>
 
             <fieldset className="pagina-atendimento__bloco">
