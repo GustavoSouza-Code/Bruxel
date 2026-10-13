@@ -19,9 +19,16 @@ import {
   nomeDoTecnico,
   primeiroTecnicoLivre,
 } from "../../../crud/atendimentos/agenda";
+import {
+  ESCOLHA_CLIENTE_INICIAL,
+  clienteDoAtendimento,
+  validarClienteDaLoja,
+} from "../../../crud/atendimentos/clienteDaLoja";
+import type { EscolhaCliente } from "../../../crud/atendimentos/clienteDaLoja";
 import { TECNICOS } from "../../../dados/tecnicos";
 import type { ContatoAtendimento, HorarioVisita } from "../../../tipos/atendimento";
 import { usePerfil } from "../perfil/usePerfil";
+import { SeletorCliente } from "./componentes/SeletorCliente/SeletorCliente";
 import { SeletorTipoServico } from "./componentes/SeletorTipoServico/SeletorTipoServico";
 import { SeletorAtendente } from "./componentes/SeletorAtendente/SeletorAtendente";
 import { SeletorDiaHorario } from "./componentes/SeletorDiaHorario/SeletorDiaHorario";
@@ -56,7 +63,7 @@ const RASCUNHO_INICIAL: CamposRascunho = {
 export function PaginaSolicitarAtendimento() {
   const { solicitarAtendimento, ocupacoes } = useAtendimentos();
   const navigate = useNavigate();
-  const { usuario } = useAutenticacao();
+  const { usuario, ehAdmin } = useAutenticacao();
   // perfil de quem está logado, pra pré-preencher o contato; se a busca falhar
   // (ex.: 403 enquanto o backend não libera o próprio usuário), o cliente digita
   const { dados: perfil, carregando: carregandoPerfil } = usePerfil();
@@ -72,6 +79,12 @@ export function PaginaSolicitarAtendimento() {
   const [dias] = useState(() => diasDaAgenda(new Date()));
   // trava contra duplo clique: um segundo submit antes de a página trocar não cria outro atendimento
   const enviadoRef = useRef(false);
+  // admin abrindo pela loja: quem é o cliente, o erro do bloco "Cliente" e o aviso depois do envio
+  const [escolhaCliente, setEscolhaCliente] = useState<EscolhaCliente>(ESCOLHA_CLIENTE_INICIAL);
+  const [erroCliente, setErroCliente] = useState<string | null>(null);
+  const [avisoLoja, setAvisoLoja] = useState<string | null>(null);
+  // muda a cada envio do admin: recria o SeletorCliente, que volta com a busca vazia
+  const [envios, setEnvios] = useState(0);
   const [fotos, setFotos] = useState<FotoSelecionada[]>([]);
   // cópia das fotos pra limpeza ao sair da página (o cleanup do useEffect não enxerga o estado atual)
   const fotosRef = useRef<FotoSelecionada[]>([]);
@@ -90,11 +103,16 @@ export function PaginaSolicitarAtendimento() {
     fotosRef.current = novas;
   }
 
-  // o contato é derivado a cada renderização, em vez de um useEffect copiar o perfil pro estado
-  const contatoPerfil = contatoDoUsuario(perfil);
-  const contato = contatoEditado ?? contatoPerfil;
-  const perfilTemContato = Object.keys(validarContato(contatoPerfil)).length === 0;
-  const mostrarCamposContato = editandoContato || !perfilTemContato;
+  // de onde vem o contato: pro admin, da conta do cliente escolhido (sem cadastro, de lugar nenhum);
+  // pro cliente, do próprio perfil. O endereço do admin nunca entra num pedido de outra pessoa
+  const usuarioBase = ehAdmin ? (escolhaCliente.tipo === "cadastrado" ? escolhaCliente.usuario : null) : perfil;
+  // o contato é derivado a cada renderização, em vez de um useEffect copiar a base pro estado
+  const contatoBase = contatoDoUsuario(usuarioBase);
+  const contato = contatoEditado ?? contatoBase;
+  const baseTemContato = Object.keys(validarContato(contatoBase)).length === 0;
+  const mostrarCamposContato = editandoContato || !baseTemContato;
+  // só o cliente espera o próprio perfil carregar; o admin usa a conta do cliente escolhido
+  const esperandoPerfil = !ehAdmin && carregandoPerfil;
 
   function limparErro(campo: keyof ErrosSolicitacao) {
     setErros((atuais) => {
@@ -137,7 +155,7 @@ export function PaginaSolicitarAtendimento() {
 
   function atualizarContato(campo: keyof ContatoAtendimento, valor: string) {
     // a primeira edição parte do contato do perfil
-    setContatoEditado((atual) => ({ ...(atual ?? contatoPerfil), [campo]: valor }));
+    setContatoEditado((atual) => ({ ...(atual ?? contatoBase), [campo]: valor }));
     limparErro(campo);
   }
 
@@ -150,7 +168,17 @@ export function PaginaSolicitarAtendimento() {
     setContatoEditado(null);
     setEditandoContato(false);
     // erros do contato digitado não valem pro contato do perfil
-    (Object.keys(contatoPerfil) as (keyof ContatoAtendimento)[]).forEach(limparErro);
+    (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
+  }
+
+  // outro cliente, outro contato: o que foi digitado pro cliente anterior é descartado
+  function escolherCliente(escolha: EscolhaCliente) {
+    setEscolhaCliente(escolha);
+    setContatoEditado(null);
+    setEditandoContato(false);
+    setErroCliente(null);
+    setAvisoLoja(null);
+    (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
 
   function enviar(evento: FormEvent) {
@@ -159,7 +187,10 @@ export function PaginaSolicitarAtendimento() {
 
     const completo: RascunhoSolicitacao = { ...rascunho, contato };
     const encontrados = validarSolicitacao(completo, new Date(), ocupacoes);
-    if (Object.keys(encontrados).length > 0) {
+    // pela loja, o cliente também precisa estar escolhido
+    const problemaCliente = ehAdmin ? validarClienteDaLoja(escolhaCliente) : null;
+    setErroCliente(problemaCliente);
+    if (Object.keys(encontrados).length > 0 || problemaCliente) {
       setErros(encontrados);
       // depois que o React mostrar as mensagens, rola até o primeiro bloco com erro
       requestAnimationFrame(() => {
@@ -182,20 +213,39 @@ export function PaginaSolicitarAtendimento() {
     // a validação também já garantiu que tem alguém livre
     if (!tecnicoId) return;
 
+    // pela loja, o cliente é o escolhido no bloco "Cliente"; pelo site, é quem está logado
+    const cliente = ehAdmin
+      ? clienteDoAtendimento(escolhaCliente)
+      : { id: usuario?.id ?? null, nome: usuario?.nome ?? "" };
     enviadoRef.current = true;
     solicitarAtendimento({
       tipo,
       descricao: completo.descricao.trim(),
       fotos: fotos.map((foto) => foto.url),
-      // pedido feito pelo site: o cliente é quem está logado
-      cliente: { id: usuario?.id ?? null, nome: usuario?.nome ?? "" },
-      abertoNaLoja: false,
+      cliente,
+      abertoNaLoja: ehAdmin,
       tecnicoId,
       data: completo.data,
       horario,
       contato,
     });
     const agendamento = formatarAgendamento(completo.data, horario, nomeDoTecnico(tecnicoId));
+    if (ehAdmin) {
+      // no balcão o atendente abre vários seguidos: fica na página, com o aviso e o formulário limpo
+      setAvisoLoja(`Atendimento aberto para ${cliente.nome}: ${agendamento}.`);
+      setRascunho(RASCUNHO_INICIAL);
+      setEscolhaCliente(ESCOLHA_CLIENTE_INICIAL);
+      setEnvios((atual) => atual + 1);
+      setContatoEditado(null);
+      setEditandoContato(false);
+      setErros({});
+      // as fotos foram pro pedido: só esvazia o campo, sem revogar as URLs
+      mudarFotos([]);
+      // libera o próximo envio (o formulário já está limpo, então um clique repetido só mostra os erros)
+      enviadoRef.current = false;
+      window.scrollTo(0, 0);
+      return;
+    }
     const mensagem = `Pedido enviado! Horário reservado pra ${agendamento}. A Bruxel confirma a visita com você.`;
     // o /perfil abre na mesma rolagem desta página (lá embaixo); volta pro topo pra o aviso aparecer
     window.scrollTo(0, 0);
@@ -217,13 +267,34 @@ export function PaginaSolicitarAtendimento() {
             <span>Solicitar atendimento</span>
           </nav>
 
+          {ehAdmin && <span className="pagina-atendimento__etiqueta-loja">Abrindo pela loja</span>}
           <h1 className="pagina-atendimento__titulo">Solicitar atendimento</h1>
           <p className="pagina-atendimento__subtitulo">
-            Conte o que está acontecendo com a sua piscina e a Bruxel confirma a visita com você.
+            {ehAdmin
+              ? "Preencha com os dados do cliente que está sendo atendido."
+              : "Conte o que está acontecendo com a sua piscina e a Bruxel confirma a visita com você."}
           </p>
+          {avisoLoja && (
+            <p className="pagina-atendimento__aviso" role="status">
+              {avisoLoja}
+            </p>
+          )}
 
           {/* noValidate: as mensagens vêm do validarSolicitacao, não dos balões do navegador */}
           <form className="pagina-atendimento__formulario" onSubmit={enviar} noValidate>
+            {/* só pra admin: vira o bloco 1 (o counter do CSS renumera os outros sozinho) */}
+            {ehAdmin && (
+              <fieldset className="pagina-atendimento__bloco">
+                <legend className="pagina-atendimento__titulo-bloco">Cliente</legend>
+                <SeletorCliente key={envios} escolha={escolhaCliente} onChange={escolherCliente} />
+                {erroCliente && (
+                  <p className="pagina-atendimento__erro" role="alert">
+                    {erroCliente}
+                  </p>
+                )}
+              </fieldset>
+            )}
+
             <fieldset className="pagina-atendimento__bloco">
               <legend className="pagina-atendimento__titulo-bloco">Tipo de serviço</legend>
               <SeletorTipoServico valor={rascunho.tipo} onChange={(tipo) => atualizarCampo("tipo", tipo)} />
@@ -298,9 +369,11 @@ export function PaginaSolicitarAtendimento() {
             </fieldset>
 
             <fieldset className="pagina-atendimento__bloco">
-              <legend className="pagina-atendimento__titulo-bloco">Onde e como falar com você</legend>
+              <legend className="pagina-atendimento__titulo-bloco">
+                {ehAdmin ? "Onde e como falar com o cliente" : "Onde e como falar com você"}
+              </legend>
 
-              {carregandoPerfil ? (
+              {esperandoPerfil ? (
                 <p className="pagina-atendimento__dica">Carregando seus dados…</p>
               ) : mostrarCamposContato ? (
                 <div className="pagina-atendimento__campos-contato">
@@ -340,9 +413,9 @@ export function PaginaSolicitarAtendimento() {
                       )}
                     </label>
                   ))}
-                  {editandoContato && perfilTemContato && (
+                  {editandoContato && baseTemContato && (
                     <button type="button" className="pagina-atendimento__usar-perfil" onClick={usarContatoDoPerfil}>
-                      Usar o endereço do meu perfil
+                      {ehAdmin ? "Usar o endereço da conta do cliente" : "Usar o endereço do meu perfil"}
                     </button>
                   )}
                 </div>
@@ -361,7 +434,9 @@ export function PaginaSolicitarAtendimento() {
               )}
 
               <p className="pagina-atendimento__dica">
-                Vale só pra este atendimento: o endereço do seu perfil não muda.
+                {ehAdmin
+                  ? "Vale só pra este atendimento."
+                  : "Vale só pra este atendimento: o endereço do seu perfil não muda."}
               </p>
             </fieldset>
 
@@ -370,8 +445,8 @@ export function PaginaSolicitarAtendimento() {
               <button
                 type="submit"
                 className="pagina-atendimento__enviar"
-                disabled={carregandoPerfil}
-                aria-busy={carregandoPerfil}
+                disabled={esperandoPerfil}
+                aria-busy={esperandoPerfil}
               >
                 Enviar solicitação
               </button>
