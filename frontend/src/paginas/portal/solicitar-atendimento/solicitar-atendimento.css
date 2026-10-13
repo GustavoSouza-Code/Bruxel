@@ -201,6 +201,12 @@
   background-color: var(--color-primary-dark);
 }
 
+/* enquanto o perfil carrega (mesmo estilo dos botões desabilitados do /perfil) */
+.pagina-atendimento__enviar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .pagina-atendimento__cancelar {
   color: var(--color-text-muted);
   font-size: var(--font-size-small);

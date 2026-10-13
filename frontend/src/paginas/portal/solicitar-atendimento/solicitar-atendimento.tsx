@@ -274,7 +274,13 @@ export function PaginaSolicitarAtendimento() {
             </fieldset>
 
             <div className="pagina-atendimento__acoes">
-              <button type="submit" className="pagina-atendimento__enviar">
+              {/* o bloco do contato ainda está carregando: enviar agora validaria um contato vazio que a pessoa nem vê */}
+              <button
+                type="submit"
+                className="pagina-atendimento__enviar"
+                disabled={carregandoPerfil}
+                aria-busy={carregandoPerfil}
+              >
                 Enviar solicitação
               </button>
               <Link to="/" className="pagina-atendimento__cancelar">
