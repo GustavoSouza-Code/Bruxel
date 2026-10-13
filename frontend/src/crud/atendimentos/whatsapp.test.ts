@@ -18,6 +18,10 @@ describe("linkWhatsApp", () => {
     expect(linkWhatsApp("99876-5432", "Oi")).toBeNull();
     expect(linkWhatsApp("", "Oi")).toBeNull();
   });
+
+  it("DDD 55 (Santa Maria, Santa Rosa) não é confundido com o código do país", () => {
+    expect(linkWhatsApp("(55) 99876-5432", "Oi")).toBe("https://wa.me/5555998765432?text=Oi");
+  });
 });
 
 describe("textos do WhatsApp", () => {

@@ -86,6 +86,11 @@ describe("OS", () => {
     const pago = atendimentoDeTeste({ status: "concluido", pagoEm: "2026-10-22T12:00:00.000Z" });
     expect(() => atualizarOs(pago, { valorMaoDeObra: 100 })).toThrow();
   });
+
+  it("concluída e ainda não paga, a OS ainda pode ser corrigida", () => {
+    const concluido = atendimentoDeTeste({ status: "concluido" });
+    expect(atualizarOs(concluido, { valorMaoDeObra: 180 }).valorMaoDeObra).toBe(180);
+  });
 });
 
 describe("validarMensagemCliente", () => {

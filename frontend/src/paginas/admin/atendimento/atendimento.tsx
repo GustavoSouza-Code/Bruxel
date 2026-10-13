@@ -117,8 +117,13 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
   }
 
   function registrarPagamento() {
-    const total = formatarReais(totalOs(atendimento));
-    if (!window.confirm(`Registrar o pagamento de ${total}? Depois disso a OS não pode mais mudar.`)) return;
+    const valor = totalOs(atendimento);
+    // OS sem mão de obra e sem produto: pode ser cortesia, mas o mais comum é ter esquecido de lançar
+    const pergunta =
+      valor === 0
+        ? "Esta OS está com total de R$ 0,00 (sem mão de obra e sem produtos). Registrar o pagamento assim mesmo? Depois disso a OS não pode mais mudar."
+        : `Registrar o pagamento de ${formatarReais(valor)}? Depois disso a OS não pode mais mudar.`;
+    if (!window.confirm(pergunta)) return;
     // a hora é pega aqui fora: o transformar roda dentro do setState e precisa ser puro
     const agora = new Date();
     atualizarAtendimento(atendimento.id, (atual) => marcarPago(atual, agora));
@@ -203,6 +208,7 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
               <section className="pagina-admin-atendimento__bloco">
                 <h2 id="titulo-observacoes">Observações do técnico</h2>
                 {editavel ? (
+                  // TODO: com a API (PUT /appointments/:id/os), guardar um rascunho local e salvar ao sair do campo, em vez de gravar a cada tecla
                   <textarea
                     className="pagina-admin-atendimento__observacoes"
                     aria-labelledby="titulo-observacoes"
