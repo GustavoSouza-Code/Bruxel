@@ -311,6 +311,11 @@
     grid-template-columns: 1fr;
   }
 
+  /* título + botão (Editar, Solicitar atendimento) quebram linha se não couberem */
+  .pagina-perfil__cabecalho-conteudo {
+    flex-wrap: wrap;
+  }
+
   .pagina-perfil__menu {
     flex-direction: row;
     overflow-x: auto;
