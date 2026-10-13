@@ -132,6 +132,7 @@ export function Cabecalho() {
               to="/solicitar-atendimento"
               className="cabecalho__botao-atendimento"
               aria-label="Solicitar atendimento"
+              title="Solicitar atendimento"
               aria-current={pathname === "/solicitar-atendimento" ? "page" : undefined}
             >
               <IconeFerramenta />
