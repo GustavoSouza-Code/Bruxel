@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
@@ -84,12 +84,20 @@ export function PaginaPerfil() {
   const navigate = useNavigate();
   // dados do banco (null enquanto carrega ou se a busca falhou)
   const { dados, carregando, erro, recarregar, salvar } = usePerfil();
+  const location = useLocation();
   // recado do /solicitar-atendimento (state do navigate): aba pra abrir e aviso de sucesso
-  const recado = useLocation().state as { aba?: string; mensagem?: string } | null;
+  const recado = location.state as { aba?: string; mensagem?: string } | null;
   // só aceita uma aba que existe; qualquer outra coisa abre "Informações do perfil"
   const abaDoRecado = SECTIONS.find((section) => section.id === recado?.aba)?.id;
   // aba selecionada no menu lateral
   const [activeSection, setActiveSection] = useState<ProfileSection>(abaDoRecado ?? "perfil");
+  // o aviso é guardado uma vez só, na primeira renderização; o recado do histórico é apagado logo abaixo
+  const [mensagemRecado, setMensagemRecado] = useState<string | null>(() => recado?.mensagem ?? null);
+
+  // apaga o recado do histórico: recarregar a página ou voltar pra ela não mostra o aviso de novo
+  useEffect(() => {
+    if (location.state) navigate(location.pathname, { replace: true, state: null });
+  }, [location.state, location.pathname, navigate]);
   // rascunho da edição: cópia de `dados` que o formulário altera; null = fora do modo de
   // edição. Só vai pro banco ao salvar; cancelar apenas descarta o rascunho
   const [draft, setDraft] = useState<Usuario | null>(null);
@@ -132,8 +140,9 @@ export function PaginaPerfil() {
   }
 
   function changeSection(section: ProfileSection) {
-    // trocar de aba descarta uma edição em andamento
+    // trocar de aba descarta uma edição em andamento e esconde o aviso de sucesso
     setActiveSection(section);
+    setMensagemRecado(null);
     cancelEdit();
   }
 
@@ -347,7 +356,7 @@ export function PaginaPerfil() {
               )}
 
               {activeSection === "atendimentos" && (
-                <AbaAtendimentos mensagem={recado?.mensagem ?? null} />
+                <AbaAtendimentos mensagem={mensagemRecado} />
               )}
             </div>
           </div>

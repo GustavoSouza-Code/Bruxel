@@ -147,7 +147,8 @@ export function PaginaSolicitarAtendimento() {
     });
     // o /perfil abre na mesma rolagem desta página (lá embaixo); volta pro topo pra o aviso aparecer
     window.scrollTo(0, 0);
-    navigate("/perfil", { state: { aba: "atendimentos", mensagem: MENSAGEM_ENVIADO } });
+    // replace: o botão Voltar do navegador não retorna pro formulário que já foi enviado
+    navigate("/perfil", { replace: true, state: { aba: "atendimentos", mensagem: MENSAGEM_ENVIADO } });
   }
 
   return (
