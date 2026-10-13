@@ -23,6 +23,10 @@ app.use('/api', authRoutes);
 
 app.use((erro: unknown, req: Request, res: Response, next: NextFunction) => {
     if (erro instanceof AppError) {
+        
+        console.log("APP ERROR:", erro);
+        console.log("DETALHES:", erro.detalhes);
+
         return res.status(erro.statusCode).json({mensagem: erro.message, erros: erro.detalhes});
     }
     if (erro instanceof Prisma.PrismaClientKnownRequestError) {

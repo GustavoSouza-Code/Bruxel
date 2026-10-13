@@ -20,6 +20,7 @@ export class UserService {
         const validacao = validarCamposObrigatorios(user ?? {}, regrasCriarUser);
 
         if (validacao.length > 0) {
+            console.log("VALIDAÇÃO:", JSON.stringify(validacao, null, 2));
             throw new AppError(400, "Dados inválidos.", validacao);
         }
 
@@ -52,6 +53,10 @@ export class UserService {
     }
 
     async getById(id: string) {
+        // id fora do formato UUID faria o banco lançar erro (500); aqui já responde 404
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+            throw new AppError(404, "Usuário não encontrado");
+        }
         const usuario = await this.userRepository.getById(id);
         if (!usuario) {
             throw new AppError(404, "Usuário não encontrado");

@@ -1,30 +1,24 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ApiError } from "../../../services/api";
+import { mensagemDeErro } from "../../../api/cliente";
+import type { DadosNovoUsuario } from "../../../api/usuarios";
 import "./FormularioCadastro.css";
 
 /** O que o formulário entrega ao ser enviado (a confirmação de senha fica só aqui dentro). */
-export interface DadosFormularioCadastro {
-  nome: string;
-  email: string;
-  /** CPF como foi digitado; o service de API é quem limpa a pontuação antes de mandar pro backend */
-  cpf: string;
-  senha: string;
-}
+export type DadosFormularioCadastro = DadosNovoUsuario;
 
 interface FormularioCadastroProps {
-  /** pode ser async (chamar a API) — o formulário espera terminar antes de limpar os campos */
-  onEnviar: (data: DadosFormularioCadastro) => void | Promise<void>;
+  /** salva os dados; se a promessa rejeitar, a mensagem do erro aparece no formulário */
+  onEnviar: (dados: DadosFormularioCadastro) => Promise<void>;
   /** texto do botão de enviar; padrão "Criar conta" */
   textoBotao?: string;
 }
 
 /**
  * Formulário de cadastro de usuário, usado no "/criar-conta" e no modal de
- * "Novo usuário" do painel admin. Confere se as duas senhas são iguais,
- * chama onEnviar e só limpa os campos se ele não lançar erro — assim, se a
- * API recusar (CPF/e-mail já existe, por exemplo), o que a pessoa digitou
- * não se perde.
+ * "Novo usuário" do painel admin. Confere se as duas senhas são iguais, espera
+ * o onEnviar terminar e só limpa os campos se der certo. Se der erro (ex.: CPF
+ * já cadastrado), mostra a mensagem e mantém o que foi digitado.
  */
 export function FormularioCadastro({
   onEnviar,
@@ -37,11 +31,11 @@ export function FormularioCadastro({
   const [confirmarSenha, setConfirmarSenha] = useState("");
   // mensagem de erro mostrada acima do botão; null = sem erro
   const [erro, setErro] = useState<string | null>(null);
+  // true enquanto espera a API: desabilita o botão pra não cadastrar duas vezes
   const [enviando, setEnviando] = useState(false);
 
-  async function handleSubmit(event: FormEvent) {
+  async function enviar(event: FormEvent) {
     event.preventDefault();
-    setErro(null);
 
     if (senha !== confirmarSenha) {
       setErro("As senhas não conferem.");
@@ -49,26 +43,26 @@ export function FormularioCadastro({
     }
 
     setEnviando(true);
+    setErro(null);
     try {
-      await onEnviar({ nome, email, cpf, senha });
-      setNome("");
-      setEmail("");
-      setCpf("");
-      setSenha("");
-      setConfirmarSenha("");
-    } catch (err) {
-      setErro(
-        err instanceof ApiError
-          ? err.message
-          : "Não foi possível criar a conta. Tente novamente."
-      );
-    } finally {
+      await onEnviar({ nome: nome.trim(), email: email.trim(), cpf, senha });
+    } catch (falha) {
+      // mantém os campos pra pessoa só corrigir o que deu problema
+      setErro(mensagemDeErro(falha));
       setEnviando(false);
+      return;
     }
+
+    setEnviando(false);
+    setNome("");
+    setEmail("");
+    setCpf("");
+    setSenha("");
+    setConfirmarSenha("");
   }
 
   return (
-    <form className="formulario-cadastro" onSubmit={handleSubmit}>
+    <form className="formulario-cadastro" onSubmit={enviar}>
       <label>
         Nome completo
         <input
@@ -76,6 +70,7 @@ export function FormularioCadastro({
           placeholder="Seu nome completo"
           value={nome}
           onChange={(e) => setNome(e.target.value)}
+          maxLength={150}
           required
         />
       </label>
@@ -86,6 +81,8 @@ export function FormularioCadastro({
           placeholder="seu@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          maxLength={255}
+          autoComplete="email"
           required
         />
       </label>
@@ -93,11 +90,13 @@ export function FormularioCadastro({
         CPF
         <input
           type="text"
-          placeholder="Somente números"
           inputMode="numeric"
-          maxLength={14}
+          placeholder="Só números"
           value={cpf}
-          onChange={(e) => setCpf(e.target.value)}
+          // tira tudo que não é dígito, pra ficar no formato do banco (11 dígitos)
+          onChange={(e) => setCpf(e.target.value.replace(/\D/g, ""))}
+          maxLength={11}
+          minLength={11}
           required
         />
       </label>
@@ -108,6 +107,7 @@ export function FormularioCadastro({
           placeholder="••••••••"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
+          autoComplete="new-password"
           required
         />
       </label>
@@ -118,6 +118,7 @@ export function FormularioCadastro({
           placeholder="••••••••"
           value={confirmarSenha}
           onChange={(e) => setConfirmarSenha(e.target.value)}
+          autoComplete="new-password"
           required
         />
       </label>
@@ -128,12 +129,8 @@ export function FormularioCadastro({
         </p>
       )}
 
-      <button
-        type="submit"
-        className="formulario-cadastro__enviar"
-        disabled={enviando}
-      >
-        {enviando ? "Enviando..." : textoBotao}
+      <button type="submit" className="formulario-cadastro__enviar" disabled={enviando}>
+        {enviando ? "Enviando…" : textoBotao}
       </button>
     </form>
   );

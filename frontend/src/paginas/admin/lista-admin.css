@@ -1,0 +1,295 @@
+/*
+ * Estilos comuns das listas do painel admin (Gestão de Produtos e de
+ * Usuários): topo, linha dos chips, cards, lista compacta, botões e avisos.
+ * As colunas da lista compacta vêm de cada página, pelas variáveis
+ * --colunas-lista e --colunas-lista-celular.
+ */
+
+/* título à esquerda e botão "+ Novo ..." à direita; no celular o botão desce se não couber */
+.lista-admin__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+.lista-admin__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  margin: 0;
+}
+
+/* chips à esquerda (quebram linha) e o alternador de visualização fixo à direita */
+.lista-admin__linha-chips {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lista-admin__contador {
+  margin: 1rem 0 0.75rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* ---------- botões ---------- */
+
+.lista-admin__botao {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lista-admin__botao:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* botão neutro de contorno (Cancelar, Tentar novamente, Carregar mais) */
+.lista-admin__botao--contorno {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+.lista-admin__botao--contorno:hover {
+  background: none;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* botão só com ícone (Editar e Excluir da lista compacta, Excluir dos cards) */
+.lista-admin__icone-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  padding: 0.4rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.lista-admin__icone-botao:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.lista-admin__icone-botao--perigo:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+/* Excluir travado na linha do próprio admin */
+.lista-admin__icone-botao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lista-admin__icone-botao:disabled:hover {
+  border-color: var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+.lista-admin__botao:focus-visible,
+.lista-admin__icone-botao:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* selos ao lado do nome: "inativo" (amarelo) e "admin" (azul) */
+.lista-admin__selo {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.lista-admin__selo--aviso {
+  background-color: #fdf2d8;
+  color: #8a5a00;
+}
+
+.lista-admin__selo--destaque {
+  background-color: #dcdcff;
+  color: var(--color-primary);
+}
+
+/* ---------- modo cards ---------- */
+
+.lista-admin__grade {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.lista-admin__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 0;
+}
+
+.lista-admin__card-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.lista-admin__card-titulo {
+  font-weight: 600;
+  font-size: var(--font-size-body);
+}
+
+.lista-admin__card-detalhe {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* margin-top: auto empurra os botões pro pé do card, alinhando cards de alturas diferentes */
+.lista-admin__card-acoes {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.lista-admin__card-acoes > .lista-admin__botao {
+  flex: 1;
+}
+
+/* ---------- modo lista compacta ---------- */
+
+.lista-admin__compacta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.lista-admin__linha {
+  display: grid;
+  grid-template-columns: var(--colunas-lista);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 0.5rem;
+  border-bottom: 1px solid var(--color-border-soft);
+  font-size: var(--font-size-small);
+}
+
+.lista-admin__linha > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lista-admin__linha--titulos {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  border-bottom-width: 2px;
+}
+
+.lista-admin__linha-acoes {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  overflow: visible;
+}
+
+/* ---------- estados ---------- */
+
+.lista-admin__vazio {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 2rem 0;
+  margin: 0;
+}
+
+.lista-admin__vazio .lista-admin__botao {
+  margin-top: 0.75rem;
+}
+
+.lista-admin__carregar-mais {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+/* aviso de erro (falha ao carregar ou excluir); o botão "Tentar novamente" fica à direita */
+.lista-admin__aviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid #f5c6c1;
+  border-radius: 12px;
+  background-color: #fdecea;
+  color: #c0392b;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+/* Celular: a lista compacta some com os títulos e as colunas extras */
+@media (max-width: 599px) {
+  .lista-admin__linha {
+    grid-template-columns: var(--colunas-lista-celular);
+    gap: 0.75rem;
+  }
+
+  /* com menos colunas, o nome pode ocupar até 2 linhas em vez de cortar logo */
+  .lista-admin__linha > span {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .lista-admin__linha > .lista-admin__linha-acoes {
+    display: flex;
+  }
+
+  .lista-admin__linha--titulos,
+  .lista-admin__linha > .lista-admin__so-largo {
+    display: none;
+  }
+
+  /* os chips rolam pro lado numa linha só, em vez de empilhar várias linhas */
+  .lista-admin__linha-chips .chips-filtro {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* espaço pro contorno do chip com foco não ser cortado */
+    padding: 2px;
+    margin: -2px;
+  }
+
+  .lista-admin__linha-chips .chips-filtro::-webkit-scrollbar {
+    display: none;
+  }
+}

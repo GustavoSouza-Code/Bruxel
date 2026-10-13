@@ -6,6 +6,8 @@ interface ModalProps {
   titulo: string;
   onFechar: () => void;
   children: ReactNode;
+  /** true pra formulários maiores (ex.: produto), que ficam apertados na largura padrão */
+  largo?: boolean;
 }
 
 /**
@@ -13,7 +15,7 @@ interface ModalProps {
  * escurece o fundo, prende o foco dentro dela e fecha com Esc. Quem usa
  * decide se ela existe renderizando condicionalmente ({aberto && <Modal />}).
  */
-export function Modal({ titulo, onFechar, children }: ModalProps) {
+export function Modal({ titulo, onFechar, children, largo = false }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   // showModal() só existe no elemento real do DOM, por isso roda depois de montar.
@@ -33,7 +35,7 @@ export function Modal({ titulo, onFechar, children }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="modal"
+      className={largo ? "modal modal--largo" : "modal"}
       aria-labelledby="modal-title"
       onClick={handleClick}
       // Esc dispara "cancel"; o preventDefault deixa o React desmontar o modal em vez do navegador fechá-lo

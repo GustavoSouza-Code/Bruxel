@@ -2,6 +2,7 @@ import {UserRepository} from "../repository/userRepository";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {AppError} from "../errors/AppError";
+import {perfil_usuario} from "../generated/prisma/enums";
 
 export interface AuthRequestDTO {
     email: string;
@@ -14,6 +15,8 @@ interface AuthResponseDTO {
         id: string;
         email: string;
         nome: string;
+        // o front usa o perfil pra liberar (ou não) o painel admin
+        perfil: perfil_usuario;
     }
 }
 
@@ -47,7 +50,8 @@ export class AuthService {
             user: {
                 id: user.id,
                 email: user.email,
-                nome: user.nome
+                nome: user.nome,
+                perfil: user.perfil
             }
         }
 

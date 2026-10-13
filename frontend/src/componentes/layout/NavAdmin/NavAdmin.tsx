@@ -1,26 +1,22 @@
 import { Link } from "react-router-dom";
+import { Logo } from "../Logo/Logo";
+import { MenuUsuario } from "../MenuUsuario/MenuUsuario";
 import "./NavAdmin.css";
 
 /**
  * Barra de navegação do painel de gestão. Substitui o Cabecalho do site nas
- * páginas /admin/*: tem os atalhos de Usuários e Produtos e o link pra
- * voltar ao portal.
+ * páginas /admin/*: tem o logo (volta pra Home), o "Painel de gestão" (volta
+ * pra tela inicial do painel) e a pílula do usuário, com o Sair dentro do menu.
  */
 export function NavAdmin() {
   return (
     <header className="nav-admin">
-      <span className="nav-admin__titulo">Painel de Gestão</span>
-      <nav className="nav-admin__links">
-        <Link to="/admin/usuarios" className="nav-admin__link">
-          Usuários
-        </Link>
-        <Link to="/admin/produtos" className="nav-admin__link">
-          Produtos
-        </Link>
-      </nav>
-      <Link to="/" className="nav-admin__voltar">
-        Voltar ao site
+      <Logo />
+      <Link to="/admin" className="nav-admin__titulo">
+        {/* no celular fica só "Painel", senão logo + título + pílula não cabem na largura */}
+        Painel<span className="nav-admin__titulo-extra"> de gestão</span>
       </Link>
+      <MenuUsuario />
     </header>
   );
 }

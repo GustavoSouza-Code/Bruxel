@@ -51,25 +51,6 @@
   padding-bottom: clamp(0.75rem, 0.6rem + 0.5vw, 1.5rem);
 }
 
-/* Logo */
-.cabecalho__logo {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.cabecalho__logo-principal {
-  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem);
-}
-
-.cabecalho__logo-secundario {
-  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.95rem);
-  font-weight: 500;
-  opacity: 0.85;
-}
-
 /* Menu de navegação */
 .cabecalho__nav {
   display: flex;

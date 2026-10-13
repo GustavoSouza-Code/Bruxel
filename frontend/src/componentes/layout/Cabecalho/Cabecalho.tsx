@@ -3,6 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { Container } from "../Container/Container";
 import { useCarrinho } from "../../../contexto/ContextoCarrinho";
 import { useBordasRolagem } from "../../../hooks/useBordasRolagem";
+import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { MenuUsuario } from "../MenuUsuario/MenuUsuario";
+import { Logo } from "../Logo/Logo";
 import "./Cabecalho.css";
 
 // links do menu principal, na ordem em que aparecem
@@ -18,7 +21,7 @@ const SCROLL_THRESHOLD = 8;
 
 /**
  * Cabeçalho fixo do site: logo, menu de navegação, carrinho (com o contador
- * de itens) e botão Entrar.
+ * de itens) e o botão Entrar, ou o menu do usuário quando há alguém logado.
  *
  * Como o header é `position: fixed` (sai do fluxo da página), um espaçador
  * do mesmo tamanho é renderizado logo depois dele pra o conteúdo não ficar
@@ -26,6 +29,7 @@ const SCROLL_THRESHOLD = 8;
  */
 export function Cabecalho() {
   const { quantidadeItens } = useCarrinho();
+  const { estaLogado } = useAutenticacao();
   const headerRef = useRef<HTMLElement>(null);
   // altura real do header (muda com a tela e ao encolher); usada pelo espaçador no fim do componente
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -90,10 +94,7 @@ export function Cabecalho() {
         className={`cabecalho${scrolled ? " cabecalho--rolado" : ""}`}
       >
         <Container className="cabecalho__interno">
-          <div className="cabecalho__logo">
-            <span className="cabecalho__logo-principal">Bruxel</span>
-            <span className="cabecalho__logo-secundario">Piscinas</span>
-          </div>
+          <Logo />
 
           {/* menu principal; as classes fade-* esmaecem a borda quando há links escondidos (só no celular) */}
           <nav
@@ -144,23 +145,28 @@ export function Cabecalho() {
                 <span className="cabecalho__selo-carrinho">{quantidadeItens}</span>
               )}
             </Link>
-            <Link to="/entrar" className="cabecalho__botao-entrar">
-              <svg
-                className="cabecalho__icone-entrar"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="8" r="5" />
-                <path d="M20 21a8 8 0 0 0-16 0" />
-              </svg>
-              Entrar
-            </Link>
+            {/* logado: menu com o nome; deslogado: o botão Entrar */}
+            {estaLogado ? (
+              <MenuUsuario />
+            ) : (
+              <Link to="/entrar" className="cabecalho__botao-entrar">
+                <svg
+                  className="cabecalho__icone-entrar"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="8" r="5" />
+                  <path d="M20 21a8 8 0 0 0-16 0" />
+                </svg>
+                Entrar
+              </Link>
+            )}
           </div>
         </Container>
       </header>

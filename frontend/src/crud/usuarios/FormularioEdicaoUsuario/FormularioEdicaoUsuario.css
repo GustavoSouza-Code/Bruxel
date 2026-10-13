@@ -1,0 +1,117 @@
+/* grade de 2 colunas dentro do modal (1 no celular) */
+.formulario-edicao-usuario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+/* campo que ocupa a linha inteira da grade */
+.formulario-edicao-usuario__inteiro {
+  grid-column: 1 / -1;
+}
+
+.formulario-edicao-usuario label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.formulario-edicao-usuario input {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+  min-width: 0;
+}
+
+.formulario-edicao-usuario input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.formulario-edicao-usuario input:disabled {
+  background-color: #f7f7fa;
+  color: var(--color-text-muted);
+}
+
+/* endereço: os 6 campos (rua, número, bairro, cidade, UF, CEP) em 2 colunas */
+.formulario-edicao-usuario__endereco {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0;
+}
+
+.formulario-edicao-usuario__endereco legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.formulario-edicao-usuario__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.formulario-edicao-usuario__acoes {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.formulario-edicao-usuario__salvar,
+.formulario-edicao-usuario__cancelar {
+  border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+}
+
+.formulario-edicao-usuario__salvar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+}
+
+.formulario-edicao-usuario__salvar:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.formulario-edicao-usuario__cancelar {
+  background: none;
+  border: 1px solid var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+.formulario-edicao-usuario__cancelar:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* enquanto espera a resposta da API */
+.formulario-edicao-usuario__salvar:disabled,
+.formulario-edicao-usuario__cancelar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@media (max-width: 599px) {
+  .formulario-edicao-usuario,
+  .formulario-edicao-usuario__endereco {
+    grid-template-columns: 1fr;
+  }
+}

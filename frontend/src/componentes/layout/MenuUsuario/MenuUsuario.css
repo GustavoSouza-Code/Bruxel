@@ -1,0 +1,85 @@
+/* âncora do menu suspenso: ele se posiciona em relação a esta caixa */
+.menu-usuario {
+  position: relative;
+}
+
+/* o visual da pílula vem de .cabecalho__botao-entrar; <button> não herda a fonte sozinho */
+.menu-usuario__botao {
+  font-family: inherit;
+}
+
+.menu-usuario__seta {
+  transition: transform 0.15s ease;
+}
+
+.menu-usuario__seta--aberta {
+  transform: rotate(180deg);
+}
+
+/* caixa branca abaixo do botão, alinhada à direita (não sai da tela no celular) */
+.menu-usuario__menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 200; /* acima do header (z-index 100) e do conteúdo */
+  min-width: 230px;
+  padding: 0.4rem;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(10, 13, 77, 0.25);
+  white-space: normal; /* o .cabecalho__acoes usa nowrap; aqui o e-mail pode quebrar */
+}
+
+.menu-usuario__topo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.8rem 0.7rem;
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.menu-usuario__topo strong {
+  color: var(--color-primary);
+}
+
+.menu-usuario__topo span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Links e o botão Sair com o mesmo visual */
+.menu-usuario__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-usuario__item:hover,
+.menu-usuario__item:focus-visible {
+  background-color: #eef3ff;
+}
+
+.menu-usuario__item--sair {
+  color: #c0392b;
+}
+
+.menu-usuario__divisor {
+  border: none;
+  border-top: 1px solid var(--color-border-soft);
+  margin: 0.3rem 0;
+}
