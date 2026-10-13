@@ -36,9 +36,9 @@ trocar pela API.
 
 | Decisão | Escolha | Motivo |
 |---|---|---|
-| Onde guardar os dados | Contexto em memória (`ProvedorAtendimentos`), com 2 exemplos iniciais | O formulário e a aba precisam da mesma lista; segue o `ContextoCarrinho`; sem backend ainda |
+| Onde guardar os dados | Contexto em memória (`ProvedorAtendimentos`) que separa os pedidos por conta (pelo id do usuário logado), com 2 exemplos pras contas que ainda não pediram nada | O formulário e a aba precisam da mesma lista; segue o `ContextoCarrinho`; sem backend ainda |
 | Entrada na tela | Segunda pílula no cabeçalho, estilo "sólida clara" (fundo `--color-store-button`, texto `--color-primary`) | Escolhida pelo Eduardo entre 3 previews; destaca sem competir com o Entrar |
-| Texto da pílula no celular | "Atendimento", escondendo "Solicitar " com media query | É só visual, então CSS é o lugar certo |
+| Tamanho da pílula | Acima de 1200px "Solicitar atendimento"; de 1101 a 1200px "Atendimento"; de 1100px pra baixo só o ícone (48px; 40px no celular), com aria-label e title "Solicitar atendimento" | Medido no navegador, logado e deslogado: com texto, o menu quebrava em 2–4 linhas entre 641 e 1200px e as ações desciam de linha no celular. É só visual, então é CSS (media queries) |
 | Layout do formulário | Coluna única com 5 blocos numerados, no visual do Minha conta | Escolhido pelo Eduardo entre 2 previews; simples no celular |
 | Onde fica a lista | Nova aba "Atendimentos" no `/perfil` | Reaproveita o layout e os cards da aba Compras |
 | Login | Rota dentro do `RotaLogado` | A OS precisa estar ligada a um cliente cadastrado; o `entrar` já devolve pra página de origem (`state.de`) |
@@ -47,14 +47,17 @@ trocar pela API.
 | Data e período | Obrigatórios; data a partir de amanhã; período manhã ou tarde | O gestor precisa disso pra marcar; casa com `data_hora` do banco |
 | Fotos | Opcionais, até 5, só imagens, até 5 MB cada; miniaturas com `URL.createObjectURL` | Aparecem na OS da issue; sem bucket ainda, vivem no navegador |
 | Ícones | SVG inline no `Icones.tsx` | Mesmo padrão dos ícones que já existem |
+| Enviar com o perfil ainda carregando | Botão "Enviar solicitação" desabilitado (aria-busy) até o perfil carregar | Sem isso o clique validava um contato vazio que ainda não aparecia na tela, e nada acontecia |
+| Depois de enviar | A página volta pro topo e navega pro /perfil com replace; o aviso aparece uma vez só | O /perfil abria na rolagem do formulário (aviso fora da tela) e o recado do histórico fazia o aviso reaparecer ao recarregar |
+| Lista por conta | Os atendimentos ficam guardados pelo id do usuário logado | Sair e entrar com outra conta na mesma aba mostrava os pedidos da conta anterior |
 
 ## Fluxo
 
 1. Pílula do cabeçalho → `/solicitar-atendimento`. Deslogado: `RotaLogado` → `/entrar` → volta pro formulário depois do login.
 2. Cliente preenche: **1** tipo de serviço, **2** descrição, **3** fotos, **4** data e período, **5** endereço e telefone.
 3. "Enviar solicitação" valida. Com erro: mensagem embaixo de cada bloco com problema, e a página rola até o primeiro.
-4. Sem erro: `solicitarAtendimento()` cria o registro com status `aguardando` e vai pra
-   `/perfil` com `state: { aba: "atendimentos", mensagem }`.
+4. Sem erro: `solicitarAtendimento()` cria o registro com status `aguardando`, a página volta pro topo e vai pra
+   `/perfil` com `state: { aba: "atendimentos", mensagem }`, e o aviso aparece uma vez só.
 5. A aba mostra o aviso de sucesso e a lista (mais novo primeiro).
 
 ## Dados

@@ -122,7 +122,7 @@ Portal público:
 | `/entrar` | Login |
 | `/criar-conta` | Cadastro |
 | `/perfil` | Perfil do usuário logado |
-| `/solicitar-atendimento` | Pedido de visita técnica (exige login) |
+| `/solicitar-atendimento` | Pedido de visita técnica (exige login; por enquanto os pedidos ficam só na memória do navegador) |
 
 Painel de gestão (exige login de administrador; quem não é admin é redirecionado):
 
