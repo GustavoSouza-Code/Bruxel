@@ -9,6 +9,8 @@ const DADOS: DadosSolicitacao = {
   tecnicoId: "rafael",
   data: "2026-10-20",
   horario: "13:30",
+  cliente: { id: "u1", nome: "Ana Souza" },
+  abertoNaLoja: false,
   contato: {
     telefone: "51999990000",
     rua: "Rua Bento Gonçalves",

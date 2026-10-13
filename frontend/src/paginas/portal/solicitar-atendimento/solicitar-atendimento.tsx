@@ -5,6 +5,7 @@ import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { useAtendimentos } from "../../../contexto/useAtendimentos";
+import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import { contatoDoUsuario, validarContato } from "../../../crud/atendimentos/contatoAtendimento";
 import { DESCRICAO_MAX, validarSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
@@ -55,6 +56,7 @@ const RASCUNHO_INICIAL: CamposRascunho = {
 export function PaginaSolicitarAtendimento() {
   const { solicitarAtendimento, ocupacoes } = useAtendimentos();
   const navigate = useNavigate();
+  const { usuario } = useAutenticacao();
   // perfil de quem está logado, pra pré-preencher o contato; se a busca falhar
   // (ex.: 403 enquanto o backend não libera o próprio usuário), o cliente digita
   const { dados: perfil, carregando: carregandoPerfil } = usePerfil();
@@ -185,6 +187,9 @@ export function PaginaSolicitarAtendimento() {
       tipo,
       descricao: completo.descricao.trim(),
       fotos: fotos.map((foto) => foto.url),
+      // pedido feito pelo site: o cliente é quem está logado
+      cliente: { id: usuario?.id ?? null, nome: usuario?.nome ?? "" },
+      abertoNaLoja: false,
       tecnicoId,
       data: completo.data,
       horario,

@@ -56,6 +56,7 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                   </span>
                   <span>
                     Enviado em {new Date(atendimento.criadoEm).toLocaleDateString("pt-BR")}
+                    {atendimento.abertoNaLoja && " · aberto na loja"}
                     {quantidadeFotos > 0 &&
                       ` · ${quantidadeFotos} ${quantidadeFotos === 1 ? "foto" : "fotos"}`}
                   </span>

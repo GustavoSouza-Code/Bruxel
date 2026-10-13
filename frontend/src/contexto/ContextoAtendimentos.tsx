@@ -8,12 +8,16 @@ import { useAutenticacao } from "./useAutenticacao";
 import type { ValorContextoAtendimentos } from "./useAtendimentos";
 import type { Atendimento, DadosSolicitacao } from "../tipos/atendimento";
 
+// chave dos pedidos de quem não tem conta (abertos no balcão): não aparecem pra ninguém no site, mas ocupam a agenda
+const CHAVE_BALCAO = "balcao";
+
 /**
  * Guarda os atendimentos que o cliente pediu e disponibiliza pro formulário
  * (/solicitar-atendimento) e pra aba "Atendimentos" do /perfil. Precisa envolver
  * o app — ver App.tsx.
  *
- * Cada conta vê os próprios pedidos (pelo id do usuário logado) e os exemplos.
+ * Cada pedido fica guardado com o cliente dele (id da conta, ou "balcao" pra quem
+ * não tem conta); cada conta vê os próprios pedidos e os exemplos.
  * A agenda dos atendentes é uma só, então os horários ocupados juntam os pedidos
  * de todas as contas. Tudo vive só na memória: recarregar a página volta aos exemplos.
  * TODO: trocar pelas rotas de appointments quando o backend tiver (ele devolve só
@@ -37,21 +41,18 @@ export function ProvedorAtendimentos({ children }: { children: ReactNode }) {
     [novosPorUsuario]
   );
 
-  const solicitarAtendimento = useCallback(
-    (dados: DadosSolicitacao) => {
-      // sem ninguém logado não há de quem guardar (a rota do formulário já exige login)
-      if (!idUsuario) return;
-      // a data do envio é pega aqui fora: a função do setState deve ser pura (o StrictMode chama ela 2 vezes)
-      const agora = new Date();
-      setNovosPorUsuario((atual) => {
-        const proprios = atual[idUsuario] ?? [];
-        // a numeração conta os exemplos também, que são os primeiros da lista
-        const novo = novoAtendimento(dados, proprios.length + ATENDIMENTOS_EXEMPLO.length, agora);
-        return { ...atual, [idUsuario]: [novo, ...proprios] };
-      });
-    },
-    [idUsuario]
-  );
+  const solicitarAtendimento = useCallback((dados: DadosSolicitacao) => {
+    // o pedido fica com o cliente dele: quem pediu pelo site, ou o cliente que a loja escolheu
+    const chave = dados.cliente.id ?? CHAVE_BALCAO;
+    // a data do envio é pega aqui fora: a função do setState deve ser pura (o StrictMode chama ela 2 vezes)
+    const agora = new Date();
+    setNovosPorUsuario((atual) => {
+      // numeração única entre todas as contas (como seria no banco), contando os exemplos
+      const total = Object.values(atual).reduce((soma, lista) => soma + lista.length, 0);
+      const novo = novoAtendimento(dados, total + ATENDIMENTOS_EXEMPLO.length, agora);
+      return { ...atual, [chave]: [novo, ...(atual[chave] ?? [])] };
+    });
+  }, []);
 
   // useMemo: só cria um objeto novo quando algo muda, pra não re-renderizar à toa quem usa o contexto
   const valor = useMemo<ValorContextoAtendimentos>(

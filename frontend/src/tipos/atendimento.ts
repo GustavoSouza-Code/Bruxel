@@ -40,6 +40,10 @@ export interface Atendimento {
   descricao: string;
   /** URLs das fotos pra exibir (por enquanto blob:, criadas no navegador) */
   fotos: string[];
+  /** de quem é o pedido: quem pediu pelo site, ou o cliente que a loja escolheu */
+  cliente: ClienteDoAtendimento;
+  /** true quando um administrador abriu o pedido pela loja (balcão) */
+  abertoNaLoja: boolean;
   /** id do atendente (dados/tecnicos.ts); o "Sem preferência" já vira um atendente de verdade no envio */
   tecnicoId: string;
   /** dia da visita, "aaaa-mm-dd" */
