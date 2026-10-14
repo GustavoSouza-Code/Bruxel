@@ -136,6 +136,60 @@
   flex-shrink: 0;
 }
 
+/* segunda pílula (Solicitar atendimento): mesmo formato do Entrar, em lilás claro,
+   pra o Entrar continuar sendo o botão principal */
+.cabecalho__botao-atendimento {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+  border-radius: 999px;
+  height: 48px;
+  padding: 0 1.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.cabecalho__botao-atendimento:hover {
+  background-color: var(--color-white);
+}
+
+/* na própria página do formulário, a pílula ganha um contorno azul-claro */
+.cabecalho__botao-atendimento[aria-current="page"] {
+  outline: 2px solid #8ddcff;
+  outline-offset: 2px;
+}
+
+/* o texto curto só aparece entre 1101 e 1200px (ver @media abaixo) */
+.cabecalho__texto-curto {
+  display: none;
+}
+
+/* telas médias: o menu precisa de espaço, então a pílula encolhe — primeiro o texto curto, depois só o ícone */
+@media (max-width: 1200px) {
+  .cabecalho__texto-longo {
+    display: none;
+  }
+
+  .cabecalho__texto-curto {
+    display: inline;
+  }
+}
+
+@media (max-width: 1100px) {
+  .cabecalho__botao-atendimento {
+    width: 48px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .cabecalho__texto-curto {
+    display: none;
+  }
+}
+
 /* Celular */
 @media (max-width: 640px) {
   /* no celular o padding é o mesmo com ou sem rolagem: o header não encolhe */
@@ -181,5 +235,19 @@
   .cabecalho__botao-entrar {
     height: 40px;
     padding: 0 1.1rem;
+  }
+
+  /* no celular a pílula é só o ícone (o aria-label e o title dizem "Solicitar atendimento");
+     o texto não cabe ao lado do carrinho e do Entrar/nome do usuário */
+  .cabecalho__botao-atendimento {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* celular estreito: menos espaço entre pílula, carrinho e Entrar/nome, pra caberem na linha do logo */
+@media (max-width: 420px) {
+  .cabecalho__acoes {
+    gap: 0.6rem;
   }
 }

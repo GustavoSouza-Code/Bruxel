@@ -1,0 +1,130 @@
+.seletor-dia-horario__titulo {
+  margin: 1.25rem 0 0.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-primary);
+}
+
+/* faixa de dias: uma linha só, rolando pro lado; o padding deixa espaço pro contorno de foco */
+.seletor-dia-horario__dias {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px;
+}
+
+/* esconde a barra de rolagem no Chrome/Safari (no Firefox é o scrollbar-width: none acima) */
+.seletor-dia-horario__dias::-webkit-scrollbar {
+  display: none;
+}
+
+/* fades controlados pelo useBordasRolagem: só aparecem quando tem dia escondido naquele lado */
+.seletor-dia-horario__dias--esmaecer-direita {
+  mask-image: linear-gradient(90deg, #000 85%, transparent);
+}
+
+.seletor-dia-horario__dias--esmaecer-esquerda {
+  mask-image: linear-gradient(90deg, transparent, #000 15%);
+}
+
+.seletor-dia-horario__dias--esmaecer-esquerda.seletor-dia-horario__dias--esmaecer-direita {
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+
+.seletor-dia-horario__dia {
+  position: relative;
+  flex: 0 0 auto;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.5rem 0;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seletor-dia-horario__dia strong {
+  font-size: 1.1rem;
+}
+
+.seletor-dia-horario__dia:hover {
+  border-color: var(--color-accent);
+}
+
+.seletor-dia-horario__dia--ativo {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* dia sem nenhum horário livre: apagado e sem clique */
+.seletor-dia-horario__dia--lotado {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.seletor-dia-horario__dia--lotado:hover {
+  border-color: var(--color-border-soft);
+}
+
+.seletor-dia-horario__horarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* cada horário é uma pílula, no mesmo estilo dos turnos de antes */
+.seletor-dia-horario__horario {
+  position: relative;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.seletor-dia-horario__horario--ativo {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* horário ocupado: riscado, apagado e sem clique */
+.seletor-dia-horario__horario--ocupado {
+  border-color: var(--color-border-soft);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* foco do teclado nos radios escondidos aparece no dia ou na pílula */
+.seletor-dia-horario__dia:has(.seletor-dia-horario__radio:focus-visible),
+.seletor-dia-horario__horario:has(.seletor-dia-horario__radio:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.seletor-dia-horario__radio {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.seletor-dia-horario__vazio {
+  margin-top: 1rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
