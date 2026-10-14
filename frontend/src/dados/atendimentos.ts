@@ -27,6 +27,11 @@ export const ATENDIMENTOS_EXEMPLO: Atendimento[] = [
     },
     status: "agendado",
     criadoEm: "2026-10-08T14:35:00.000Z",
+    mensagemCliente: null,
+    observacoesTecnico: "",
+    produtosUsados: [],
+    valorMaoDeObra: null,
+    pagoEm: null,
   },
   {
     id: "AT-2026-0001",
@@ -49,5 +54,17 @@ export const ATENDIMENTOS_EXEMPLO: Atendimento[] = [
     },
     status: "concluido",
     criadoEm: "2026-09-10T10:00:00.000Z",
+    mensagemCliente: null,
+    observacoesTecnico: "Aspiração e escovação completas, filtro retrolavado e pH corrigido. Água voltou a ficar cristalina.",
+    produtosUsados: [
+      {
+        produtoId: "hidrofloc-1l",
+        nome: "Hidroall Clarificante Hidrofloc Tripla Ação 1L",
+        precoUnitario: 21.5,
+        quantidade: 2,
+      },
+    ],
+    valorMaoDeObra: 150,
+    pagoEm: "2026-09-15T18:00:00.000Z",
   },
 ];

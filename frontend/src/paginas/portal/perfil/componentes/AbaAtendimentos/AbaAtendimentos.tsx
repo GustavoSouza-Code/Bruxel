@@ -4,6 +4,7 @@ import { STATUS_LABELS, TIPO_SERVICO_LABELS } from "../../../../../crud/atendime
 import { formatarData } from "../../../../../crud/atendimentos/datasAtendimento";
 import { nomeDoTecnico } from "../../../../../crud/atendimentos/agenda";
 import { IconeFerramenta } from "../../../../../componentes/ui/Icones/Icones";
+import { formatarReais, totalOs } from "../../../../../crud/atendimentos/valorOs";
 import "./AbaAtendimentos.css";
 
 interface AbaAtendimentosProps {
@@ -44,6 +45,8 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
         <ul className="aba-atendimentos__lista">
           {atendimentos.map((atendimento) => {
             const quantidadeFotos = atendimento.fotos.length;
+            const total = totalOs(atendimento);
+            const encerrado = atendimento.status === "recusado" || atendimento.status === "cancelado";
             return (
               <li key={atendimento.id} className="pagina-perfil__card aba-atendimentos__item">
                 <div className="aba-atendimentos__principal">
@@ -60,6 +63,14 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                     {quantidadeFotos > 0 &&
                       ` · ${quantidadeFotos} ${quantidadeFotos === 1 ? "foto" : "fotos"}`}
                   </span>
+                  {encerrado && atendimento.mensagemCliente && (
+                    <span className="aba-atendimentos__mensagem">
+                      Mensagem da Bruxel: {atendimento.mensagemCliente}
+                    </span>
+                  )}
+                  {atendimento.status === "concluido" && total > 0 && (
+                    <span>Total: {formatarReais(total)}</span>
+                  )}
                 </div>
                 {/* o sufixo da classe é o próprio status (ver AbaAtendimentos.css) */}
                 <span

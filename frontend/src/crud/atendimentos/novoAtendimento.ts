@@ -17,5 +17,11 @@ export function novoAtendimento(
     id: `AT-${agora.getFullYear()}-${sequencia}`,
     status: "aguardando",
     criadoEm: agora.toISOString(),
+    // a OS começa vazia: quem preenche é o painel, depois que o atendimento começa
+    mensagemCliente: null,
+    observacoesTecnico: "",
+    produtosUsados: [],
+    valorMaoDeObra: null,
+    pagoEm: null,
   };
 }

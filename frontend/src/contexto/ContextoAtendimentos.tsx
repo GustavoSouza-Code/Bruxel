@@ -8,56 +8,61 @@ import { useAutenticacao } from "./useAutenticacao";
 import type { ValorContextoAtendimentos } from "./useAtendimentos";
 import type { Atendimento, DadosSolicitacao } from "../tipos/atendimento";
 
-// chave dos pedidos de quem não tem conta (abertos no balcão): não aparecem pra ninguém no site, mas ocupam a agenda
-const CHAVE_BALCAO = "balcao";
+// os exemplos aparecem pra toda conta, pra aba "Atendimentos" não abrir vazia
+const IDS_EXEMPLO = new Set(ATENDIMENTOS_EXEMPLO.map((atendimento) => atendimento.id));
 
 /**
- * Guarda os atendimentos que o cliente pediu e disponibiliza pro formulário
- * (/solicitar-atendimento) e pra aba "Atendimentos" do /perfil. Precisa envolver
- * o app — ver App.tsx.
+ * Guarda os atendimentos e disponibiliza pro formulário (/solicitar-atendimento),
+ * pra aba "Atendimentos" do /perfil e pro painel (/admin/atendimentos). Precisa
+ * envolver o app — ver App.tsx.
  *
- * Cada pedido fica guardado com o cliente dele (id da conta, ou "balcao" pra quem
- * não tem conta); cada conta vê os próprios pedidos e os exemplos.
- * A agenda dos atendentes é uma só, então os horários ocupados juntam os pedidos
- * de todas as contas. Tudo vive só na memória: recarregar a página volta aos exemplos.
- * TODO: trocar pelas rotas de appointments quando o backend tiver (ele devolve só
- * os atendimentos do próprio usuário e confere os conflitos de horário).
+ * É uma lista só, com os pedidos de todas as contas, os de balcão (cliente sem
+ * cadastro) e os exemplos. Cada conta vê os próprios pedidos e os exemplos; o
+ * painel vê todos e muda o status deles. A agenda dos atendentes é uma só, então
+ * os horários ocupados juntam todos os pedidos. Tudo vive só na memória:
+ * recarregar a página volta aos exemplos.
+ * TODO: trocar pelas rotas de appointments quando o backend tiver (ver o recado
+ * pro backend em docs/superpowers/specs/2026-10-13-gestao-atendimentos-design.md).
  */
 export function ProvedorAtendimentos({ children }: { children: ReactNode }) {
-  // pedidos novos de cada cliente, pela conta do cliente do pedido ("balcao" pra quem não tem conta); os exemplos ficam de fora
-  const [novosPorUsuario, setNovosPorUsuario] = useState<Record<string, Atendimento[]>>({});
+  // do mais novo pro mais antigo; a função inicial copia os exemplos pra eles também poderem mudar de status
+  const [todosAtendimentos, setTodosAtendimentos] = useState<Atendimento[]>(() => [...ATENDIMENTOS_EXEMPLO]);
   const { usuario } = useAutenticacao();
   const idUsuario = usuario?.id ?? null;
 
-  // a lista da conta: os pedidos dela (mais novo primeiro) e depois os exemplos
+  // a lista da conta: os pedidos em que ela é o cliente (inclusive os abertos pela loja) e os exemplos
   const atendimentos = useMemo(
-    () => [...((idUsuario ? novosPorUsuario[idUsuario] : undefined) ?? []), ...ATENDIMENTOS_EXEMPLO],
-    [idUsuario, novosPorUsuario]
+    () =>
+      todosAtendimentos.filter(
+        (atendimento) =>
+          (idUsuario !== null && atendimento.cliente.id === idUsuario) || IDS_EXEMPLO.has(atendimento.id)
+      ),
+    [idUsuario, todosAtendimentos]
   );
 
   // um horário pedido por qualquer conta fica ocupado pra todas
-  const ocupacoes = useMemo(
-    () => ocupacoesDosAtendimentos([...Object.values(novosPorUsuario).flat(), ...ATENDIMENTOS_EXEMPLO]),
-    [novosPorUsuario]
-  );
+  const ocupacoes = useMemo(() => ocupacoesDosAtendimentos(todosAtendimentos), [todosAtendimentos]);
 
   const solicitarAtendimento = useCallback((dados: DadosSolicitacao) => {
-    // o pedido fica com o cliente dele: quem pediu pelo site, ou o cliente que a loja escolheu
-    const chave = dados.cliente.id ?? CHAVE_BALCAO;
     // a data do envio é pega aqui fora: a função do setState deve ser pura (o StrictMode chama ela 2 vezes)
     const agora = new Date();
-    setNovosPorUsuario((atual) => {
-      // numeração única entre todas as contas (como seria no banco), contando os exemplos
-      const total = Object.values(atual).reduce((soma, lista) => soma + lista.length, 0);
-      const novo = novoAtendimento(dados, total + ATENDIMENTOS_EXEMPLO.length, agora);
-      return { ...atual, [chave]: [novo, ...(atual[chave] ?? [])] };
-    });
+    // numeração única entre todas as contas (como seria no banco), contando os exemplos
+    setTodosAtendimentos((atual) => [novoAtendimento(dados, atual.length, agora), ...atual]);
   }, []);
+
+  const atualizarAtendimento = useCallback(
+    (id: string, transformar: (atual: Atendimento) => Atendimento) => {
+      setTodosAtendimentos((atual) =>
+        atual.map((atendimento) => (atendimento.id === id ? transformar(atendimento) : atendimento))
+      );
+    },
+    []
+  );
 
   // useMemo: só cria um objeto novo quando algo muda, pra não re-renderizar à toa quem usa o contexto
   const valor = useMemo<ValorContextoAtendimentos>(
-    () => ({ atendimentos, ocupacoes, solicitarAtendimento }),
-    [atendimentos, ocupacoes, solicitarAtendimento]
+    () => ({ atendimentos, todosAtendimentos, ocupacoes, solicitarAtendimento, atualizarAtendimento }),
+    [atendimentos, todosAtendimentos, ocupacoes, solicitarAtendimento, atualizarAtendimento]
   );
 
   return <ContextoAtendimentos.Provider value={valor}>{children}</ContextoAtendimentos.Provider>;

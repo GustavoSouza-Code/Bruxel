@@ -6,10 +6,17 @@ import type { Ocupacao } from "../tipos/tecnico";
 export interface ValorContextoAtendimentos {
   /** atendimentos da conta logada (inclusive os abertos pela loja pra ela) e os exemplos, do mais novo pro mais antigo */
   atendimentos: Atendimento[];
+  /** todos os pedidos, de todas as contas e do balcão (painel admin), do mais novo pro mais antigo */
+  todosAtendimentos: Atendimento[];
   /** horários ocupados na agenda dos atendentes, juntando os pedidos de todas as contas */
   ocupacoes: Ocupacao[];
   /** guarda uma solicitação nova no topo da lista, com status "aguardando" */
   solicitarAtendimento: (dados: DadosSolicitacao) => void;
+  /**
+   * Troca um pedido pelo que `transformar` devolver (ex.: `confirmar`, `recusar` de andamento.ts).
+   * `transformar` precisa ser pura: roda dentro do setState, que o StrictMode chama 2 vezes.
+   */
+  atualizarAtendimento: (id: string, transformar: (atual: Atendimento) => Atendimento) => void;
 }
 
 // começa como null pra useAtendimentos() detectar o uso fora do ProvedorAtendimentos.

@@ -17,6 +17,8 @@ import { PaginaSolicitarAtendimento } from "./paginas/portal/solicitar-atendimen
 import { PaginaAdminInicio } from "./paginas/admin/inicio/inicio";
 import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
 import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
+import { PaginaAdminAtendimentos } from "./paginas/admin/atendimentos/atendimentos";
+import { PaginaAdminAtendimento } from "./paginas/admin/atendimento/atendimento";
 
 /**
  * Raiz da aplicação: define as rotas do site.
@@ -52,6 +54,8 @@ function App() {
                 <Route path="/admin" element={<PaginaAdminInicio />} />
                 <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
                 <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
+                <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
+                <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
               </Route>
             </Routes>
           </BrowserRouter>

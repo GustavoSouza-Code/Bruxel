@@ -1,0 +1,53 @@
+/* o que é comum com as outras listas do painel (topo, cards, lista compacta, botões) está em ../lista-admin.css */
+.pagina-admin-atendimentos {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+/* "+ Abrir atendimento" é um link com cara de botão */
+.pagina-admin-atendimentos__novo {
+  text-decoration: none;
+}
+
+/* o card inteiro é o link pra OS */
+.pagina-admin-atendimentos__card {
+  height: 100%;
+  box-sizing: border-box;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pagina-admin-atendimentos__card:hover {
+  border-color: var(--color-primary);
+}
+
+.pagina-admin-atendimentos__card:focus-visible,
+.pagina-admin-atendimentos__linha:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* os selos ficam no pé do card, alinhando cards de alturas diferentes */
+.pagina-admin-atendimentos__card .pagina-admin-atendimentos__selos {
+  margin-top: auto;
+}
+
+.pagina-admin-atendimentos__selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* colunas da lista compacta: cliente | pedido | visita | status; no celular: cliente | status */
+.pagina-admin-atendimentos__compacta {
+  --colunas-lista: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1.5fr) minmax(0, 1.1fr);
+  --colunas-lista-celular: minmax(0, 1fr) auto;
+}
+
+.pagina-admin-atendimentos__linha {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pagina-admin-atendimentos__linha:hover {
+  background-color: #f7f7fb;
+}

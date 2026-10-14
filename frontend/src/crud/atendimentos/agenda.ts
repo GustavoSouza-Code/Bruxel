@@ -37,12 +37,12 @@ export function horariosDoDia(data: string): HorarioVisita[] {
   return diaSemana === 6 ? HORARIOS_SABADO : HORARIOS_SEMANA;
 }
 
-/** Os horários que os pedidos ocupam; pedido cancelado libera o horário. */
+/** Os horários que os pedidos ocupam; pedido cancelado ou recusado libera o horário. */
 export function ocupacoesDosAtendimentos(
   pedidos: (Ocupacao & { status: StatusAtendimento })[]
 ): Ocupacao[] {
   return pedidos
-    .filter((pedido) => pedido.status !== "cancelado")
+    .filter((pedido) => pedido.status !== "cancelado" && pedido.status !== "recusado")
     .map(({ tecnicoId, data, horario }) => ({ tecnicoId, data, horario }));
 }
 
