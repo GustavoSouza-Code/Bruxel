@@ -1,0 +1,114 @@
+/* atalho pro formulário, no mesmo lilás da pílula do cabeçalho */
+.aba-atendimentos__solicitar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.aba-atendimentos__solicitar:hover {
+  background-color: var(--color-white);
+}
+
+/* aviso verde que aparece depois de enviar uma solicitação */
+.aba-atendimentos__aviso {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+.aba-atendimentos__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.aba-atendimentos__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.aba-atendimentos__principal {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.aba-atendimentos__principal span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* a mensagem da recusa/cancelamento é pra ler: cor de texto normal e quebra de linha mantida */
+.aba-atendimentos__principal .aba-atendimentos__mensagem {
+  color: var(--color-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.aba-atendimentos__status {
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* cores por status (o sufixo da classe é o valor de StatusAtendimento) */
+.aba-atendimentos__status--aguardando {
+  background-color: #fdf3d7;
+  color: #8a6100;
+}
+
+.aba-atendimentos__status--agendado {
+  background-color: #e2effa;
+  color: var(--color-accent);
+}
+
+.aba-atendimentos__status--em-andamento {
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+}
+
+.aba-atendimentos__status--concluido {
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+}
+
+.aba-atendimentos__status--cancelado {
+  background-color: #f1f1f4;
+  color: var(--color-text-muted);
+}
+
+.aba-atendimentos__status--recusado {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+/* celular: os dados ocupam a linha toda e o status desce pra baixo */
+@media (max-width: 768px) {
+  .aba-atendimentos__item {
+    flex-wrap: wrap;
+  }
+
+  .aba-atendimentos__principal {
+    flex-basis: 100%;
+  }
+}

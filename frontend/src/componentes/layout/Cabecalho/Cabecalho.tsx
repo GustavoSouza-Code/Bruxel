@@ -6,6 +6,7 @@ import { useBordasRolagem } from "../../../hooks/useBordasRolagem";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { MenuUsuario } from "../MenuUsuario/MenuUsuario";
 import { Logo } from "../Logo/Logo";
+import { IconeFerramenta } from "../../ui/Icones/Icones";
 import "./Cabecalho.css";
 
 // links do menu principal, na ordem em que aparecem
@@ -20,8 +21,8 @@ const NAV_LINKS = [
 const SCROLL_THRESHOLD = 8;
 
 /**
- * Cabeçalho fixo do site: logo, menu de navegação, carrinho (com o contador
- * de itens) e o botão Entrar, ou o menu do usuário quando há alguém logado.
+ * Cabeçalho fixo do site: logo, menu de navegação, a pílula Solicitar atendimento,
+ * o carrinho (com o contador de itens) e o botão Entrar, ou o menu do usuário quando há alguém logado.
  *
  * Como o header é `position: fixed` (sai do fluxo da página), um espaçador
  * do mesmo tamanho é renderizado logo depois dele pra o conteúdo não ficar
@@ -125,6 +126,20 @@ export function Cabecalho() {
           </nav>
 
           <div className="cabecalho__acoes">
+            {/* segunda pílula: leva pro pedido de visita técnica (o RotaLogado pede login antes, se precisar).
+                O aria-label e o title mantêm o nome completo "Solicitar atendimento" quando a pílula
+                mostra só o ícone (tablets e celulares) */}
+            <Link
+              to="/solicitar-atendimento"
+              className="cabecalho__botao-atendimento"
+              aria-label="Solicitar atendimento"
+              title="Solicitar atendimento"
+              aria-current={pathname === "/solicitar-atendimento" ? "page" : undefined}
+            >
+              <IconeFerramenta />
+              <span className="cabecalho__texto-longo">Solicitar atendimento</span>
+              <span className="cabecalho__texto-curto">Atendimento</span>
+            </Link>
             <Link to="/carrinho" className="cabecalho__botao-icone" aria-label="Carrinho">
               <svg
                 width="22"
