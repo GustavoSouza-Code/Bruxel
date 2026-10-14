@@ -17,55 +17,48 @@
   gap: clamp(1rem, 0.8rem + 1vw, 1.5rem);
 }
 
-/* card 4:5 (formato de post do Instagram); position: relative + overflow: hidden seguram imagem, degradê e legenda */
+/* card 4:5 (formato de post do Instagram); position: relative + overflow: hidden seguram a moldura, a imagem e a seta */
 .banner-social__card {
   position: relative;
   display: block;
   aspect-ratio: 4 / 5;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
+  background-color: #bfeefc; /* moldura azul-clara dos posts no Figma */
 }
 
-/* placeholder em degradê até termos a foto real */
+/* a arte do post já tem texto e fundo próprios, então preenche o card inteiro */
 .banner-social__imagem {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    150deg,
-    var(--color-accent) 0%,
-    var(--color-primary-dark) 100%
-  );
+  inset: 0.5rem;
+  width: calc(100% - 1rem);
+  height: calc(100% - 1rem);
+  object-fit: cover;
+  border-radius: 10px;
 }
 
-/* degradê escuro de baixo pra cima, pra a legenda branca ficar legível sobre qualquer foto */
-.banner-social__card::after {
-  content: "";
+/* a legenda fica só pra leitores de tela: a arte do post já traz o texto; a seta indica o link */
+.banner-social__legenda-texto {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(6, 9, 47, 0) 40%, rgba(6, 9, 47, 0.85) 100%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
-/* legenda colada na base, na frente do degradê (z-index: 1) */
 .banner-social__legenda {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  right: 0.75rem;
+  bottom: 0.75rem;
   z-index: 1;
-  display: flex;
-  align-items: flex-end;
-  gap: 0.4rem;
-  padding: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: rgba(25, 29, 86, 0.8);
   color: var(--color-white);
-  font-weight: 600;
-  font-size: var(--font-size-small);
-  line-height: 1.35;
-}
-
-.banner-social__legenda svg {
-  flex-shrink: 0;
-  margin-bottom: 0.15rem;
 }
 
 /* 2 colunas */
