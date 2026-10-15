@@ -1,23 +1,13 @@
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import fotoLimpeza from "../../../../../assets/images/sobre/limpeza-piscina.jpg";
 import "./HistoriaSobre.css";
 
-/**
- * A foto da equipe limpando a piscina ainda não foi enviada. Quando chegar,
- * basta salvar como src/assets/images/sobre/limpeza-piscina.jpg (ou .png/.webp):
- * o glob abaixo encontra o arquivo sozinho; sem ele, aparece o placeholder.
- */
-const fotos = import.meta.glob<string>(
-  "../../../../../assets/images/sobre/limpeza-piscina.{jpg,jpeg,png,webp}",
-  { eager: true, import: "default" },
-);
-const fotoLimpeza = Object.values(fotos)[0];
-
-/** Segunda parte da página Sobre: história à esquerda; foto e compromisso à direita (como no Figma). */
+/** Segunda parte da página Sobre: história à esquerda; foto da limpeza e compromisso à direita (como no Figma). */
 export function HistoriaSobre() {
   return (
     <section className="historia-sobre">
       <Container className="historia-sobre__interno">
-        <div className="historia-sobre__coluna historia-sobre__coluna--historia">
+        <div className="historia-sobre__coluna">
           <p>
             Em 2019, formalizamos nossa atuação como empresa, consolidando um
             trabalho que já era reconhecido pela dedicação, confiança e
@@ -46,16 +36,15 @@ export function HistoriaSobre() {
           </p>
         </div>
 
-        <div className="historia-sobre__coluna historia-sobre__coluna--foto">
-          {fotoLimpeza ? (
-            <img
-              className="historia-sobre__foto"
-              src={fotoLimpeza}
-              alt="Limpeza de piscina com peneira"
-            />
-          ) : (
-            <div className="historia-sobre__foto historia-sobre__foto--vazia" aria-hidden="true" />
-          )}
+        <div className="historia-sobre__coluna">
+          <img
+            className="historia-sobre__foto"
+            src={fotoLimpeza}
+            alt="Limpeza de piscina com peneira"
+            width={1400}
+            height={901}
+            loading="lazy"
+          />
           <p>
             Na Bruxel Piscinas, nosso compromisso é manter sua piscina sempre
             limpa, segura e pronta para os melhores momentos de lazer. Com

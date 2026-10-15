@@ -11,14 +11,14 @@
   align-items: end;
 }
 
-/* a fachada é vertical; object-fit recorta pro formato largo mantendo a placa da loja no enquadramento */
+/* a imagem já vem recortada em 21:9 (a placa da loja no enquadramento); o aspect-ratio reserva o espaço antes de ela carregar */
 .banner-sobre__foto {
   grid-column: 1 / -1;
   grid-row: 1;
   width: 100%;
+  height: auto; /* o height do HTML só reserva o espaço; quem manda na altura é o aspect-ratio */
   aspect-ratio: 21 / 9;
   object-fit: cover;
-  object-position: center 42%;
   border-radius: 16px;
   display: block;
 }
@@ -29,11 +29,12 @@
   z-index: 1;
   margin-bottom: calc(-1 * var(--vazamento-cartao));
   padding: clamp(1rem, 0.7rem + 1.2vw, 1.75rem);
-  background-color: #bfeefc;
+  background-color: var(--color-surface-light);
   border-radius: 16px;
 }
 
 .banner-sobre__selo {
+  display: block; /* como no Figma, a pílula ocupa a largura toda do cartão */
   margin: 0 0 1rem;
   padding: 0.35rem 1.25rem;
   background-color: var(--color-accent);
@@ -61,7 +62,6 @@
     row-gap: 1rem;
   }
   .banner-sobre__foto {
-    aspect-ratio: 16 / 10;
   }
   .banner-sobre__foto,
   .banner-sobre__cartao {

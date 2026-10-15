@@ -26,6 +26,8 @@ export function PiscinatorIntroducao({ onComecar }: PiscinatorIntroducaoProps) {
             className="piscinator-introducao__mascote"
             src={mascoteImg}
             alt="Mascote Bruxel Piscinas"
+            width={648}
+            height={620}
           />
 
           <div className="piscinator-introducao__texto-bloco">

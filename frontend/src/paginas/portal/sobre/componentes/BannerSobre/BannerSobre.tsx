@@ -15,6 +15,8 @@ export function BannerSobre() {
           className="banner-sobre__foto"
           src={fachadaLoja}
           alt="Fachada da loja Bruxel Piscinas"
+          width={896}
+          height={384}
         />
 
         <div className="banner-sobre__cartao">

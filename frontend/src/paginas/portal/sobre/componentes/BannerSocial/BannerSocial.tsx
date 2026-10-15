@@ -5,7 +5,7 @@ import fotoPassoAPasso from "../../../../../assets/images/sobre/post-passo-a-pas
 import fotoEspaco from "../../../../../assets/images/sobre/post-espaco.jpg";
 import "./BannerSocial.css";
 
-/** Post do Instagram exibido como card (por enquanto só a legenda). */
+/** Post do Instagram exibido como card: a arte do post e a legenda (esta só para leitores de tela). */
 interface SocialPost {
   id: string;
   caption: string;
@@ -39,10 +39,11 @@ export function BannerSocial() {
               className="banner-social__card"
             >
               {/* a arte do post já traz o texto; a legenda fica só pra leitores de tela */}
-              <img className="banner-social__imagem" src={post.imagem} alt="" />
+              <img className="banner-social__imagem" src={post.imagem} alt="" width={720} height={900} loading="lazy" />
               <span className="banner-social__legenda">
                 <span className="banner-social__legenda-texto">{post.caption}</span>
                 <svg
+                  aria-hidden="true"
                   width="14"
                   height="14"
                   viewBox="0 0 24 24"

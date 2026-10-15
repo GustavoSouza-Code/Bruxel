@@ -25,10 +25,10 @@
   border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
-  background-color: #bfeefc; /* moldura azul-clara dos posts no Figma */
+  background-color: var(--color-surface-light); /* moldura azul-clara dos posts no Figma */
 }
 
-/* a arte do post já tem texto e fundo próprios, então preenche o card inteiro */
+/* a arte do post já tem texto e fundo próprios; fica dentro da moldura azul-clara do card */
 .banner-social__imagem {
   position: absolute;
   inset: 0.5rem;
@@ -45,6 +45,7 @@
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+  white-space: nowrap; /* sem isso, leitores de tela leem a legenda palavra por palavra */
 }
 
 .banner-social__legenda {

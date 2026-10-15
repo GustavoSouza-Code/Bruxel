@@ -3,6 +3,7 @@
   --color-primary: #242864; /* primary/500 — header, footer, textos de destaque */
   --color-primary-dark: #191d56; /* tom mais escuro usado em variações */
   --color-accent: #448dd0; /* secondary/800 — botões de ação (CTA, Entrar) */
+  --color-surface-light: #bfeefc; /* azul-claro dos cartões e molduras da página Sobre */
   --color-accent-light: #99e0fa; /* secondary/300 — fundo do balão de fala do BannerInicio */
   --color-store-button: #dcdcff; /* fundo dos botões de destaque claros (ex.: "Acessar loja virtual") */
   --color-wave: #7b84e0; /* ondas decorativas do BannerInicio */

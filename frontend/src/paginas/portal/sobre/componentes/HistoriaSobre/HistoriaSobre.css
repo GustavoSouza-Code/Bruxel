@@ -2,7 +2,7 @@
   padding: calc(var(--space-section) * 1.75) 0 var(--space-section);
 }
 
-/* duas colunas como no Figma; a da foto começa mais abaixo, alinhada ao meio do texto da esquerda */
+/* duas colunas como no Figma: a história à esquerda; a foto e o compromisso à direita */
 .historia-sobre__interno {
   display: grid;
   grid-template-columns: 1fr 1.1fr;
@@ -26,15 +26,11 @@
 
 .historia-sobre__foto {
   width: 100%;
+  height: auto; /* o height do HTML só reserva o espaço; quem manda na altura é o aspect-ratio */
   aspect-ratio: 16 / 10;
   object-fit: cover;
   border-radius: 16px;
   display: block;
-}
-
-/* placeholder até a foto da limpeza chegar */
-.historia-sobre__foto--vazia {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
 }
 
 @media (max-width: 900px) {
