@@ -1,23 +1,60 @@
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import fotoLimpeza from "../../../../../assets/images/sobre/limpeza-piscina.jpg";
 import "./HistoriaSobre.css";
 
-/** Segunda parte da página Sobre: imagem (ainda placeholder) ao lado do texto sobre o compromisso da empresa. */
+/** Segunda parte da página Sobre: história à esquerda; foto da limpeza e compromisso à direita (como no Figma). */
 export function HistoriaSobre() {
   return (
     <section className="historia-sobre">
       <Container className="historia-sobre__interno">
-        {/* TODO: substituir por foto real (equipe limpando piscina) quando o time de marketing enviar o asset */}
-        <div className="historia-sobre__imagem" aria-hidden="true" />
+        <div className="historia-sobre__coluna">
+          <p>
+            Em 2019, formalizamos nossa atuação como empresa, consolidando um
+            trabalho que já era reconhecido pela dedicação, confiança e
+            qualidade dos serviços prestados. Com o crescimento da marca e a
+            necessidade de oferecer ainda mais comodidade aos nossos
+            clientes, ampliamos nossas atividades com a inauguração da loja
+            física, reunindo em um único espaço produtos de qualidade,
+            atendimento especializado e orientações técnicas confiáveis.
+          </p>
+          <p>
+            Hoje, a Bruxel Piscinas é referência para quem busca soluções
+            completas para o cuidado da piscina. Trabalhamos com uma linha
+            selecionada de produtos, equipamentos e acessórios, sempre
+            priorizando marcas reconhecidas e itens que entregam segurança,
+            eficiência e durabilidade. Mais do que vender produtos, nosso
+            objetivo é oferecer a solução adequada para cada necessidade,
+            garantindo resultados que realmente fazem a diferença no dia a
+            dia dos nossos clientes.
+          </p>
+          <p>
+            Nosso atendimento é baseado na proximidade, na transparência e
+            na confiança. Entendemos que cada piscina possui características
+            específicas e, por isso, dedicamos atenção individual a cada
+            cliente, analisando suas necessidades e indicando as melhores
+            alternativas de forma clara e objetiva.
+          </p>
+        </div>
 
-        <p className="historia-sobre__texto">
-          Mais do que cuidar de piscinas, nosso compromisso é garantir uma
-          piscina sempre limpa, segura e pronta para os melhores momentos
-          de lazer. Trabalhamos com responsabilidade, dedicação e cuidado,
-          oferecendo produtos e soluções que proporcionam praticidade e
-          qualidade para você e sua piscina — mais do que cuidar de
-          piscinas, nossa missão é garantir sua experiência e o bem-estar
-          de quem deseja aproveitar cada momento ao máximo.
-        </p>
+        <div className="historia-sobre__coluna">
+          <img
+            className="historia-sobre__foto"
+            src={fotoLimpeza}
+            alt="Limpeza de piscina com peneira"
+            width={1400}
+            height={901}
+            loading="lazy"
+          />
+          <p>
+            Na Bruxel Piscinas, nosso compromisso é manter sua piscina sempre
+            limpa, segura e pronta para os melhores momentos de lazer. Com
+            experiência, responsabilidade e dedicação, seguimos trabalhando
+            para oferecer produtos, orientações e soluções que proporcionem
+            tranquilidade e qualidade para você e sua família. Afinal, mais
+            do que cuidar de piscinas, cuidamos da experiência e do bem-estar
+            de quem deseja aproveitar cada momento ao máximo.
+          </p>
+        </div>
       </Container>
     </section>
   );

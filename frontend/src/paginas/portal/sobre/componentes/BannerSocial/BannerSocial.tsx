@@ -1,18 +1,23 @@
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import fotoCheckup from "../../../../../assets/images/sobre/post-checkup.jpg";
+import fotoCuidado from "../../../../../assets/images/sobre/post-cuidado.jpg";
+import fotoPassoAPasso from "../../../../../assets/images/sobre/post-passo-a-passo.jpg";
+import fotoEspaco from "../../../../../assets/images/sobre/post-espaco.jpg";
 import "./BannerSocial.css";
 
-/** Post do Instagram exibido como card (por enquanto só a legenda). */
+/** Post do Instagram exibido como card: a arte do post e a legenda (esta só para leitores de tela). */
 interface SocialPost {
   id: string;
   caption: string;
+  imagem: string;
 }
 
 // legendas dos cards; todos levam ao perfil da Bruxel no Instagram (não a um post específico)
 const SOCIAL_POSTS: SocialPost[] = [
-  { id: "checkup", caption: "Sua piscina precisa de um check-up?" },
-  { id: "cuidado", caption: "Sua piscina merece cuidado profissional!" },
-  { id: "passo-a-passo", caption: "Passo a passo para manter sua piscina segura" },
-  { id: "espaco", caption: "Venha conhecer o nosso espaço!" },
+  { id: "checkup", imagem: fotoCheckup, caption: "Sua piscina precisa de um check-up?" },
+  { id: "cuidado", imagem: fotoCuidado, caption: "Sua piscina merece cuidado profissional!" },
+  { id: "passo-a-passo", imagem: fotoPassoAPasso, caption: "Passo a passo para manter sua piscina segura" },
+  { id: "espaco", imagem: fotoEspaco, caption: "Venha conhecer o nosso espaço!" },
 ];
 
 /** Faixa azul "Acompanhe a gente nas redes sociais": 4 cards que levam ao Instagram da Bruxel. */
@@ -33,11 +38,12 @@ export function BannerSocial() {
               rel="noreferrer"
               className="banner-social__card"
             >
-              {/* TODO: substituir por foto real do post quando o time de marketing enviar o asset */}
-              <div className="banner-social__imagem" aria-hidden="true" />
+              {/* a arte do post já traz o texto; a legenda fica só pra leitores de tela */}
+              <img className="banner-social__imagem" src={post.imagem} alt="" width={720} height={900} loading="lazy" />
               <span className="banner-social__legenda">
-                {post.caption}
+                <span className="banner-social__legenda-texto">{post.caption}</span>
                 <svg
+                  aria-hidden="true"
                   width="14"
                   height="14"
                   viewBox="0 0 24 24"

@@ -1,56 +1,74 @@
+/* o cartão "vaza" um pouco pra baixo da foto; essa folga mantém o espaço até a próxima seção */
 .banner-sobre {
-  position: relative;
-  min-height: clamp(320px, 30vw + 200px, 480px);
-  display: flex;
-  align-items: center;
-  overflow: hidden;
+  --vazamento-cartao: clamp(1.5rem, 1rem + 2.5vw, 3.5rem);
+  padding: var(--space-section) 0 var(--vazamento-cartao);
 }
 
-/* placeholder em degradê até termos a foto real (ver TODO em AboutHero.tsx); inset: 0 cobre o hero inteiro */
-.banner-sobre__imagem {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary) 0%,
-    var(--color-accent) 100%
-  );
+/* a foto ocupa a largura toda; o cartão fica sobreposto no canto inferior direito (como no Figma) */
+.banner-sobre__interno {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: end;
 }
 
-/* película escura semitransparente por cima da imagem */
-.banner-sobre__sobreposicao {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(6, 9, 47, 0.75) 0%,
-    rgba(6, 9, 47, 0.55) 100%
-  );
+/* a imagem já vem recortada em 21:9 (a placa da loja no enquadramento); o aspect-ratio reserva o espaço antes de ela carregar */
+.banner-sobre__foto {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: 100%;
+  height: auto; /* o height do HTML só reserva o espaço; quem manda na altura é o aspect-ratio */
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
 }
 
-/* position + z-index colocam o texto na frente da imagem e da película */
-.banner-sobre__conteudo {
-  position: relative;
+.banner-sobre__cartao {
+  grid-column: 7 / -1;
+  grid-row: 1;
   z-index: 1;
-  padding-top: var(--space-section);
-  padding-bottom: var(--space-section);
+  margin-bottom: calc(-1 * var(--vazamento-cartao));
+  padding: clamp(1rem, 0.7rem + 1.2vw, 1.75rem);
+  background-color: var(--color-surface-light);
+  border-radius: 16px;
 }
 
 .banner-sobre__selo {
-  display: inline-block;
-  background-color: #baf0fc;
-  color: #06092f;
+  display: block; /* como no Figma, a pílula ocupa a largura toda do cartão */
+  margin: 0 0 1rem;
+  padding: 0.35rem 1.25rem;
+  background-color: var(--color-accent);
+  color: var(--color-white);
   font-weight: 700;
   font-size: var(--font-size-hero-title);
-  padding: 0.3rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
+  border-radius: 999px;
 }
 
 .banner-sobre__texto {
-  max-width: 640px;
-  color: var(--color-white);
+  margin: 0;
+  color: var(--color-primary-dark);
   font-weight: 500;
-  font-size: var(--font-size-body);
-  line-height: 1.7;
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+}
+
+/* telas estreitas: foto em cima, cartão logo abaixo sem sobreposição */
+@media (max-width: 900px) {
+  .banner-sobre {
+    padding-bottom: 0;
+  }
+  .banner-sobre__interno {
+    grid-template-columns: 1fr;
+    row-gap: 1rem;
+  }
+  .banner-sobre__foto {
+  }
+  .banner-sobre__foto,
+  .banner-sobre__cartao {
+    grid-column: 1;
+  }
+  .banner-sobre__cartao {
+    grid-row: 2;
+    margin-bottom: 0;
+  }
 }
