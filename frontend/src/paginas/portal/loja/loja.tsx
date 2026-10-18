@@ -7,6 +7,7 @@ import { SecaoProdutos } from "../../../componentes/produto/SecaoProdutos/SecaoP
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { useCatalogo } from "../../../crud/produtos/useCatalogo";
 import { produtosEmDestaque } from "../../../crud/produtos/selecaoProdutos";
+import "./loja.css";
 
 /**
  * Loja virtual (rota "/loja"): busca por nome no topo, atalhos de categoria
@@ -29,17 +30,17 @@ export function PaginaLoja() {
   function conteudo() {
     if (carregando) {
       return (
-        <Container>
-          <p>Carregando produtos…</p>
+        <Container className="pagina-loja__estado">
+          <p role="status">Carregando produtos…</p>
         </Container>
       );
     }
     // com erro, a lista pode ser a antiga de antes do recarregar; mostra só o erro
     if (erro) {
       return (
-        <Container>
-          <p>{erro}</p>
-          <button type="button" onClick={recarregar}>
+        <Container className="pagina-loja__estado">
+          <p role="alert">{erro}</p>
+          <button type="button" className="pagina-loja__tentar" onClick={recarregar}>
             Tentar novamente
           </button>
         </Container>
@@ -47,8 +48,16 @@ export function PaginaLoja() {
     }
     if (produtos.length === 0) {
       return (
-        <Container>
+        <Container className="pagina-loja__estado">
           <p>Nenhum produto cadastrado ainda.</p>
+        </Container>
+      );
+    }
+    // a busca não achou nada: aviso no lugar de seções vazias
+    if (filteredProducts.length === 0) {
+      return (
+        <Container className="pagina-loja__estado">
+          <p>Nenhum produto encontrado.</p>
         </Container>
       );
     }
