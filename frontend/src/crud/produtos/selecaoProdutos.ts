@@ -4,7 +4,7 @@ const QUANTIDADE_VITRINE = 4;
 const CATEGORIA_RECOMENDADOS = "Tratamento da água";
 
 // compara nomes sem acento, sem maiúscula e sem espaço sobrando
-function normalizar(texto: string) {
+export function normalizar(texto: string) {
   return texto
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
