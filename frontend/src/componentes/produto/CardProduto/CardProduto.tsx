@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Produto } from "../../../tipos/produto";
 import { useCarrinho } from "../../../contexto/ContextoCarrinho";
 import "./CardProduto.css";
@@ -14,6 +15,9 @@ interface CardProdutoProps {
  */
 export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
   const { adicionarItem } = useCarrinho();
+  // URL cuja imagem falhou; o placeholder vale só pra ela (se a URL mudar, tenta de novo)
+  const [urlComErro, setUrlComErro] = useState<string | null>(null);
+  const mostrarImagem = Boolean(produto.url_imagem) && produto.url_imagem !== urlComErro;
 
   return (
     <article className="card-produto">
@@ -25,11 +29,16 @@ export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
         ♡
       </button>
 
-      <img
-        className="card-produto__imagem"
-        src={produto.url_imagem}
-        alt={produto.nome}
-      />
+      {mostrarImagem ? (
+        <img
+          className="card-produto__imagem"
+          src={produto.url_imagem}
+          alt={produto.nome}
+          onError={() => setUrlComErro(produto.url_imagem ?? null)}
+        />
+      ) : (
+        <span className="card-produto__imagem card-produto__imagem--vazio" aria-hidden="true" />
+      )}
 
       <div className="card-produto__info">
         <p className="card-produto__nome">{produto.nome}</p>

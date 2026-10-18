@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { mensagemDeErro } from "../../../api/cliente";
 import type { DadosProduto } from "../../../api/produtos";
 import type { Categoria, Produto } from "../../../tipos/produto";
+import { opcoesDeCategoria } from "../categorias";
 import "./FormularioProduto.css";
 
 /** O que o formulário entrega ao ser enviado: o produto sem o id (quem decide o id é o CRUD). */
@@ -82,6 +83,10 @@ export function FormularioProduto({
 
   async function enviar(event: FormEvent) {
     event.preventDefault();
+    if (!formulario.nome.trim() || !formulario.codigo.trim()) {
+      setErro("Preencha o nome e o código.");
+      return;
+    }
     setSalvando(true);
     setErro(null);
     try {
@@ -128,7 +133,7 @@ export function FormularioProduto({
           onChange={(e) => atualizarCampo("categoria_id", e.target.value)}
           required
         >
-          {categorias.map((categoria) => (
+          {opcoesDeCategoria(categorias, produto?.categoria_id).map((categoria) => (
             <option key={categoria.id} value={categoria.id}>
               {categoria.nome}
             </option>

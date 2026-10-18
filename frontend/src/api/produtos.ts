@@ -51,10 +51,20 @@ export function paraCorpoProduto(dados: DadosProduto): Record<string, unknown> {
   };
 }
 
-/** Lista os produtos (rota pública). */
+/**
+ * O backend lista sem ordem definida, então a vitrine (primeiros 4 ativos)
+ * embaralharia a cada edição. Ordena por criação e desempata pelo código.
+ */
+export function ordenarProdutos(brutos: ProdutoApi[]): ProdutoApi[] {
+  return [...brutos].sort(
+    (a, b) => (a.criado_em ?? "").localeCompare(b.criado_em ?? "") || a.codigo.localeCompare(b.codigo)
+  );
+}
+
+/** Lista os produtos (rota pública), em ordem estável. */
 export async function listarProdutos(): Promise<Produto[]> {
   const brutos = await requisicao<ProdutoApi[]>("/products");
-  return brutos.map(paraProduto);
+  return ordenarProdutos(brutos).map(paraProduto);
 }
 
 /**

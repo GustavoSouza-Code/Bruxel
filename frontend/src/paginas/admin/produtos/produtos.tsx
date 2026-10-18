@@ -148,7 +148,7 @@ export function PaginaAdminProdutos() {
           </div>
 
           {semCategorias && (
-            <p className="lista-admin__aviso" role="alert">
+            <p className="lista-admin__aviso" role="status">
               Categorias indisponíveis: não dá pra cadastrar produto agora.
             </p>
           )}

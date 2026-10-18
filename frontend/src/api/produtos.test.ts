@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paraCorpoProduto, paraProduto, type DadosProduto, type ProdutoApi } from "./produtos";
+import { ordenarProdutos, paraCorpoProduto, paraProduto, type DadosProduto, type ProdutoApi } from "./produtos";
 
 const base: ProdutoApi = {
   id: "p1",
@@ -58,5 +58,33 @@ describe("paraCorpoProduto", () => {
     const corpo = paraCorpoProduto({ ...dados, descricao: "", url_imagem: "  " });
     expect(corpo.descricao).toBeNull();
     expect(corpo.url_imagem).toBeNull();
+  });
+});
+
+describe("ordenarProdutos", () => {
+  it("ordena por criado_em crescente", () => {
+    const lista = [
+      { ...base, id: "b", codigo: "B", criado_em: "2026-02-01T00:00:00Z" },
+      { ...base, id: "a", codigo: "A", criado_em: "2026-01-01T00:00:00Z" },
+    ];
+    expect(ordenarProdutos(lista).map((p) => p.id)).toEqual(["a", "b"]);
+  });
+
+  it("desempata pelo código quando o criado_em é igual", () => {
+    const quando = "2026-01-01T00:00:00Z";
+    const lista = [
+      { ...base, id: "2", codigo: "Z-2", criado_em: quando },
+      { ...base, id: "1", codigo: "A-1", criado_em: quando },
+    ];
+    expect(ordenarProdutos(lista).map((p) => p.id)).toEqual(["1", "2"]);
+  });
+
+  it("não altera a lista original", () => {
+    const lista = [
+      { ...base, id: "b", criado_em: "2026-02-01T00:00:00Z" },
+      { ...base, id: "a", criado_em: "2026-01-01T00:00:00Z" },
+    ];
+    ordenarProdutos(lista);
+    expect(lista[0].id).toBe("b");
   });
 });
