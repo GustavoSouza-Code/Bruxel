@@ -9,7 +9,8 @@ import { AlternarVisualizacao } from "../../../componentes/ui/AlternarVisualizac
 import { IconeEditar, IconeLixeira } from "../../../componentes/ui/Icones/Icones";
 import type { Produto } from "../../../tipos/produto";
 import { useProdutos } from "../../../crud/produtos/useProdutos";
-import { CATEGORIAS, nomeDaCategoria } from "../../../crud/produtos/categorias";
+import { useCategorias } from "../../../crud/produtos/useCategorias";
+import { nomeDaCategoria } from "../../../crud/produtos/categorias";
 import {
   FILTROS_PRODUTO_INICIAIS,
   contarFiltrosAtivosProduto,
@@ -17,17 +18,12 @@ import {
 } from "../../../crud/produtos/filtrarProdutos";
 import type { FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtrarProdutos";
 import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
+import { mensagemDeErro } from "../../../api/cliente";
 import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
 import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
 import "../lista-admin.css";
 import "./produtos.css";
-
-// chips de categoria: "Todos" (valor "") e uma por categoria da loja
-const OPCOES_CATEGORIA = [
-  { valor: "", rotulo: "Todos" },
-  ...CATEGORIAS.map((categoria) => ({ valor: categoria.id, rotulo: categoria.nome })),
-];
 
 const ORDENS: { valor: OrdemProduto; rotulo: string }[] = [
   { valor: "nome", rotulo: "Nome (A–Z)" },
@@ -53,12 +49,16 @@ function formatarPreco(preco: number) {
  * filtrarProdutos; esta página só cuida da tela.
  */
 export function PaginaAdminProdutos() {
-  const { produtos, criarProduto, atualizarProduto, excluirProduto } = useProdutos();
+  const { produtos, carregando, erro, recarregar, criarProduto, atualizarProduto, excluirProduto } =
+    useProdutos();
+  const { categorias, carregando: carregandoCategorias } = useCategorias();
   const [filtros, setFiltros] = useState<FiltrosProduto>(FILTROS_PRODUTO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-produtos");
   // modal do formulário: null = fechado; "novo" = cadastro; senão, o id do produto em edição
   const [formularioAberto, setFormularioAberto] = useState<string | null>(null);
+  // erro ao excluir, mostrado acima da lista; null = sem erro
+  const [erroAcao, setErroAcao] = useState<string | null>(null);
 
   // só refiltra quando a lista ou os filtros mudam (não a cada renderização)
   const filtrados = useMemo(() => filtrarProdutos(produtos, filtros), [produtos, filtros]);
@@ -67,6 +67,15 @@ export function PaginaAdminProdutos() {
     filtrados,
     JSON.stringify(filtros) + modo,
     POR_VEZ[modo]
+  );
+
+  // chips de categoria: "Todos" (valor "") e uma por categoria vinda da API
+  const opcoesCategoria = useMemo(
+    () => [
+      { valor: "", rotulo: "Todos" },
+      ...categorias.map((categoria) => ({ valor: categoria.id, rotulo: categoria.nome })),
+    ],
+    [categorias]
   );
 
   const editingProduct =
@@ -84,25 +93,41 @@ export function PaginaAdminProdutos() {
     setFiltros((atuais) => ({ ...FILTROS_PRODUTO_INICIAIS, busca: atuais.busca }));
   }
 
-  function handleSubmit(data: DadosFormularioProduto) {
-    // mesmo formulário pros dois casos: editando, substitui o produto (mantém o id); senão, cria um novo
+  // se a API recusar, o erro sobe pro FormularioProduto, que mostra a mensagem e deixa o modal aberto
+  async function handleSubmit(data: DadosFormularioProduto) {
+    // mesmo formulário pros dois casos: editando, atualiza o produto; senão, cria um novo
     if (editingProduct) {
-      atualizarProduto(editingProduct.id, data);
+      await atualizarProduto(editingProduct.id, data);
     } else {
-      criarProduto(data);
+      await criarProduto(data);
     }
     setFormularioAberto(null);
   }
 
-  function handleDelete(product: Produto) {
+  function abrirFormulario(id: string) {
+    setFormularioAberto(id);
+    setErroAcao(null);
+  }
+
+  async function handleDelete(product: Produto) {
+    // pede confirmação antes de excluir (a ação não tem desfazer)
     if (!window.confirm(`Excluir o produto "${product.nome}"?`)) return;
-    excluirProduto(product.id);
+    setErroAcao(null);
+    try {
+      await excluirProduto(product.id);
+    } catch (falha) {
+      setErroAcao(mensagemDeErro(falha));
+    }
   }
 
   const contador =
     filtrados.length === produtos.length
       ? `${produtos.length} ${produtos.length === 1 ? "produto" : "produtos"}`
       : `${filtrados.length} de ${produtos.length} produtos`;
+
+  const prontos = !carregando && !erro;
+  // sem categorias não dá pra cadastrar: o select do formulário ficaria vazio
+  const semCategorias = !carregandoCategorias && categorias.length === 0;
 
   return (
     <>
@@ -112,10 +137,21 @@ export function PaginaAdminProdutos() {
         <Container>
           <div className="lista-admin__topo">
             <h1 className="lista-admin__titulo">Gestão de Produtos</h1>
-            <button className="lista-admin__botao" onClick={() => setFormularioAberto("novo")}>
+            <button
+              className="lista-admin__botao"
+              onClick={() => abrirFormulario("novo")}
+              // enquanto as categorias carregam, o formulário abriria com o select vazio
+              disabled={carregandoCategorias || semCategorias}
+            >
               + Novo produto
             </button>
           </div>
+
+          {semCategorias && (
+            <p className="lista-admin__aviso" role="alert">
+              Categorias indisponíveis: não dá pra cadastrar produto agora.
+            </p>
+          )}
 
           <BarraBusca
             valor={filtros.busca}
@@ -181,7 +217,7 @@ export function PaginaAdminProdutos() {
 
           <div className="lista-admin__linha-chips">
             <ChipsFiltro
-              opcoes={OPCOES_CATEGORIA}
+              opcoes={opcoesCategoria}
               selecionado={filtros.categoriaId}
               onSelecionar={(valor) => atualizarFiltro("categoriaId", valor)}
               rotulo="Categoria"
@@ -189,14 +225,39 @@ export function PaginaAdminProdutos() {
             <AlternarVisualizacao modo={modo} onMudar={setModo} />
           </div>
 
-          {/* aria-live: leitores de tela anunciam o novo total quando um filtro muda */}
-          <p className="lista-admin__contador" aria-live="polite">
-            {contador}
-          </p>
+          {prontos && (
+            // aria-live: leitores de tela anunciam o novo total quando um filtro muda
+            <p className="lista-admin__contador" aria-live="polite">
+              {contador}
+            </p>
+          )}
 
-          {produtos.length === 0 && <p className="lista-admin__vazio">Nenhum produto cadastrado.</p>}
+          {erroAcao && (
+            <p className="lista-admin__aviso" role="alert">
+              {erroAcao}
+            </p>
+          )}
 
-          {produtos.length > 0 && filtrados.length === 0 && (
+          {carregando && <p className="lista-admin__vazio">Carregando produtos…</p>}
+
+          {!carregando && erro && (
+            <div className="lista-admin__aviso" role="alert">
+              <span>{erro}</span>
+              <button
+                type="button"
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={recarregar}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {prontos && produtos.length === 0 && (
+            <p className="lista-admin__vazio">Nenhum produto cadastrado ainda.</p>
+          )}
+
+          {prontos && produtos.length > 0 && filtrados.length === 0 && (
             <div className="lista-admin__vazio">
               <p>Nenhum produto encontrado. Tente outro termo ou limpe os filtros.</p>
               <button
@@ -208,7 +269,7 @@ export function PaginaAdminProdutos() {
             </div>
           )}
 
-          {filtrados.length > 0 && modo === "cards" && (
+          {prontos && filtrados.length > 0 && modo === "cards" && (
             <ul className="lista-admin__grade">
               {visiveis.map((product) => (
                 <li key={product.id} className="lista-admin__card">
@@ -219,7 +280,7 @@ export function PaginaAdminProdutos() {
                       {!product.ativo && <SeloInativo />}
                     </span>
                     <span className="lista-admin__card-detalhe">
-                      {nomeDaCategoria(product.categoria_id) || "Sem categoria"}
+                      {nomeDaCategoria(categorias, product.categoria_id) || "Sem categoria"}
                     </span>
                     <span className="lista-admin__card-detalhe">
                       {formatarPreco(product.preco)} · {product.estoque} un.
@@ -228,7 +289,7 @@ export function PaginaAdminProdutos() {
                   <div className="lista-admin__card-acoes">
                     <button
                       className="lista-admin__botao"
-                      onClick={() => setFormularioAberto(product.id)}
+                      onClick={() => abrirFormulario(product.id)}
                     >
                       Editar
                     </button>
@@ -246,7 +307,7 @@ export function PaginaAdminProdutos() {
             </ul>
           )}
 
-          {filtrados.length > 0 && modo === "lista" && (
+          {prontos && filtrados.length > 0 && modo === "lista" && (
             <ul className="lista-admin__compacta pagina-admin-produtos__compacta">
               {/* títulos das colunas; aria-hidden porque cada linha já é lida inteira */}
               <li className="lista-admin__linha lista-admin__linha--titulos" aria-hidden="true">
@@ -265,14 +326,14 @@ export function PaginaAdminProdutos() {
                     {!product.ativo && <SeloInativo />}
                   </span>
                   <span className="lista-admin__so-largo">
-                    {nomeDaCategoria(product.categoria_id) || "—"}
+                    {nomeDaCategoria(categorias, product.categoria_id) || "—"}
                   </span>
                   <span>{formatarPreco(product.preco)}</span>
                   <span className="lista-admin__so-largo">{product.estoque}</span>
                   <span className="lista-admin__linha-acoes">
                     <button
                       className="lista-admin__icone-botao"
-                      onClick={() => setFormularioAberto(product.id)}
+                      onClick={() => abrirFormulario(product.id)}
                       aria-label={`Editar ${product.nome}`}
                       title="Editar"
                     >
@@ -292,7 +353,7 @@ export function PaginaAdminProdutos() {
             </ul>
           )}
 
-          {temMais && (
+          {prontos && temMais && (
             <div className="lista-admin__carregar-mais">
               <button
                 className="lista-admin__botao lista-admin__botao--contorno"
@@ -315,6 +376,7 @@ export function PaginaAdminProdutos() {
           <FormularioProduto
             key={formularioAberto}
             produto={editingProduct}
+            categorias={categorias}
             onEnviar={handleSubmit}
             onCancelar={() => setFormularioAberto(null)}
           />
