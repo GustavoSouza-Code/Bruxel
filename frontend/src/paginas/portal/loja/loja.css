@@ -1,6 +1,6 @@
 /* Carregando, erro e lista vazia: bloco centralizado com folga pro rodapé não colar */
 .pagina-loja__estado {
-  padding: var(--space-section) 0;
+  padding-block: var(--space-section); /* só vertical: o .container já dá a margem lateral */
   text-align: center;
   font-size: var(--font-size-body);
 }
