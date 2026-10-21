@@ -10,9 +10,8 @@ import { useAutenticacao } from "../../../contexto/useAutenticacao";
  * abrir e salva as edições.
  *
  * A sessão só guarda id, nome, e-mail e perfil; CPF, telefone e endereço vêm
- * do GET /users/:id. Hoje essa rota (e o PUT) só aceita administrador, então
- * um cliente recebe 403 e a página mostra o erro até o backend liberar o
- * acesso pro próprio usuário.
+ * do GET /users/:id. Essa rota (e o PUT) aceita o próprio usuário ou um
+ * administrador; trocar a própria senha exige a senha atual.
  *
  * Se a API responder 401 (token vencido ou usuário apagado), a sessão é
  * encerrada e o RotaLogado manda a pessoa pro /entrar.

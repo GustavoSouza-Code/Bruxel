@@ -39,6 +39,24 @@ export const CAMPOS_ENDERECO: CampoEndereco[] = [
   },
 ];
 
+/** Uma mensagem por campo com formato errado; objeto vazio = UF e CEP ok. */
+export type ErrosUfCep = Partial<Record<"estado" | "cep", string>>;
+
+/**
+ * UF e CEP são opcionais, mas preenchidos precisam do formato que o banco aceita
+ * (CHAR(2) e CHECK de 8 dígitos); sem isso o backend responde 500.
+ */
+export function validarUfCep({ estado, cep }: { estado?: string | null; cep?: string | null }): ErrosUfCep {
+  const erros: ErrosUfCep = {};
+  if (estado && !/^[A-Za-z]{2}$/.test(estado)) {
+    erros.estado = "Use a sigla do estado, com 2 letras (ex.: RS).";
+  }
+  if (cep && cep.replace(/\D/g, "").length !== 8) {
+    erros.cep = "O CEP tem 8 dígitos.";
+  }
+  return erros;
+}
+
 /**
  * Monta o endereço (do usuário ou de um atendimento) num texto só pra exibir, ex.: "Rua X, 850 - Centro, Lajeado - RS".
  * Pula as partes vazias; sem endereço nenhum devolve "".

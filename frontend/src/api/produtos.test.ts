@@ -59,6 +59,18 @@ describe("paraCorpoProduto", () => {
     expect(corpo.descricao).toBeNull();
     expect(corpo.url_imagem).toBeNull();
   });
+
+  it("não manda o estoque quando ele não mudou", () => {
+    expect("estoque" in paraCorpoProduto(dados, 5)).toBe(false);
+  });
+
+  it("manda o estoque quando ele mudou", () => {
+    expect(paraCorpoProduto(dados, 3).estoque).toBe(5);
+  });
+
+  it("manda o estoque quando não sabe o anterior", () => {
+    expect(paraCorpoProduto(dados).estoque).toBe(5);
+  });
 });
 
 describe("ordenarProdutos", () => {

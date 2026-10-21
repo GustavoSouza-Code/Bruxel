@@ -81,7 +81,9 @@ export function useProdutos() {
 
   // substitui o produto pela versão que o backend devolveu (já com o que ele de fato salvou)
   async function atualizarProduto(id: string, dados: DadosProduto) {
-    const atualizado = await comToken((t) => apiProdutos.atualizarProduto(t, id, dados));
+    // estoque que a lista mostrava: se o admin não mexeu nele, o PUT não o sobrescreve
+    const estoqueAnterior = produtos.find((produto) => produto.id === id)?.estoque;
+    const atualizado = await comToken((t) => apiProdutos.atualizarProduto(t, id, dados, estoqueAnterior));
     setProdutos((atuais) => atuais.map((produto) => (produto.id === id ? atualizado : produto)));
   }
 

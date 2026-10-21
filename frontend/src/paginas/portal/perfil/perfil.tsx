@@ -6,7 +6,7 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import type { Usuario } from "../../../tipos/usuario";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
-import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
+import { CAMPOS_ENDERECO, formatarEndereco, validarUfCep } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import { usePerfil } from "./usePerfil";
 import { AbaAtendimentos } from "./componentes/AbaAtendimentos/AbaAtendimentos";
@@ -121,6 +121,12 @@ export function PaginaPerfil() {
   async function saveEdit(event: React.FormEvent) {
     event.preventDefault();
     if (!draft) return;
+    // o backend não confere UF e CEP: um CEP incompleto voltaria como erro interno
+    const errosEndereco = Object.values(validarUfCep(draft));
+    if (errosEndereco.length > 0) {
+      setErroSalvar(errosEndereco.join(" "));
+      return;
+    }
     setSalvando(true);
     setErroSalvar(null);
     try {

@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { mensagemDeErro } from "../../../api/cliente";
 import type { CamposAtualizacaoUsuario } from "../../../api/usuarios";
 import type { Usuario } from "../../../tipos/usuario";
-import { CAMPOS_ENDERECO, paraCamposAtualizacao } from "../camposUsuario";
+import { CAMPOS_ENDERECO, paraCamposAtualizacao, validarUfCep } from "../camposUsuario";
 import type { CampoEditavelUsuario } from "../camposUsuario";
 import "./FormularioEdicaoUsuario.css";
 
@@ -39,6 +39,11 @@ export function FormularioEdicaoUsuario({
     // o backend não valida o update: sem isso daria pra salvar um usuário sem nome
     if (!rascunho.nome.trim() || !rascunho.email.trim()) {
       setErro("Nome e e-mail são obrigatórios.");
+      return;
+    }
+    const errosEndereco = Object.values(validarUfCep(rascunho));
+    if (errosEndereco.length > 0) {
+      setErro(errosEndereco.join(" "));
       return;
     }
     setSalvando(true);
