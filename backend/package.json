@@ -2,14 +2,17 @@
   "name": "bruxel",
   "version": "1.0.0",
   "type": "commonjs",
-  "main": "dist/server.js",
+  "main": "dist/server/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/server/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/server/server.js",
     "db:migrate": "prisma migrate deploy",
     "db:pull": "prisma db pull",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "test:smoke:produtos": "node scripts/smoke-produtos.mjs",
+    "test:smoke:pedidos": "node scripts/smoke-pedidos.mjs",
+    "test:smoke": "npm run test:smoke:produtos && npm run test:smoke:pedidos"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

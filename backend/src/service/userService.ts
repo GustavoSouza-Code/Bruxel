@@ -1,27 +1,31 @@
-import {CreateUserDTO, UpdateUserDTO} from "../models/user";
-import {UserRepository} from "../repository/userRepository";
-import {validarCamposObrigatorios, regraValidacao} from "../utils/validaObrigatorios";
-import {AppError} from "../errors/AppError";
-import bcrypt from 'bcrypt';
+import { CreateUserDTO, UpdateUserDTO } from "../models/user";
+import { UserRepository } from "../repository/userRepository";
+import { RegraValidacao, validarCamposObrigatorios } from "../utils/validaObrigatorios";
+import { AppError } from "../errors/AppError";
+import { ehUuid } from "../utils/validacoes";
+import bcrypt from "bcrypt";
 
-// array de regras
-const regrasCriarUser: regraValidacao[] = [
-    {campo: 'nome', mensagem: 'O nome é obrigatório. '},
-    {campo: 'email', mensagem: 'O E-mail é obrigatório.'},
-    {campo: 'senha', mensagem: 'A senha é obrigatória.'},
-    {campo: 'cpf', mensagem: 'O CPF é obrigatório.'},
-]
+// campos obrigatórios do cadastro
+const regrasCriarUser: RegraValidacao[] = [
+    { campo: "nome", mensagem: "O nome é obrigatório." },
+    { campo: "email", mensagem: "O E-mail é obrigatório." },
+    { campo: "senha", mensagem: "A senha é obrigatória." },
+    { campo: "cpf", mensagem: "O CPF é obrigatório." },
+];
+
+// só estes campos podem ser alterados pelo corpo da requisição (senhaAtual não é salva)
+const camposAtualizaveis: (keyof UpdateUserDTO)[] = [
+    "nome", "email", "senha", "telefone", "rua", "numero", "bairro", "cidade", "estado", "cep",
+];
 
 // camada service de usuários, com regras de negócio e validações necessárias
-
 export class UserService {
     private userRepository = new UserRepository();
 
+    // cadastro: normaliza os dados e impede CPF/e-mail duplicados
     async create(user: CreateUserDTO) {
         const validacao = validarCamposObrigatorios(user ?? {}, regrasCriarUser);
-
         if (validacao.length > 0) {
-            console.log("VALIDAÇÃO:", JSON.stringify(validacao, null, 2));
             throw new AppError(400, "Dados inválidos.", validacao);
         }
 
@@ -46,18 +50,20 @@ export class UserService {
             throw new AppError(409, "Um usuário com esse E-mail já existe.");
         }
 
-        return await this.userRepository.create(dados);
+        return this.userRepository.create(dados);
     }
 
+    // leitura de usuários
     async getAll() {
-        return await this.userRepository.getAll();
+        return this.userRepository.getAll();
     }
 
     async getById(id: string) {
         // id fora do formato UUID faria o banco lançar erro (500); aqui já responde 404
-        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        if (!ehUuid(id)) {
             throw new AppError(404, "Usuário não encontrado");
         }
+
         const usuario = await this.userRepository.getById(id);
         if (!usuario) {
             throw new AppError(404, "Usuário não encontrado");
@@ -75,27 +81,29 @@ export class UserService {
                 throw new AppError(400, "Informe uma senha válida.");
             }
             if (exigirSenhaAtual) {
-                const senhaAtual = data.senhaAtual;
                 const hashAtual = await this.userRepository.getSenhaById(id);
-                if (typeof senhaAtual !== "string" || !hashAtual || !(await bcrypt.compare(senhaAtual, hashAtual))) {
+                if (typeof data.senhaAtual !== "string" || !hashAtual || !(await bcrypt.compare(data.senhaAtual, hashAtual))) {
                     throw new AppError(400, "Senha atual incorreta.");
                 }
             }
         }
 
-        const permitidos = ["nome", "email", "senha", "telefone", "rua", "numero", "bairro", "cidade", "estado", "cep"] as const;
-        const dados: Record<string, unknown> = {};
-        for (const campo of permitidos) {
-            const valor = (data as Record<string, unknown>)[campo];
-            if (valor !== undefined) dados[campo] = valor;
+        const dados: UpdateUserDTO = {};
+        for (const campo of camposAtualizaveis) {
+            if (data[campo] !== undefined) {
+                Object.assign(dados, { [campo]: data[campo] });
+            }
         }
-        if (typeof dados.email === "string") dados.email = dados.email.trim().toLowerCase();
+        if (typeof dados.email === "string") {
+            dados.email = dados.email.trim().toLowerCase();
+        }
 
-        return await this.userRepository.update(id, dados as UpdateUserDTO);
+        return this.userRepository.update(id, dados);
     }
 
+    // exclusão: confirma que o usuário existe antes de apagar
     async delete(id: string) {
         await this.getById(id);
-        return await this.userRepository.delete(id);
+        return this.userRepository.delete(id);
     }
 }

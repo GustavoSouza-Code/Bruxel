@@ -1,34 +1,34 @@
-import {UpdateUserDTO, CreateUserDTO} from "../models/user";
-import {prisma} from '../database/prisma';
-import bcrypt from 'bcrypt';
+import { CreateUserDTO, UpdateUserDTO } from "../models/user";
+import { prisma } from "../database/prisma";
+import bcrypt from "bcrypt";
 
-// lógica de interação com o banco de dados utilizando PrismaORM
-// CRUD completo
-
-export const camposPublicosUsuario = {
+// campos que podem sair da API
+const camposPublicosUsuario = {
     id: true, nome: true, email: true, cpf: true, telefone: true, rua: true, numero: true,
-    bairro: true, cidade: true, estado: true, cep: true, perfil: true, criado_em: true, atualizado_em: true
+    bairro: true, cidade: true, estado: true, cep: true, perfil: true, criado_em: true, atualizado_em: true,
 } as const;
 
+// campos necessários para conferir a senha no login
+const camposLogin = {
+    id: true, nome: true, email: true, senha: true, perfil: true,
+} as const;
+
+// acesso ao banco para usuários; as consultas públicas não devolvem a senha
 export class UserRepository {
 
+    // gera o hash da senha antes de salvar
     async create(user: CreateUserDTO) {
         const senhaHash = await bcrypt.hash(user.senha, 10);
         return prisma.users.create({
-            data: {
-                ...user,
-                senha: senhaHash
-            },
-            select: camposPublicosUsuario
+            data: { ...user, senha: senhaHash },
+            select: camposPublicosUsuario,
         });
     }
 
+    // listagem restrita ao admin
     async getAll() {
         try {
-            const users = await prisma.users.findMany({
-                select: camposPublicosUsuario
-            });
-            return users;
+            return await prisma.users.findMany({ select: camposPublicosUsuario });
         } catch (error) {
             console.error("Erro ao buscar usuários:", error);
             throw error;
@@ -37,28 +37,23 @@ export class UserRepository {
 
     async getById(id: string) {
         try {
-            const users = await prisma.users.findUnique({
-                where: {
-                    id: id,
-                },
-                select: camposPublicosUsuario
-            })
-            return users;
+            return await prisma.users.findUnique({
+                where: { id },
+                select: camposPublicosUsuario,
+            });
         } catch (error) {
             console.error(`Erro ao buscar usuário: ${id}:`, error);
             throw error;
         }
     }
 
-    // GET necessário para conferir a senha atual antes de trocar a senha
+    // conferir a senha atual antes de trocar a senha
     async getSenhaById(id: string) {
         try {
             const user = await prisma.users.findUnique({
-                where: {
-                    id: id,
-                },
-                select: {senha: true}
-            })
+                where: { id },
+                select: { senha: true },
+            });
             return user?.senha ?? null;
         } catch (error) {
             console.error(`Erro ao buscar senha do usuário: ${id}:`, error);
@@ -66,36 +61,33 @@ export class UserRepository {
         }
     }
 
-    // GET necessário para verificar se usuário com o mesmo CPF já existe no banco
+    // usado para verificar se já existe usuário com o mesmo CPF
     async getByCPF(cpf: string) {
         try {
-            const users = await prisma.users.findUnique({
-                where: {
-                    cpf: cpf,
-                }
-            })
-            return users;
+            return await prisma.users.findUnique({
+                where: { cpf },
+                select: { id: true },
+            });
         } catch (error) {
             console.error(`Erro ao buscar usuário: ${cpf}:`, error);
             throw error;
         }
     }
 
-    // GET necessário para verificar se usuário com o mesmo E-mail já existe no banco
+    // usado no cadastro (duplicidade) e no login (senha)
     async getByEmail(email: string) {
         try {
-            const users = await prisma.users.findUnique({
-                where: {
-                    email: email,
-                }
-            })
-            return users;
+            return await prisma.users.findUnique({
+                where: { email },
+                select: camposLogin,
+            });
         } catch (error) {
             console.error(`Erro ao buscar usuário: ${email}:`, error);
             throw error;
         }
     }
 
+    // atualização: troca a senha por hash se ela vier no corpo
     async update(id: string, data: UpdateUserDTO) {
         try {
             const dadosParaAtualizar = { ...data };
@@ -105,12 +97,11 @@ export class UserRepository {
                 dadosParaAtualizar.senha = await bcrypt.hash(dadosParaAtualizar.senha, 10);
             }
 
-            const updateUser = await prisma.users.update({
-                where: { id: id },
+            return await prisma.users.update({
+                where: { id },
                 data: dadosParaAtualizar,
-                select: camposPublicosUsuario
+                select: camposPublicosUsuario,
             });
-            return updateUser;
         } catch (error) {
             console.error(`Erro ao atualizar usuário: ${id}:`, error);
             throw error;
@@ -119,17 +110,13 @@ export class UserRepository {
 
     async delete(id: string) {
         try {
-            const deleteUser = await prisma.users.delete({
-                where: {
-                    id: id,
-                },
-                select: camposPublicosUsuario
+            return await prisma.users.delete({
+                where: { id },
+                select: camposPublicosUsuario,
             });
-            return deleteUser;
         } catch (error) {
             console.error(`Erro ao deletar usuário: ${id}:`, error);
             throw error;
         }
     }
-
 }

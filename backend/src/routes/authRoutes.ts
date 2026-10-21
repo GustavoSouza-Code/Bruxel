@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controller/authController";
 
-// rotas de autenticação
-
+// rota pública de login
 const router = Router();
 const authController = new AuthController();
 

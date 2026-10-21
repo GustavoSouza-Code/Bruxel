@@ -3,6 +3,7 @@ import { ProductsController } from "../controller/productsController";
 import { verificaToken } from "../middleware/verificaToken";
 import { verificaAdmin } from "../middleware/verificaAdmin";
 
+// catálogo público; cadastro, edição e exclusão exigem admin
 const router = Router();
 const productsController = new ProductsController();
 

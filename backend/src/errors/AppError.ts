@@ -1,6 +1,7 @@
+// erro com status HTTP e detalhes opcionais, tratado no server
 export class AppError extends Error {
-    statusCode: number;
-    detalhes?: unknown;
+    readonly statusCode: number;
+    readonly detalhes?: unknown;
 
     constructor(statusCode: number, message: string, detalhes?: unknown) {
         super(message);
