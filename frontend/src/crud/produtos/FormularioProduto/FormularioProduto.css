@@ -92,3 +92,25 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* preview da URL da imagem, embaixo do campo */
+.formulario-produto__preview {
+  max-width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  align-self: flex-start;
+  border-radius: 8px;
+}
+
+.formulario-produto__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.formulario-produto__enviar:disabled,
+.formulario-produto__cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

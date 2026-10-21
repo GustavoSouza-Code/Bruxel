@@ -29,7 +29,7 @@ interface ProdutosDaOsProps {
  * só é conferido (não dá pra lançar mais do que tem); a baixa é do backend.
  */
 export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsProps) {
-  const { produtos } = useProdutos();
+  const { produtos, carregando, erro } = useProdutos();
   const [produtoId, setProdutoId] = useState("");
   const [quantidade, setQuantidade] = useState("1");
   const [erroProduto, setErroProduto] = useState<string | null>(null);
@@ -124,6 +124,12 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
               ))}
             </select>
           </label>
+          {carregando && <p className="produtos-os__vazio">Carregando produtos…</p>}
+          {erro && (
+            <p className="produtos-os__erro" role="alert">
+              {erro}
+            </p>
+          )}
           <label className="produtos-os__campo produtos-os__campo--quantidade">
             Quantidade
             <input

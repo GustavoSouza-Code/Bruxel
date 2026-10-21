@@ -1,0 +1,25 @@
+/* Carregando, erro e lista vazia: bloco centralizado com folga pro rodapé não colar */
+.pagina-loja__estado {
+  padding-block: var(--space-section); /* só vertical: o .container já dá a margem lateral */
+  text-align: center;
+  font-size: var(--font-size-body);
+}
+
+.pagina-loja__estado p {
+  margin: 0 0 1rem;
+}
+
+.pagina-loja__estado p:last-child {
+  margin-bottom: 0;
+}
+
+.pagina-loja__tentar {
+  background-color: var(--color-store-button);
+  color: var(--color-primary-dark);
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}

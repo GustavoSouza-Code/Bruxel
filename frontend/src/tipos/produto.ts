@@ -10,7 +10,7 @@ export interface Categoria {
  */
 export interface Produto {
   id: string;
-  /** id da categoria (ver CATEGORIAS em crud/produtos/categorias.ts) */
+  /** id da categoria (vem da API de categorias) */
   categoria_id: string;
   /** código interno do produto; único no banco */
   codigo: string;
@@ -20,7 +20,7 @@ export interface Produto {
   /** preço em reais, como número (a formatação "R$ 21,50" é feita na tela) */
   preco: number;
   estoque: number;
-  /** imagem do produto: asset importado (src/assets) ou uma URL */
+  /** imagem do produto: URL, ex.: "/produtos/x.png" (arquivos em public/produtos) */
   url_imagem?: string;
   /** produto inativo não deveria aparecer na loja */
   ativo: boolean;

@@ -1,16 +1,16 @@
 import type { Categoria } from "../../tipos/produto";
 
-// categorias da loja, na ordem em que aparecem; o id também vira a âncora da
-// seção na Loja (o NavCategorias rola até ela)
-// TODO: trocar pelos dados do backend (tabela categories); lá os ids são UUIDs
-export const CATEGORIAS: Categoria[] = [
-  { id: "tratamento-agua", nome: "Tratamento da água" },
-  { id: "limpeza-piscina", nome: "Limpeza da Piscina" },
-  { id: "filtracao-circulacao", nome: "Filtração e circulação" },
-  { id: "acessorios-lazer", nome: "Acessórios & Lazer" },
-];
-
 /** Nome legível da categoria a partir do id (ou "" se não achar). */
-export function nomeDaCategoria(categoriaId: string) {
-  return CATEGORIAS.find((categoria) => categoria.id === categoriaId)?.nome ?? "";
+export function nomeDaCategoria(categorias: Categoria[], id: string) {
+  return categorias.find((categoria) => categoria.id === id)?.nome ?? "";
+}
+
+/**
+ * Opções do <select> de categoria. Se a categoria atual do produto não veio da
+ * API (ex.: /categories fora do ar), entra uma opção "Categoria atual" pra o
+ * select obrigatório continuar válido e dar pra editar o produto.
+ */
+export function opcoesDeCategoria(categorias: Categoria[], idAtual?: string): Categoria[] {
+  if (!idAtual || categorias.some((categoria) => categoria.id === idAtual)) return categorias;
+  return [{ id: idAtual, nome: "Categoria atual" }, ...categorias];
 }

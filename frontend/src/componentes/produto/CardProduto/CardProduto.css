@@ -25,6 +25,13 @@
   margin-bottom: 1.1rem;
 }
 
+/* bloco cinza quando o produto não tem imagem (ou ela não carregou) */
+.card-produto__imagem--vazio {
+  width: 100%;
+  background-color: var(--color-border-soft);
+  border-radius: 6px;
+}
+
 /* nome + embalagem, separados do preço por uma linha */
 .card-produto__info {
   border-bottom: 1px solid var(--color-border-soft);
