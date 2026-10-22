@@ -60,7 +60,7 @@ export class UserController {
     // exclusão restrita ao admin
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.userService.delete(String(req.params.id));
+            const result = await this.userService.delete(String(req.params.id), req.usuario.id);
             return res.status(200).json(result);
         } catch (error) {
             next(error);

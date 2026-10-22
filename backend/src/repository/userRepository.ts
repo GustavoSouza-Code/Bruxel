@@ -108,6 +108,13 @@ export class UserRepository {
         }
     }
 
+    // usado para impedir que o último administrador seja excluído
+    async countAdmins() {
+        return prisma.users.count({
+            where: { perfil: "ADMINISTRADOR" },
+        });
+    }
+
     async delete(id: string) {
         try {
             return await prisma.users.delete({

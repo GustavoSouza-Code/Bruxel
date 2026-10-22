@@ -14,6 +14,11 @@ import { Prisma } from "../generated/prisma/client";
 const app = express();
 const PORT = 3000;
 
+// sem a chave não dá para assinar nem verificar os tokens; falha antes de subir
+if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET não configurado no ambiente.");
+}
+
 // middlewares globais
 app.use(cors());
 app.use(express.json());
@@ -37,6 +42,16 @@ app.use((erro: unknown, _req: Request, res: Response, next: NextFunction) => {
             mensagem: erro.message,
             erros: erro.detalhes,
         });
+    }
+
+    // JSON malformado é erro de entrada, não erro interno
+    if (erro instanceof SyntaxError && (erro as { status?: number }).status === 400) {
+        return res.status(400).json({ mensagem: "JSON inválido." });
+    }
+
+    // erros de validação do Prisma também são causados pelos dados enviados
+    if (erro instanceof Prisma.PrismaClientValidationError) {
+        return res.status(400).json({ mensagem: "Dados inválidos." });
     }
 
     // erros conhecidos do Prisma viram respostas de conflito/404

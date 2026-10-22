@@ -22,7 +22,20 @@ interface AuthResponseDTO {
 export class AuthService {
     constructor(private userRepository: UserRepository) {}
 
-    async execute({ email, senha }: LoginDTO): Promise<AuthResponseDTO> {
+    async execute(dados: LoginDTO): Promise<AuthResponseDTO> {
+        const corpo = (dados ?? {}) as LoginDTO;
+        const email = typeof corpo.email === "string" ? corpo.email.trim().toLowerCase() : "";
+        const senha = typeof corpo.senha === "string" ? corpo.senha : "";
+
+        if (email === "" || senha === "") {
+            throw new AppError(400, CREDENCIAIS_INVALIDAS);
+        }
+
+        const secretJWT = process.env.JWT_SECRET;
+        if (!secretJWT) {
+            throw new AppError(500, "Configuração de autenticação indisponível.");
+        }
+
         // confere e-mail e senha contra o hash salvo
         const user = await this.userRepository.getByEmail(email);
         if (!user) {
@@ -32,11 +45,6 @@ export class AuthService {
         const verificaSenha = await bcrypt.compare(senha, user.senha);
         if (!verificaSenha) {
             throw new AppError(400, CREDENCIAIS_INVALIDAS);
-        }
-
-        const secretJWT = process.env.JWT_SECRET;
-        if (!secretJWT) {
-            throw new AppError(404, "Chave secreta JWT não configurada no ambiente.");
         }
 
         // o token carrega id, e-mail e perfil por 5 dias
