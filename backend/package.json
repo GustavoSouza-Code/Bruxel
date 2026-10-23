@@ -12,7 +12,8 @@
     "db:generate": "prisma generate",
     "test:smoke:produtos": "node scripts/smoke-produtos.mjs",
     "test:smoke:pedidos": "node scripts/smoke-pedidos.mjs",
-    "test:smoke": "npm run test:smoke:produtos && npm run test:smoke:pedidos"
+    "test:smoke:atendimentos": "node scripts/smoke-atendimentos.mjs",
+    "test:smoke": "npm run test:smoke:produtos && npm run test:smoke:pedidos && npm run test:smoke:atendimentos"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

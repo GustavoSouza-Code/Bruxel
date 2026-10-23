@@ -6,6 +6,7 @@ import userRoutes from "../routes/userRoutes";
 import productsRoutes from "../routes/productsRoutes";
 import categoriesRoutes from "../routes/categoriesRoutes";
 import ordersRoutes from "../routes/ordersRoutes";
+import appointmentsRoutes from "../routes/appointmentsRoutes";
 import authRoutes from "../routes/authRoutes";
 import { AppError } from "../errors/AppError";
 import { Prisma } from "../generated/prisma/client";
@@ -28,6 +29,7 @@ app.use("/api", userRoutes);
 app.use("/api", productsRoutes);
 app.use("/api", categoriesRoutes);
 app.use("/api", ordersRoutes);
+app.use("/api", appointmentsRoutes);
 app.use("/api", authRoutes);
 
 // converte erros de negócio e do Prisma em respostas HTTP
