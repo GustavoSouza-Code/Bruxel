@@ -22,7 +22,7 @@ if (!process.env.JWT_SECRET) {
 
 // middlewares globais
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 
 // rotas da API
 app.use("/api", userRoutes);
@@ -44,6 +44,11 @@ app.use((erro: unknown, _req: Request, res: Response, next: NextFunction) => {
             mensagem: erro.message,
             erros: erro.detalhes,
         });
+    }
+
+    // corpo maior que o limite do express.json é erro de entrada, não erro interno
+    if ((erro as { type?: string }).type === "entity.too.large") {
+        return res.status(413).json({ mensagem: "O corpo da requisição é muito grande." });
     }
 
     // JSON malformado é erro de entrada, não erro interno

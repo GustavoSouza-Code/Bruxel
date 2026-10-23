@@ -108,6 +108,7 @@ export function FormularioCadastro({
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
           autoComplete="new-password"
+          minLength={8}
           required
         />
       </label>
@@ -119,6 +120,7 @@ export function FormularioCadastro({
           value={confirmarSenha}
           onChange={(e) => setConfirmarSenha(e.target.value)}
           autoComplete="new-password"
+          minLength={8}
           required
         />
       </label>

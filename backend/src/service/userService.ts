@@ -26,6 +26,9 @@ const TAMANHOS = {
     cep: 8,
 } as const;
 
+// mínimo de caracteres para uma senha nova
+const SENHA_MIN = 8;
+
 // camada service de usuários, com regras de negócio e validações necessárias
 export class UserService {
     private userRepository = new UserRepository();
@@ -192,6 +195,9 @@ export class UserService {
     private validarSenha(valor: unknown): string {
         if (typeof valor !== "string" || valor.trim() === "") {
             throw this.erroCampo("senha", "Informe uma senha válida.");
+        }
+        if (valor.length < SENHA_MIN) {
+            throw this.erroCampo("senha", `A senha deve ter pelo menos ${SENHA_MIN} caracteres.`);
         }
         return valor;
     }

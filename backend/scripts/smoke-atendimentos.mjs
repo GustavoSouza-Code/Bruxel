@@ -501,7 +501,9 @@ async function main() {
 
   const pago = await chamar("GET", `/appointments/${idOs}`, { token: tokenCliente });
   anotarValor("cliente vê a ordem concluída no histórico", "CONCLUIDO", pago.corpo?.status);
-  anotarValor("ordem concluída tem data de pagamento", true, Boolean(pago.corpo?.pago_em));
+  anotarValor("cliente não recebe a data de pagamento", undefined, pago.corpo?.pago_em);
+  const pagoAdmin = await chamar("GET", `/appointments/${idOs}`, { token: tokenAdmin });
+  anotarValor("admin vê a data de pagamento", true, Boolean(pagoAdmin.corpo?.pago_em));
 
   anotar(
     "editar a OS depois do pagamento",

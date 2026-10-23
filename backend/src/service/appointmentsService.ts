@@ -25,6 +25,10 @@ const TRANSICOES: Partial<Record<status_agendamento, status_agendamento[]>> = {
     EM_ANDAMENTO: ["CONCLUIDO"],
 };
 
+// o cliente não recebe os campos internos preenchidos pela gestão
+type AtendimentoCompleto = NonNullable<Awaited<ReturnType<AppointmentsRepository["getById"]>>>;
+type AtendimentoPublico = Omit<AtendimentoCompleto, "observacoes_tecnico" | "valor_mao_de_obra" | "pago_em">;
+
 const DESCRICAO_MIN = 10;
 const DESCRICAO_MAX = 1000;
 const MENSAGEM_CLIENTE_MIN = 10;
@@ -83,16 +87,20 @@ export class AppointmentsService {
             cep: this.validarCep(corpo.cep),
         };
 
-        return this.appointmentsRepository.create(pedido);
+        const atendimento = await this.appointmentsRepository.create(pedido);
+        return usuario.perfil === "ADMINISTRADOR" ? atendimento : this.respostaDoCliente(atendimento);
     }
 
     // admin vê todas as ordens; o cliente vê apenas as dele
     async getAll(usuario: UsuarioAutenticado, filtrosRecebidos: unknown) {
         const filtros = this.validarFiltros(filtrosRecebidos);
 
-        return usuario.perfil === "ADMINISTRADOR"
-            ? this.appointmentsRepository.getAll(filtros)
-            : this.appointmentsRepository.getAllByUsuario(usuario.id, filtros);
+        if (usuario.perfil === "ADMINISTRADOR") {
+            return this.appointmentsRepository.getAll(filtros);
+        }
+
+        const atendimentos = await this.appointmentsRepository.getAllByUsuario(usuario.id, filtros);
+        return atendimentos.map((atendimento) => this.respostaDoCliente(atendimento));
     }
 
     // detalhe: o cliente só acessa a própria ordem
@@ -103,7 +111,13 @@ export class AppointmentsService {
             throw new AppError(403, "Não autorizado.");
         }
 
-        return atendimento;
+        return usuario.perfil === "ADMINISTRADOR" ? atendimento : this.respostaDoCliente(atendimento);
+    }
+
+    // remove observações, mão de obra e pagamento antes de devolver a OS ao cliente
+    private respostaDoCliente(atendimento: AtendimentoCompleto): AtendimentoPublico {
+        const { observacoes_tecnico, valor_mao_de_obra, pago_em, ...publico } = atendimento;
+        return publico;
     }
 
     // confirma, inicia, recusa, cancela ou conclui o atendimento
