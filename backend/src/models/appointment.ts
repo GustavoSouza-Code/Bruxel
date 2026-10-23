@@ -7,6 +7,8 @@ export interface CreateAppointmentDTO {
     tipo: tipo_servico;
     descricao: string;
     data_hora: string;
+    // cliente escolhido pelo administrador; ausente quando o próprio usuário abre a OS
+    usuario_id?: string | null;
     tecnico_id?: string | null;
     foto_url?: string | null;
     telefone?: string | null;
@@ -26,6 +28,7 @@ export interface DadosCriacaoAtendimento {
     data_hora: Date;
     tecnico_id: string | null;
     foto_url: string | null;
+    aberto_na_loja: boolean;
     telefone: string | null;
     rua: string | null;
     numero: string | null;

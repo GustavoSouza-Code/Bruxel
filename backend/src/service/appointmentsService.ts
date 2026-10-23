@@ -50,9 +50,10 @@ export class AppointmentsService {
     private productsRepository = new ProductsRepository();
     private userRepository = new UserRepository();
 
-    // cliente solicita um atendimento para ele mesmo
+    // cliente abre a própria OS; o administrador pode escolher um cliente cadastrado
     async create(usuario: UsuarioAutenticado, dados: CreateAppointmentDTO) {
         const corpo = this.validarCorpo(dados);
+        const cliente = await this.resolverCliente(usuario, corpo.usuario_id);
         const tipo = this.validarTipo(corpo.tipo);
         const descricao = this.validarDescricao(corpo.descricao);
         const dataHora = this.validarDataHora(corpo.data_hora);
@@ -66,7 +67,8 @@ export class AppointmentsService {
         }
 
         const pedido: DadosCriacaoAtendimento = {
-            usuario_id: usuario.id,
+            usuario_id: cliente.id,
+            aberto_na_loja: cliente.abertoNaLoja,
             tipo,
             descricao,
             data_hora: dataHora,
@@ -123,6 +125,11 @@ export class AppointmentsService {
                 ? this.validarMensagemCliente(corpo.mensagem_cliente)
                 : undefined;
 
+        // a conclusão baixa o estoque e muda o status na mesma transação
+        if (novoStatus === "CONCLUIDO") {
+            return this.appointmentsRepository.concluirComBaixaDeEstoque(atendimento.id);
+        }
+
         return this.appointmentsRepository.updateStatus(atendimento.id, novoStatus, mensagem);
     }
 
@@ -145,6 +152,11 @@ export class AppointmentsService {
 
         if (!temObservacoes && !temValor && !temItens) {
             throw new AppError(400, "Informe ao menos um dado da OS para atualizar.");
+        }
+
+        // a baixa já foi feita na conclusão; trocar itens depois deixaria o estoque errado
+        if (temItens && atendimento.status === "CONCLUIDO") {
+            throw new AppError(409, "Os produtos da OS não podem ser alterados após a conclusão.");
         }
 
         const dadosOs: { observacoes_tecnico?: string | null; valor_mao_de_obra?: string | null } = {};
@@ -248,6 +260,30 @@ export class AppointmentsService {
             throw this.erroCampo("data_hora", "Data e horário inválidos.");
         }
         return dataHora;
+    }
+
+    // sem cliente informado, a OS fica para o usuário logado (fluxo antigo)
+    private async resolverCliente(usuario: UsuarioAutenticado, valor: unknown) {
+        if (valor === undefined || valor === null || valor === "") {
+            return { id: usuario.id, abertoNaLoja: false };
+        }
+
+        if (usuario.perfil !== "ADMINISTRADOR") {
+            throw new AppError(403, "Apenas administradores podem criar uma OS para outro cliente.");
+        }
+        if (typeof valor !== "string" || !ehUuid(valor)) {
+            throw this.erroCampo("usuario_id", "Cliente inválido.");
+        }
+
+        const cliente = await this.userRepository.getById(valor);
+        if (!cliente) {
+            throw new AppError(404, "Cliente não encontrado.");
+        }
+        if (cliente.perfil !== "CLIENTE") {
+            throw this.erroCampo("usuario_id", "Selecione um cliente cadastrado.");
+        }
+
+        return { id: cliente.id, abertoNaLoja: true };
     }
 
     private async validarTecnico(valor: unknown): Promise<string | null> {

@@ -27,6 +27,7 @@ const UUID_INEXISTENTE = "00000000-0000-4000-8000-000000000000";
 const DIAS = 24 * 60 * 60 * 1000;
 const DATA_HORA_1 = new Date(Date.now() + 7 * DIAS).toISOString();
 const DATA_HORA_2 = new Date(Date.now() + 8 * DIAS).toISOString();
+const DATA_HORA_3 = new Date(Date.now() + 9 * DIAS).toISOString();
 
 const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
 const linhas = [];
@@ -70,6 +71,11 @@ function anotarValor(caso, esperado, obtido, nota = "") {
     ok: ok ? "OK" : "FALHOU",
     nota: nota.slice(0, 190),
   });
+}
+
+async function estoqueDoProduto(produtoId) {
+  const { rows } = await db.query("select estoque from products where id = $1", [produtoId]);
+  return rows[0]?.estoque;
 }
 
 async function chamar(metodo, caminho, { corpo, token } = {}) {
@@ -127,11 +133,14 @@ function pedido(extras = {}) {
   };
 }
 
-function conferirAtendimento(atendimento, { status, usuarioId, tecnicoId }) {
+function conferirAtendimento(atendimento, { status, usuarioId, tecnicoId, abertoNaLoja }) {
   const problemas = [];
   if (atendimento?.status !== status) problemas.push(`status ${atendimento?.status}`);
   if (usuarioId && atendimento?.usuario_id !== usuarioId) problemas.push("usuario_id diferente");
   if (tecnicoId && atendimento?.tecnico_id !== tecnicoId) problemas.push("tecnico_id diferente");
+  if (abertoNaLoja !== undefined && atendimento?.aberto_na_loja !== abertoNaLoja) {
+    problemas.push("aberto_na_loja diferente");
+  }
   if (!Array.isArray(atendimento?.itens)) problemas.push("itens ausentes");
   if (atendimento?.estado && atendimento.estado !== atendimento.estado.toUpperCase()) {
     problemas.push("UF não normalizada");
@@ -182,6 +191,33 @@ async function main() {
   if (produto.status !== 201) {
     throw new Error(`Falha ao criar produto: ${JSON.stringify(produto.corpo)}`);
   }
+
+  const criarProduto = async (sufixo, estoque) => {
+    const resposta = await chamar("POST", "/products", {
+      corpo: {
+        categoria_id: categoriaId,
+        nome: `Produto Smoke OS ${sufixo} ${SUFIXO}`,
+        codigo: `smoke-os-${SUFIXO}-${sufixo}`,
+        preco: 12.5,
+        estoque,
+        ativo: true,
+      },
+      token: tokenAdmin,
+    });
+    if (resposta.status !== 201) {
+      throw new Error(`Falha ao criar produto ${sufixo}: ${JSON.stringify(resposta.corpo)}`);
+    }
+    return resposta.corpo;
+  };
+
+  // usados no teste de baixa parcial e falta de estoque na finalização
+  const produtoEstoqueA = await criarProduto("estoque-a", 5);
+  const produtoEstoqueB = await criarProduto("estoque-b", 5);
+  const [idProdutoAntes, idProdutoDepois] = [produtoEstoqueA.id, produtoEstoqueB.id].sort((a, b) =>
+    a.localeCompare(b)
+  );
+  const produtoAntes = idProdutoAntes === produtoEstoqueA.id ? produtoEstoqueA : produtoEstoqueB;
+  const produtoDepois = idProdutoDepois === produtoEstoqueA.id ? produtoEstoqueA : produtoEstoqueB;
 
   const solicitar = (token, corpo) => chamar("POST", "/appointments", { corpo, token });
   const mudarStatus = (token, id, corpo) =>
@@ -236,8 +272,42 @@ async function main() {
     conferirAtendimento(osOutro.corpo, { status: "AGUARDANDO", usuarioId: idOutro })
   );
 
+  const osAdmin = await solicitar(
+    tokenAdmin,
+    pedido({ usuario_id: idCliente, data_hora: DATA_HORA_3 })
+  );
+  anotar(
+    "POST /appointments admin para cliente existente",
+    201,
+    osAdmin,
+    conferirAtendimento(osAdmin.corpo, {
+      status: "AGUARDANDO",
+      usuarioId: idCliente,
+      abertoNaLoja: true,
+    })
+  );
+
+  anotar(
+    "POST /appointments admin com cliente inexistente",
+    404,
+    await solicitar(tokenAdmin, pedido({ usuario_id: UUID_INEXISTENTE, data_hora: DATA_HORA_3 }))
+  );
+
+  anotar(
+    "POST /appointments admin com usuário que não é cliente",
+    400,
+    await solicitar(tokenAdmin, pedido({ usuario_id: idAdmin, data_hora: DATA_HORA_3 }))
+  );
+
+  anotar(
+    "cliente tenta criar OS para outro cliente",
+    403,
+    await solicitar(tokenCliente, pedido({ usuario_id: idOutro, data_hora: DATA_HORA_3 }))
+  );
+
   const idOs = osCliente.corpo.id;
   const idOsOutro = osOutro.corpo.id;
+  const idOsAdmin = osAdmin.corpo.id;
 
   // ------------------------------------------------------------- consultas
   const listaCliente = await chamar("GET", "/appointments", { token: tokenCliente });
@@ -392,6 +462,37 @@ async function main() {
     "EM_ANDAMENTO -> CONCLUIDO"
   );
 
+  anotarValor(
+    "conclusão desconta a quantidade usada do estoque",
+    3,
+    await estoqueDoProduto(produto.corpo.id)
+  );
+
+  anotar(
+    "concluir novamente uma ordem já concluída",
+    409,
+    await mudarStatus(tokenAdmin, idOs, { status: "CONCLUIDO" })
+  );
+  anotarValor(
+    "tentativa repetida não desconta o estoque outra vez",
+    3,
+    await estoqueDoProduto(produto.corpo.id)
+  );
+
+  anotar(
+    "editar itens depois da conclusão",
+    409,
+    await chamar("PUT", `/appointments/${idOs}/os`, {
+      corpo: { itens: [{ produto_id: produto.corpo.id, quantidade: 1 }] },
+      token: tokenAdmin,
+    })
+  );
+  anotarValor(
+    "tentativa de editar itens não altera o estoque",
+    3,
+    await estoqueDoProduto(produto.corpo.id)
+  );
+
   anotar("PATCH /appointments/:id/pagamento", 200, await chamar(
     "PATCH",
     `/appointments/${idOs}/pagamento`,
@@ -409,6 +510,81 @@ async function main() {
       corpo: { valor_mao_de_obra: 1 },
       token: tokenAdmin,
     })
+  );
+
+  // ------------------------------------------- baixa parcial e falta de estoque
+  anotar(
+    "iniciar a OS criada pelo admin",
+    200,
+    await mudarStatus(tokenAdmin, idOsAdmin, { status: "AGENDADO" })
+  );
+  anotar(
+    "colocar a OS criada pelo admin em andamento",
+    200,
+    await mudarStatus(tokenAdmin, idOsAdmin, { status: "EM_ANDAMENTO" })
+  );
+
+  const itensEstoque = await chamar("PUT", `/appointments/${idOsAdmin}/os`, {
+    corpo: {
+      itens: [
+        { produto_id: produtoAntes.id, quantidade: 2 },
+        { produto_id: produtoDepois.id, quantidade: 2 },
+      ],
+    },
+    token: tokenAdmin,
+  });
+  anotar("registrar produtos para o teste de estoque", 200, itensEstoque);
+  anotarValor(
+    "OS guarda os dois produtos com quantidade",
+    true,
+    itensEstoque.corpo?.itens?.length === 2 &&
+      itensEstoque.corpo.itens.every((item) => item.quantidade === 2)
+  );
+
+  // reduz o saldo depois do lançamento para forçar a falha na finalização
+  await db.query("update products set estoque = 1 where id = $1", [produtoDepois.id]);
+  anotar(
+    "concluir com estoque insuficiente",
+    409,
+    await mudarStatus(tokenAdmin, idOsAdmin, { status: "CONCLUIDO" })
+  );
+
+  const osAposFalha = await chamar("GET", `/appointments/${idOsAdmin}`, { token: tokenAdmin });
+  anotarValor("falha mantém a OS em andamento", "EM_ANDAMENTO", osAposFalha.corpo?.status);
+  anotarValor(
+    "falha desfaz a baixa já feita do primeiro produto",
+    5,
+    await estoqueDoProduto(produtoAntes.id)
+  );
+  anotarValor(
+    "falha mantém o estoque do produto sem saldo",
+    1,
+    await estoqueDoProduto(produtoDepois.id)
+  );
+
+  await db.query("update products set estoque = 2 where id = $1", [produtoDepois.id]);
+  anotar(
+    "concluir depois de repor o estoque",
+    200,
+    await mudarStatus(tokenAdmin, idOsAdmin, { status: "CONCLUIDO" })
+  );
+  anotarValor("baixa o primeiro produto", 3, await estoqueDoProduto(produtoAntes.id));
+  anotarValor("baixa o segundo produto", 0, await estoqueDoProduto(produtoDepois.id));
+
+  anotar(
+    "concluir novamente a OS do teste de estoque",
+    409,
+    await mudarStatus(tokenAdmin, idOsAdmin, { status: "CONCLUIDO" })
+  );
+  anotarValor(
+    "nova tentativa não baixa o primeiro produto de novo",
+    3,
+    await estoqueDoProduto(produtoAntes.id)
+  );
+  anotarValor(
+    "nova tentativa não baixa o segundo produto de novo",
+    0,
+    await estoqueDoProduto(produtoDepois.id)
   );
 
   // ------------------------------------------------------------- recusa
@@ -478,7 +654,7 @@ try {
             or tecnico_id in (select id from users where email like $1)`,
         [`%${SUFIXO}%`]
       );
-      await db.query("delete from products where codigo = $1", [`smoke-os-${SUFIXO}`]);
+      await db.query("delete from products where codigo like $1", [`smoke-os-${SUFIXO}%`]);
       await db.query("delete from categories where nome = $1", [CATEGORIA]);
       await db.query("delete from users where email like $1", [`%${SUFIXO}%`]);
       console.log("\nDados de teste removidos.");
