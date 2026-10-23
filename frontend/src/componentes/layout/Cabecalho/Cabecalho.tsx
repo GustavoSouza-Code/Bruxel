@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Container } from "../Container/Container";
-import { useCarrinho } from "../../../contexto/ContextoCarrinho";
+import { useCarrinho } from "../../../contexto/useCarrinho";
 import { useBordasRolagem } from "../../../hooks/useBordasRolagem";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { MenuUsuario } from "../MenuUsuario/MenuUsuario";

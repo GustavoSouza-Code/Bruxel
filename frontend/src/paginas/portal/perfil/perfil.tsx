@@ -6,7 +6,7 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import type { Usuario } from "../../../tipos/usuario";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
-import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
+import { CAMPOS_ENDERECO, formatarEndereco, validarEndereco } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import { usePerfil } from "./usePerfil";
 import { AbaAtendimentos } from "./componentes/AbaAtendimentos/AbaAtendimentos";
@@ -121,6 +121,12 @@ export function PaginaPerfil() {
   async function saveEdit(event: React.FormEvent) {
     event.preventDefault();
     if (!draft) return;
+    // o backend responde 500 pra CEP/UF fora do formato; melhor avisar antes de enviar
+    const erroEndereco = validarEndereco(draft);
+    if (erroEndereco) {
+      setErroSalvar(erroEndereco);
+      return;
+    }
     setSalvando(true);
     setErroSalvar(null);
     try {

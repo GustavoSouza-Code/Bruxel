@@ -33,6 +33,22 @@ export class ErroApi extends Error {
   }
 }
 
+// Quem trata a sessão vencida. O ProvedorAutenticacao registra aqui o sair() ao
+// montar, assim qualquer 401 de uma rota protegida desloga em um lugar só, sem
+// cada hook repetir essa checagem.
+let aoSessaoExpirar: (() => void) | null = null;
+
+/**
+ * Registra a função chamada quando uma requisição COM token volta 401 (token
+ * vencido ou usuário apagado). Devolve a função que desfaz o registro.
+ */
+export function registrarSessaoExpirada(funcao: () => void): () => void {
+  aoSessaoExpirar = funcao;
+  return () => {
+    if (aoSessaoExpirar === funcao) aoSessaoExpirar = null;
+  };
+}
+
 interface OpcoesRequisicao {
   metodo?: "GET" | "POST" | "PUT" | "DELETE";
   /** objeto enviado como JSON no corpo */
@@ -68,7 +84,11 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
   // corpo vazio ou que não é JSON (ex.: página HTML de erro do Express) vira null
   const dados: unknown = await resposta.json().catch(() => null);
 
-  if (!resposta.ok) throw paraErroApi(resposta.status, dados);
+  if (!resposta.ok) {
+    // só conta como sessão vencida se mandamos token; 401 do login (sem token) é credencial errada
+    if (resposta.status === 401 && token) aoSessaoExpirar?.();
+    throw paraErroApi(resposta.status, dados);
+  }
   return dados as T;
 }
 
@@ -83,10 +103,34 @@ function paraErroApi(status: number, dados: unknown): ErroApi {
       : mensagem;
     return new ErroApi(status, texto, errosCampos);
   }
-  return new ErroApi(status, `Erro inesperado (status ${status}).`);
+  return new ErroApi(status, mensagemPadrao(status));
+}
+
+// texto pra quando o servidor não mandou um corpo { mensagem } (ex.: página HTML de erro, proxy fora do ar)
+function mensagemPadrao(status: number): string {
+  if (status === 401) return "Sua sessão expirou. Entre novamente.";
+  if (status === 403) return "Você não tem permissão para fazer isso.";
+  if (status === 404) return "Não encontramos o que você procurava.";
+  if (status === 409) return "Essa informação conflita com um registro que já existe.";
+  if (status >= 500) return "O servidor está com problemas. Tente novamente em instantes.";
+  return `Erro inesperado (status ${status}).`;
 }
 
 /** Texto pra mostrar na tela a partir de qualquer erro pego num catch. */
 export function mensagemDeErro(falha: unknown): string {
   return falha instanceof ErroApi ? falha.mensagem : "Algo deu errado. Tente novamente.";
+}
+
+/**
+ * Mensagens por campo de um erro de validação (400), pra destacar cada input.
+ * Ex.: { email: "O E-mail é obrigatório." }. Qualquer outro erro devolve {}.
+ */
+export function errosPorCampo(falha: unknown): Record<string, string> {
+  const resultado: Record<string, string> = {};
+  if (!(falha instanceof ErroApi) || !falha.erros) return resultado;
+  for (const { campo, mensagem } of falha.erros) {
+    // se o mesmo campo falhar duas vezes, vale a primeira mensagem
+    if (campo && !(campo in resultado)) resultado[campo] = mensagem.trim();
+  }
+  return resultado;
 }

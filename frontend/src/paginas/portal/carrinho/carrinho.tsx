@@ -2,7 +2,7 @@ import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { ItemCarrinho } from "./componentes/ItemCarrinho/ItemCarrinho";
-import { useCarrinho } from "../../../contexto/ContextoCarrinho";
+import { useCarrinho } from "../../../contexto/useCarrinho";
 import "./carrinho.css";
 
 /**
