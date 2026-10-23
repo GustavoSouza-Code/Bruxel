@@ -1,4 +1,4 @@
-import type { LinhaCarrinho } from "../../../../../contexto/ContextoCarrinho";
+import type { LinhaCarrinho } from "../../../../../contexto/useCarrinho";
 import "./ItemCarrinho.css";
 
 interface ItemCarrinhoProps {
