@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Produto } from "../../../tipos/produto";
-import { useCarrinho } from "../../../contexto/ContextoCarrinho";
+import { useCarrinho } from "../../../contexto/useCarrinho";
 import "./CardProduto.css";
 
 interface CardProdutoProps {

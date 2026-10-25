@@ -35,6 +35,17 @@
   font-weight: 600;
 }
 
+/* borda e mensagem de um campo que o backend recusou */
+.formulario-cadastro input[aria-invalid="true"] {
+  border-color: #c0392b;
+}
+
+.formulario-cadastro__erro-campo {
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
 .formulario-cadastro__enviar {
   background-color: var(--color-primary);
   color: var(--color-white);

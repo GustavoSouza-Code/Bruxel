@@ -49,6 +49,19 @@ export function formatarEndereco(endereco: Pick<Usuario, Exclude<ParteEndereco, 
   return [logradouro, endereco.bairro, cidadeUf].filter(Boolean).join(" - ");
 }
 
+/**
+ * Confere o que o banco recusa e que o backend ainda não valida (hoje CEP ou
+ * UF fora do formato viram erro 500). Campo vazio é permitido (vira null).
+ * Devolve a mensagem do primeiro problema, ou null se está tudo certo.
+ */
+export function validarEndereco(endereco: Pick<Usuario, "estado" | "cep">): string | null {
+  const cep = endereco.cep?.trim();
+  if (cep && !/^\d{8}$/.test(cep)) return "O CEP deve ter 8 dígitos.";
+  const uf = endereco.estado?.trim();
+  if (uf && !/^[A-Za-z]{2}$/.test(uf)) return "A UF deve ter 2 letras (ex.: RS).";
+  return null;
+}
+
 // texto vazio vira null: assim o PUT apaga o valor no banco em vez de gravar ""
 function vazioParaNull(valor?: string | null) {
   const texto = valor?.trim();

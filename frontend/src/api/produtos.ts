@@ -68,9 +68,10 @@ export async function listarProdutos(): Promise<Produto[]> {
 }
 
 /**
- * Recado pro backend: o POST /products só guarda categoria_id, nome, codigo e
- * preco. Por isso criamos e em seguida fazemos um PUT com o resto (descricao,
- * estoque, url_imagem, ativo). Quando o POST aceitar tudo, dá pra tirar o PUT.
+ * Na main, o POST /products só guarda categoria_id, nome, codigo e preco. Por
+ * isso criamos e em seguida fazemos um PUT com o resto (descricao, estoque,
+ * url_imagem, ativo). A branch refatoracao-backend já aceita tudo no POST: quando
+ * ela for mergeada, dá pra mandar o corpo completo no POST e tirar o PUT.
  */
 export async function criarProduto(token: string, dados: DadosProduto): Promise<Produto> {
   const criado = await requisicao<ProdutoApi>("/products", {

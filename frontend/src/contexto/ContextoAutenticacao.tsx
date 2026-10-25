@@ -1,6 +1,7 @@
-import { startTransition, useCallback, useMemo, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { fazerLogin } from "../api/autenticacao";
+import { registrarSessaoExpirada } from "../api/cliente";
 import { ContextoAutenticacao } from "./useAutenticacao";
 import type { ValorContextoAutenticacao } from "./useAutenticacao";
 import { apagarSessao, lerSessao, salvarSessao } from "./sessao";
@@ -36,6 +37,11 @@ export function ProvedorAutenticacao({ children }: { children: ReactNode }) {
     // página antiga, e o RotaLogado/RotaAdmin mandaria pro /entrar em vez de ir pro "/"
     startTransition(() => setSessao(null));
   }, []);
+
+  // qualquer 401 de rota protegida (token vencido, usuário apagado) cai aqui e encerra a
+  // sessão; o RotaLogado/RotaAdmin então manda pro /entrar. Por isso os hooks de CRUD
+  // não precisam mais checar o 401 um a um
+  useEffect(() => registrarSessaoExpirada(sair), [sair]);
 
   // o Cabecalho lê o nome daqui, então editar o perfil precisa refletir na sessão também
   const atualizarDadosSessao = useCallback((usuario: UsuarioSessao) => {
