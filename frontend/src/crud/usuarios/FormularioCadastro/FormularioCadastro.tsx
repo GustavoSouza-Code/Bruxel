@@ -159,6 +159,7 @@ export function FormularioCadastro({
             limparErroCampo("senha");
           }}
           autoComplete="new-password"
+          minLength={8}
           aria-invalid={invalido("senha")}
           required
         />
@@ -172,6 +173,7 @@ export function FormularioCadastro({
           value={confirmarSenha}
           onChange={(e) => setConfirmarSenha(e.target.value)}
           autoComplete="new-password"
+          minLength={8}
           required
         />
       </label>

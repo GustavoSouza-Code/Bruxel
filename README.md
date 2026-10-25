@@ -93,7 +93,7 @@ Se você já estava logado com essa conta, saia e entre de novo para o site reco
 
 ## Banco de dados
 
-O schema tem sete tabelas: `users`, `products`, `categories`, `favorites`, `orders`, `order_items` e `appointments`. O DDL completo está versionado como a migração inicial em `prisma/migrations/0_init`.
+O schema tem oito tabelas: `users`, `products`, `categories`, `favorites`, `orders`, `order_items`, `appointments` e `appointment_items`. `appointments` guarda o pedido de atendimento e os dados da Ordem de Serviço (OS), e `appointment_items` guarda os produtos usados nela. O DDL completo está versionado nas migrações em `prisma/migrations`.
 
 ## Autenticação
 

@@ -1,33 +1,32 @@
-export interface regraValidacao {
+export interface RegraValidacao {
     campo: string;
     mensagem: string;
 }
 
-interface erroValidacao {
+export interface ErroValidacao {
     campo: string;
     mensagem: string;
 }
 
+// devolve os campos ausentes ou vazios para o service montar o erro 400
 export function validarCamposObrigatorios(
-    dados: Record<string, any>,
-    regras: regraValidacao[]
-): erroValidacao[] {
-    const erros: erroValidacao[] = [];
+    dados: object,
+    regras: RegraValidacao[]
+): ErroValidacao[] {
+    const valores = dados as Record<string, unknown>;
+    const erros: ErroValidacao[] = [];
 
     for (const regra of regras) {
-        const valor = dados[regra.campo];
+        const valor = valores[regra.campo];
 
         const estaVazio =
             valor === undefined ||
             valor === null ||
-            (typeof valor === 'string' && valor.trim() === '') ||
+            (typeof valor === "string" && valor.trim() === "") ||
             (Array.isArray(valor) && valor.length === 0);
 
         if (estaVazio) {
-            erros.push({
-                campo: regra.campo,
-                mensagem: regra.mensagem,
-            });
+            erros.push({ campo: regra.campo, mensagem: regra.mensagem });
         }
     }
 

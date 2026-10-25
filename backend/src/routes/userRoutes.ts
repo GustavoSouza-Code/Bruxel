@@ -3,8 +3,8 @@ import { UserController } from "../controller/userController";
 import { verificaToken } from "../middleware/verificaToken";
 import { verificaAdmin } from "../middleware/verificaAdmin";
 
-// rotas de usuário
-
+// cadastro público; listagem e exclusão exigem admin.
+// Leitura e edição de um usuário são liberadas no controller para ele mesmo ou para o admin.
 const router = Router();
 const userController = new UserController();
 
