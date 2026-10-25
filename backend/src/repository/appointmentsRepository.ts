@@ -29,10 +29,17 @@ export class AppointmentsRepository {
 
     // grava o pedido já validado pelo service
     async create(dados: DadosCriacaoAtendimento) {
-        return prisma.appointments.create({
-            data: dados,
-            include: incluirRelacionamentos,
-        });
+        try {
+            return await prisma.appointments.create({
+                data: dados,
+                include: incluirRelacionamentos,
+            });
+        } catch (erro) {
+            if (erro instanceof Prisma.PrismaClientKnownRequestError && erro.code === "P2002") {
+                throw new AppError(409, "Esse técnico já tem um atendimento nesse horário.");
+            }
+            throw erro;
+        }
     }
 
     // listagem geral usada pela gestão
@@ -153,18 +160,20 @@ export class AppointmentsRepository {
         dados: { observacoes_tecnico?: string | null; valor_mao_de_obra?: string | null },
         itens?: ItemOsComPreco[]
     ) {
-        return prisma.$transaction(async (tx) => {
-            if (itens !== undefined) {
-                // trava a linha e confirma o status dentro da transação, evitando
-                // trocar itens enquanto a OS é concluída por outra requisição
-                const emAndamento = await tx.appointments.updateMany({
-                    where: { id, status: "EM_ANDAMENTO" },
-                    data: { atualizado_em: new Date() },
-                });
-                if (emAndamento.count === 0) {
-                    throw new AppError(409, "Os produtos da OS não podem mais ser alterados.");
-                }
+        const statusPermitidos: status_agendamento[] =
+            itens !== undefined ? ["EM_ANDAMENTO"] : ["EM_ANDAMENTO", "CONCLUIDO"];
 
+        return prisma.$transaction(async (tx) => {
+            const atualizada = await tx.appointments.updateMany({
+                where: { id, status: { in: statusPermitidos }, pago_em: null },
+                data: dados,
+            });
+
+            if (atualizada.count === 0) {
+                throw new AppError(409, "A OS não pode mais ser alterada nessa situação.");
+            }
+
+            if (itens !== undefined) {
                 await tx.appointment_items.deleteMany({ where: { appointment_id: id } });
 
                 if (itens.length > 0) {
@@ -179,8 +188,6 @@ export class AppointmentsRepository {
                 }
             }
 
-            await tx.appointments.update({ where: { id }, data: dados });
-
             return tx.appointments.findUniqueOrThrow({
                 where: { id },
                 include: incluirRelacionamentos,
@@ -189,9 +196,17 @@ export class AppointmentsRepository {
     }
 
     async marcarPago(id: string) {
-        return prisma.appointments.update({
-            where: { id },
+        const resultado = await prisma.appointments.updateMany({
+            where: { id, status: "CONCLUIDO", pago_em: null },
             data: { pago_em: new Date() },
+        });
+
+        if (resultado.count === 0) {
+            throw new AppError(409, "A ordem não está concluída ou o pagamento já foi registrado.");
+        }
+
+        return prisma.appointments.findUniqueOrThrow({
+            where: { id },
             include: incluirRelacionamentos,
         });
     }
