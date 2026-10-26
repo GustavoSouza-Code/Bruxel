@@ -21,6 +21,8 @@ export interface ValorContextoCarrinho {
   removerItem: (produtoId: string) => void;
   /** define a quantidade exata; abaixo de 1 o item é removido */
   atualizarQuantidade: (produtoId: string, quantidade: number) => void;
+  /** esvazia o carrinho (depois que a compra é fechada) */
+  limparCarrinho: () => void;
 }
 
 // começa como null pra useCarrinho() conseguir detectar o uso fora do ProvedorCarrinho.

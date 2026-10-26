@@ -52,6 +52,10 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
     );
   }
 
+  function limparCarrinho() {
+    setItems([]);
+  }
+
   // totais derivados dos itens; o useMemo só recalcula quando `itens` muda, não a cada renderização
   const quantidadeItens = useMemo(
     () => itens.reduce((sum, item) => sum + item.quantidade, 0),
@@ -69,7 +73,7 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
 
   return (
     <ContextoCarrinho.Provider
-      value={{ itens, quantidadeItens, total, adicionarItem, removerItem, atualizarQuantidade }}
+      value={{ itens, quantidadeItens, total, adicionarItem, removerItem, atualizarQuantidade, limparCarrinho }}
     >
       {children}
     </ContextoCarrinho.Provider>

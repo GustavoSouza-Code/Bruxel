@@ -2,16 +2,17 @@ import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { ItemCarrinho } from "./componentes/ItemCarrinho/ItemCarrinho";
+import { FinalizarCompra } from "./componentes/FinalizarCompra/FinalizarCompra";
 import { useCarrinho } from "../../../contexto/useCarrinho";
 import "./carrinho.css";
 
 /**
  * Carrinho de compras (rota "/carrinho"): lista os itens com controle de
- * quantidade e mostra o resumo do pedido. Sem itens, mostra uma mensagem
- * com link pra Loja.
+ * quantidade e, ao lado, o resumo com o fechamento da compra (FinalizarCompra).
+ * Sem itens, mostra uma mensagem com link pra Loja.
  */
 export function PaginaCarrinho() {
-  const { itens, total, removerItem, atualizarQuantidade } = useCarrinho();
+  const { itens, removerItem, atualizarQuantidade } = useCarrinho();
 
   return (
     <>
@@ -46,20 +47,7 @@ export function PaginaCarrinho() {
                 ))}
               </div>
 
-              <aside className="pagina-carrinho__resumo">
-                <h2>Finalizar compra</h2>
-                {/* TODO: hoje "Produtos" e "Total" são iguais; frete e desconto ainda não existem */}
-                <div className="pagina-carrinho__linha-resumo">
-                  <span>Produtos</span>
-                  <span>R$ {total.toFixed(2).replace(".", ",")}</span>
-                </div>
-                <div className="pagina-carrinho__linha-resumo pagina-carrinho__linha-resumo--total">
-                  <span>Total</span>
-                  <span>R$ {total.toFixed(2).replace(".", ",")}</span>
-                </div>
-                {/* TODO: ligar ao fechamento do pedido quando existir; o botão ainda não faz nada */}
-                <button className="pagina-carrinho__continuar">Continuar</button>
-              </aside>
+              <FinalizarCompra />
             </div>
           )}
         </Container>

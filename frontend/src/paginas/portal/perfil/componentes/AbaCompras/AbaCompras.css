@@ -1,0 +1,22 @@
+/* a lista usa os cards do perfil.css; aqui só tira o estilo padrão do <ul> */
+.aba-compras__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* nomes dos produtos do pedido, numa linha só embaixo da data */
+.aba-compras__produtos {
+  overflow-wrap: anywhere;
+}
+
+/* aviso verde que aparece depois de fechar uma compra */
+.aba-compras__aviso {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background-color: #e3f5e8;
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
