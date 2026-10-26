@@ -1,32 +1,35 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
-import type { EscolhaCliente } from "../../../../../crud/atendimentos/clienteDaLoja";
+import { Link } from "react-router-dom";
+import type { Usuario } from "../../../../../tipos/usuario";
 import { buscarClientes, mascararCpf } from "../../../../../crud/atendimentos/clienteDaLoja";
 import { useUsuarios } from "../../../../../crud/usuarios/useUsuarios";
 import "./SeletorCliente.css";
 
 interface SeletorClienteProps {
-  escolha: EscolhaCliente;
-  onChange: (escolha: EscolhaCliente) => void;
+  /** conta escolhida; null = ninguém ainda */
+  cliente: Usuario | null;
+  onChange: (cliente: Usuario | null) => void;
 }
 
 /**
  * Bloco "Cliente", que só o administrador vê ao abrir um atendimento pela loja:
- * busca o cliente entre as contas cadastradas (nome, e-mail ou CPF) ou, se a
- * pessoa não tem conta, deixa digitar só o nome.
+ * busca o cliente entre as contas cadastradas (nome, e-mail ou CPF). O backend
+ * só abre pedido pra conta cadastrada, então quem não tem conta é cadastrado
+ * antes, pelo link pra gestão de usuários.
  *
  * Usa o useUsuarios (GET /users, só de administrador): por isso a página só monta
  * este componente quando quem está logado é admin.
  */
-export function SeletorCliente({ escolha, onChange }: SeletorClienteProps) {
+export function SeletorCliente({ cliente, onChange }: SeletorClienteProps) {
   const { usuarios, carregando, erro, recarregar } = useUsuarios();
   // o que está digitado na busca (só existe enquanto ninguém foi escolhido)
   const [termo, setTermo] = useState("");
   const sugestoes = buscarClientes(usuarios, termo);
 
-  function escolher(usuario: (typeof sugestoes)[number]) {
+  function escolher(usuario: Usuario) {
     setTermo("");
-    onChange({ tipo: "cadastrado", usuario });
+    onChange(usuario);
   }
 
   // Enter na busca escolhe a primeira sugestão; sem isso ele enviaria o formulário inteiro
@@ -36,33 +39,7 @@ export function SeletorCliente({ escolha, onChange }: SeletorClienteProps) {
     if (sugestoes[0]) escolher(sugestoes[0]);
   }
 
-  if (escolha.tipo === "sem-cadastro") {
-    return (
-      <div className="seletor-cliente">
-        <label className="seletor-cliente__campo">
-          Nome do cliente
-          <input
-            type="text"
-            value={escolha.nome}
-            onChange={(e) => onChange({ tipo: "sem-cadastro", nome: e.target.value })}
-            maxLength={150}
-            placeholder="Ex.: Maria Oliveira"
-            autoComplete="off"
-          />
-        </label>
-        <button
-          type="button"
-          className="seletor-cliente__link"
-          onClick={() => onChange({ tipo: "cadastrado", usuario: null })}
-        >
-          Buscar cliente cadastrado
-        </button>
-      </div>
-    );
-  }
-
-  if (escolha.usuario) {
-    const cliente = escolha.usuario;
+  if (cliente) {
     return (
       <div className="seletor-cliente">
         <div className="seletor-cliente__escolhido">
@@ -78,7 +55,7 @@ export function SeletorCliente({ escolha, onChange }: SeletorClienteProps) {
           <button
             type="button"
             className="seletor-cliente__trocar"
-            onClick={() => onChange({ tipo: "cadastrado", usuario: null })}
+            onClick={() => onChange(null)}
           >
             Trocar
           </button>
@@ -111,7 +88,7 @@ export function SeletorCliente({ escolha, onChange }: SeletorClienteProps) {
         </p>
       ) : termo.trim().length >= 2 && sugestoes.length === 0 ? (
         <p className="seletor-cliente__estado">
-          Nenhum cliente encontrado. Se ele não tiver conta, use 'Cliente sem cadastro'.
+          Nenhum cliente encontrado. Se ele ainda não tem conta, cadastre antes.
         </p>
       ) : (
         sugestoes.length > 0 && (
@@ -128,13 +105,17 @@ export function SeletorCliente({ escolha, onChange }: SeletorClienteProps) {
         )
       )}
 
-      <button
-        type="button"
-        className="seletor-cliente__link"
-        onClick={() => onChange({ tipo: "sem-cadastro", nome: "" })}
-      >
-        Cliente sem cadastro? Digitar o nome
-      </button>
+      {/* abre em outra aba pra não perder o que já foi preenchido aqui; depois de cadastrar,
+          "Atualizar lista" busca as contas de novo */}
+      <p className="seletor-cliente__estado">
+        Cliente sem conta?{" "}
+        <Link to="/admin/usuarios" target="_blank" rel="noreferrer" className="seletor-cliente__link">
+          Cadastrar na gestão de usuários
+        </Link>{" "}
+        <button type="button" className="seletor-cliente__link" onClick={recarregar}>
+          Atualizar lista
+        </button>
+      </p>
     </div>
   );
 }

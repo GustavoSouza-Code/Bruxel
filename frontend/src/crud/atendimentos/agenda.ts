@@ -1,10 +1,5 @@
-import type { HorarioVisita, StatusAtendimento } from "../../tipos/atendimento";
-import type { Ocupacao } from "../../tipos/tecnico";
-import { INDISPONIBILIDADES_FIXAS, TECNICOS } from "../../dados/tecnicos";
+import type { HorarioVisita } from "../../tipos/atendimento";
 import { formatarData, paraDataIso } from "./datasAtendimento";
-
-/** Valor da escolha de atendente quando o cliente não liga pra quem vem. */
-export const SEM_PREFERENCIA = "qualquer";
 
 // blocos de 2h dentro do horário de funcionamento (o mesmo do rodapé)
 const HORARIOS_SEMANA: HorarioVisita[] = ["08:00", "10:00", "13:30", "15:30"];
@@ -37,63 +32,10 @@ export function horariosDoDia(data: string): HorarioVisita[] {
   return diaSemana === 6 ? HORARIOS_SABADO : HORARIOS_SEMANA;
 }
 
-/** Os horários que os pedidos ocupam; pedido cancelado ou recusado libera o horário. */
-export function ocupacoesDosAtendimentos(
-  pedidos: (Ocupacao & { status: StatusAtendimento })[]
-): Ocupacao[] {
-  return pedidos
-    .filter((pedido) => pedido.status !== "cancelado" && pedido.status !== "recusado")
-    .map(({ tecnicoId, data, horario }) => ({ tecnicoId, data, horario }));
-}
-
-/** Se o atendente pode ir naquele dia e horário: sem compromisso fixo e sem pedido ocupando. */
-export function tecnicoEstaLivre(
-  tecnicoId: string,
-  data: string,
-  horario: HorarioVisita,
-  ocupacoes: Ocupacao[]
-) {
-  const diaSemana = diaDaSemana(data);
-  const temCompromissoFixo = INDISPONIBILIDADES_FIXAS.some(
-    (fixa) => fixa.tecnicoId === tecnicoId && fixa.diaSemana === diaSemana && fixa.horario === horario
-  );
-  if (temCompromissoFixo) return false;
-  return !ocupacoes.some(
-    (ocupacao) =>
-      ocupacao.tecnicoId === tecnicoId && ocupacao.data === data && ocupacao.horario === horario
-  );
-}
-
-/** O primeiro atendente livre (na ordem de TECNICOS) naquele dia e horário, ou null se nenhum está. */
-export function primeiroTecnicoLivre(data: string, horario: HorarioVisita, ocupacoes: Ocupacao[]) {
-  return TECNICOS.find((tecnico) => tecnicoEstaLivre(tecnico.id, data, horario, ocupacoes))?.id ?? null;
-}
-
-/** Se o horário serve pra escolha: o atendente escolhido está livre ou, sem preferência, algum está. */
-export function horarioEstaLivre(
-  escolha: string,
-  data: string,
-  horario: HorarioVisita,
-  ocupacoes: Ocupacao[]
-) {
-  return escolha === SEM_PREFERENCIA
-    ? primeiroTecnicoLivre(data, horario, ocupacoes) !== null
-    : tecnicoEstaLivre(escolha, data, horario, ocupacoes);
-}
-
-/** Se o dia tem pelo menos um horário livre pra escolha (senão ele fica apagado na faixa de dias). */
-export function diaTemHorarioLivre(escolha: string, data: string, ocupacoes: Ocupacao[]) {
-  return horariosDoDia(data).some((horario) => horarioEstaLivre(escolha, data, horario, ocupacoes));
-}
-
-/** "21/10/2026 às 13:30 com Carlos" */
-export function formatarAgendamento(data: string, horario: HorarioVisita, nomeTecnico: string) {
-  return `${formatarData(data)} às ${horario} com ${nomeTecnico}`;
-}
-
-/** Nome do atendente pelo id; se não achar (ex.: dado antigo), mostra o próprio id. */
-export function nomeDoTecnico(tecnicoId: string) {
-  return TECNICOS.find((tecnico) => tecnico.id === tecnicoId)?.nome ?? tecnicoId;
+/** "21/10/2026 às 13:30 com Carlos"; sem técnico definido, só "21/10/2026 às 13:30". */
+export function formatarAgendamento(data: string, horario: string, nomeTecnico: string | null) {
+  const quando = `${formatarData(data)} às ${horario}`;
+  return nomeTecnico ? `${quando} com ${nomeTecnico}` : quando;
 }
 
 /** Pedaços de um dia pra faixa de dias: "2026-10-14" → { semana: "Qua", dia: "14" }. */

@@ -20,3 +20,11 @@ export const STATUS_LABELS: Record<StatusAtendimento, string> = {
   cancelado: "Cancelado",
   recusado: "Recusado",
 };
+
+/**
+ * Código curto do atendimento pra tela e pro WhatsApp: o id é um UUID e os 8
+ * primeiros caracteres já bastam pra achar o pedido. A tela põe o "#" na frente.
+ */
+export function codigoAtendimento(id: string) {
+  return id.slice(0, 8).toUpperCase();
+}

@@ -1,18 +1,5 @@
-import type { ClienteDoAtendimento } from "../../tipos/atendimento";
 import type { Usuario } from "../../tipos/usuario";
 import { FILTROS_USUARIO_INICIAIS, filtrarUsuarios } from "../usuarios/filtrarUsuarios";
-
-/**
- * Quem é o cliente quando um administrador abre o atendimento pela loja: uma conta
- * cadastrada (escolhida na busca; null enquanto não escolheu) ou só o nome de quem
- * não tem conta.
- */
-export type EscolhaCliente =
-  | { tipo: "cadastrado"; usuario: Usuario | null }
-  | { tipo: "sem-cadastro"; nome: string };
-
-/** O bloco "Cliente" começa na busca, sem ninguém escolhido. */
-export const ESCOLHA_CLIENTE_INICIAL: EscolhaCliente = { tipo: "cadastrado", usuario: null };
 
 // a partir de quantas letras a busca começa a sugerir, e quantas sugestões no máximo
 const MIN_LETRAS_BUSCA = 2;
@@ -30,19 +17,12 @@ export function buscarClientes(usuarios: Usuario[], termo: string): Usuario[] {
   );
 }
 
-/** O problema com a escolha do cliente, ou null se dá pra enviar. */
-export function validarClienteDaLoja(escolha: EscolhaCliente): string | null {
-  if (escolha.tipo === "cadastrado") {
-    return escolha.usuario ? null : "Escolha o cliente ou digite o nome de quem não tem cadastro.";
-  }
-  return escolha.nome.trim().length >= 3 ? null : "Informe o nome do cliente (pelo menos 3 letras).";
-}
-
-/** O cliente que vai no pedido: a conta escolhida, ou só o nome (sem id) de quem não tem conta. */
-export function clienteDoAtendimento(escolha: EscolhaCliente): ClienteDoAtendimento {
-  if (escolha.tipo === "sem-cadastro") return { id: null, nome: escolha.nome.trim() };
-  // depois do validarClienteDaLoja sempre tem usuário; o "?? " é só pro TypeScript
-  return { id: escolha.usuario?.id ?? null, nome: escolha.usuario?.nome ?? "" };
+/**
+ * O problema com a escolha do cliente, ou null se dá pra enviar. O backend só
+ * abre pedido pra uma conta cadastrada (ver o recado no spec).
+ */
+export function validarClienteDaLoja(cliente: Usuario | null): string | null {
+  return cliente ? null : "Escolha o cliente. Quem ainda não tem conta precisa ser cadastrado antes.";
 }
 
 /**

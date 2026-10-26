@@ -184,3 +184,27 @@
     flex: 1 1 100%;
   }
 }
+
+/* erro vermelho quando o backend recusa uma ação (ex.: estoque insuficiente ao concluir) */
+.pagina-admin-atendimento__erro-acao {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background-color: #fdecea;
+  color: #c0392b;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+/* "Salvar OS" + o aviso de que tem coisa sem salvar, embaixo dos blocos da OS */
+.pagina-admin-atendimento__salvar-os {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pagina-admin-atendimento__botao:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

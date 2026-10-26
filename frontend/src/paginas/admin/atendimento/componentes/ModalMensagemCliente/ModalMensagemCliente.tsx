@@ -1,15 +1,17 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Modal } from "../../../../../componentes/ui/Modal/Modal";
+import { mensagemDeErro } from "../../../../../api/cliente";
 import { MENSAGEM_CLIENTE_MAX, validarMensagemCliente } from "../../../../../crud/atendimentos/andamento";
+import { codigoAtendimento } from "../../../../../crud/atendimentos/opcoesAtendimento";
 import "../../../lista-admin.css";
 import "./ModalMensagemCliente.css";
 
 interface ModalMensagemClienteProps {
   acao: "recusar" | "cancelar";
   idAtendimento: string;
-  /** recebe a mensagem já validada */
-  onEnviar: (mensagem: string) => void;
+  /** recebe a mensagem já validada e grava no backend; se lançar erro, a janela continua aberta com ele */
+  onEnviar: (mensagem: string) => Promise<void>;
   onFechar: () => void;
 }
 
@@ -20,21 +22,31 @@ interface ModalMensagemClienteProps {
 export function ModalMensagemCliente({ acao, idAtendimento, onEnviar, onFechar }: ModalMensagemClienteProps) {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
   const recusando = acao === "recusar";
+  const codigo = codigoAtendimento(idAtendimento);
 
-  function enviar(evento: FormEvent) {
+  async function enviar(evento: FormEvent) {
     evento.preventDefault();
+    if (enviando) return;
     const problema = validarMensagemCliente(mensagem);
     if (problema) {
       setErro(problema);
       return;
     }
-    onEnviar(mensagem);
+    setEnviando(true);
+    try {
+      await onEnviar(mensagem);
+    } catch (falha) {
+      // a mensagem digitada continua no campo pra tentar de novo
+      setErro(mensagemDeErro(falha));
+      setEnviando(false);
+    }
   }
 
   return (
     <Modal
-      titulo={recusando ? `Recusar o pedido #${idAtendimento}` : `Cancelar o atendimento #${idAtendimento}`}
+      titulo={recusando ? `Recusar o pedido #${codigo}` : `Cancelar o atendimento #${codigo}`}
       onFechar={onFechar}
     >
       {/* noValidate: o erro vem do validarMensagemCliente, não dos balões do navegador */}
@@ -73,8 +85,8 @@ export function ModalMensagemCliente({ acao, idAtendimento, onEnviar, onFechar }
           <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={onFechar}>
             Voltar
           </button>
-          <button type="submit" className="modal-mensagem-cliente__confirmar">
-            {recusando ? "Recusar pedido" : "Cancelar atendimento"}
+          <button type="submit" className="modal-mensagem-cliente__confirmar" disabled={enviando}>
+            {enviando ? "Enviando…" : recusando ? "Recusar pedido" : "Cancelar atendimento"}
           </button>
         </div>
       </form>

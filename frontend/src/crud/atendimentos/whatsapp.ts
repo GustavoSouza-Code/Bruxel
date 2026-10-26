@@ -1,4 +1,5 @@
 import type { Atendimento } from "../../tipos/atendimento";
+import { codigoAtendimento } from "./opcoesAtendimento";
 
 function primeiroNome(nome: string) {
   return nome.trim().split(/\s+/)[0] ?? "";
@@ -20,10 +21,10 @@ export function linkWhatsApp(telefone: string, texto: string): string | null {
 
 /** Abertura da conversa a partir do cartão do cliente na OS. */
 export function textoSaudacao(atendimento: Pick<Atendimento, "id" | "cliente">) {
-  return `Olá, ${primeiroNome(atendimento.cliente.nome)}! Aqui é da Bruxel Piscinas, sobre o seu pedido de atendimento #${atendimento.id}.`;
+  return `Olá, ${primeiroNome(atendimento.cliente.nome)}! Aqui é da Bruxel Piscinas, sobre o seu pedido de atendimento #${codigoAtendimento(atendimento.id)}.`;
 }
 
 /** A mensagem da recusa ou do cancelamento, pronta pra mandar no WhatsApp. */
 export function textoMensagemCliente(atendimento: Pick<Atendimento, "id" | "cliente" | "mensagemCliente">) {
-  return `Olá, ${primeiroNome(atendimento.cliente.nome)}! Sobre o seu pedido de atendimento #${atendimento.id} na Bruxel Piscinas: ${atendimento.mensagemCliente ?? ""}`;
+  return `Olá, ${primeiroNome(atendimento.cliente.nome)}! Sobre o seu pedido de atendimento #${codigoAtendimento(atendimento.id)} na Bruxel Piscinas: ${atendimento.mensagemCliente ?? ""}`;
 }

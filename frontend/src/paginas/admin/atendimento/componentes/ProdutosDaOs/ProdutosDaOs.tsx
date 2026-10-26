@@ -1,41 +1,57 @@
 import { useMemo, useState } from "react";
 import { useProdutos } from "../../../../../crud/produtos/useProdutos";
+import { mensagemDeErro } from "../../../../../api/cliente";
 import {
   adicionarProduto,
   formatarReais,
-  maoDeObraParaTexto,
-  paraValorEmReais,
   quantidadeNaOs,
   removerProduto,
   subtotalProduto,
-  totalOs,
-  validarMaoDeObra,
+  totalProdutos,
   validarQuantidade,
 } from "../../../../../crud/atendimentos/valorOs";
-import type { CamposOs } from "../../../../../crud/atendimentos/andamento";
-import type { Atendimento } from "../../../../../tipos/atendimento";
+import type { Atendimento, ProdutoUsado } from "../../../../../tipos/atendimento";
 import "../../../lista-admin.css";
 import "./ProdutosDaOs.css";
 
 interface ProdutosDaOsProps {
   atendimento: Atendimento;
-  /** false = OS fechada (paga) ou ainda não começou: só leitura */
-  editavel: boolean;
-  onMudar: (campos: CamposOs) => void;
+  /** true só com o atendimento em andamento: depois de concluído o estoque já baixou */
+  produtosEditaveis: boolean;
+  /** true enquanto a OS ainda aceita mão de obra (em andamento ou concluída sem pagamento) */
+  maoDeObraEditavel: boolean;
+  /** texto do campo de mão de obra (o rascunho fica na página, junto com as observações) */
+  textoMaoDeObra: string;
+  onMudarMaoDeObra: (texto: string) => void;
+  erroMaoDeObra: string | null;
+  /** mão de obra que entra no total: a do rascunho, se for válida, ou a salva */
+  valorMaoDeObra: number | null;
+  /** grava a lista inteira de produtos na OS (PUT); lança o erro da API se falhar */
+  onSalvarProdutos: (produtos: ProdutoUsado[]) => Promise<unknown>;
+  /** true enquanto alguma gravação da OS está em andamento */
+  salvando: boolean;
 }
 
 /**
- * Produtos da loja usados no serviço, a mão de obra e o total da OS. O estoque
- * só é conferido (não dá pra lançar mais do que tem); a baixa é do backend.
+ * Produtos da loja usados no serviço, a mão de obra e o total da OS. Cada
+ * produto adicionado ou removido já é gravado no banco; o estoque só baixa
+ * quando o atendimento é concluído (o backend confere de novo nessa hora).
  */
-export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsProps) {
+export function ProdutosDaOs({
+  atendimento,
+  produtosEditaveis,
+  maoDeObraEditavel,
+  textoMaoDeObra,
+  onMudarMaoDeObra,
+  erroMaoDeObra,
+  valorMaoDeObra,
+  onSalvarProdutos,
+  salvando,
+}: ProdutosDaOsProps) {
   const { produtos, carregando, erro } = useProdutos();
   const [produtoId, setProdutoId] = useState("");
   const [quantidade, setQuantidade] = useState("1");
   const [erroProduto, setErroProduto] = useState<string | null>(null);
-  // o campo guarda o texto digitado; o valor só vai pra OS quando é um valor válido
-  const [textoMaoDeObra, setTextoMaoDeObra] = useState(() => maoDeObraParaTexto(atendimento.valorMaoDeObra));
-  const [erroMaoDeObra, setErroMaoDeObra] = useState<string | null>(null);
 
   // só os produtos ativos, em ordem alfabética
   const disponiveis = useMemo(
@@ -43,38 +59,37 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
     [produtos]
   );
   const usados = atendimento.produtosUsados;
+  const total = (valorMaoDeObra ?? 0) + totalProdutos(usados);
 
-  function adicionar() {
+  async function salvarLista(lista: ProdutoUsado[]) {
+    try {
+      await onSalvarProdutos(lista);
+      setErroProduto(null);
+      return true;
+    } catch (falha) {
+      // ex.: estoque insuficiente (409) ou a OS mudou de situação noutra aba
+      setErroProduto(mensagemDeErro(falha));
+      return false;
+    }
+  }
+
+  async function adicionar() {
     const produto = disponiveis.find((item) => item.id === produtoId);
     if (!produto) {
       setErroProduto("Escolha um produto.");
       return;
     }
     const qtd = Number(quantidade);
+    // aviso rápido com o estoque da tela; quem barra de verdade é o backend
     const problema = validarQuantidade(qtd, produto.estoque, quantidadeNaOs(usados, produto.id));
     if (problema) {
       setErroProduto(problema);
       return;
     }
-    onMudar({ produtosUsados: adicionarProduto(usados, produto, qtd) });
-    setProdutoId("");
-    setQuantidade("1");
-    setErroProduto(null);
-  }
-
-  function mudarMaoDeObra(texto: string) {
-    setTextoMaoDeObra(texto);
-    const problema = validarMaoDeObra(texto);
-    setErroMaoDeObra(problema);
-    if (!problema) onMudar({ valorMaoDeObra: paraValorEmReais(texto) });
-  }
-
-  // ao sair do campo com um texto que não vale, ele volta pro valor que está na OS:
-  // o que fica na tela é sempre o que vai ser cobrado
-  function sairDaMaoDeObra() {
-    if (!validarMaoDeObra(textoMaoDeObra)) return;
-    setTextoMaoDeObra(maoDeObraParaTexto(atendimento.valorMaoDeObra));
-    setErroMaoDeObra(null);
+    if (await salvarLista(adicionarProduto(usados, produto, qtd))) {
+      setProdutoId("");
+      setQuantidade("1");
+    }
   }
 
   return (
@@ -90,11 +105,12 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
                 {usado.quantidade} × {formatarReais(usado.precoUnitario)}
               </span>
               <strong className="produtos-os__subtotal">{formatarReais(subtotalProduto(usado))}</strong>
-              {editavel && (
+              {produtosEditaveis && (
                 <button
                   type="button"
                   className="produtos-os__remover"
-                  onClick={() => onMudar({ produtosUsados: removerProduto(usados, usado.produtoId) })}
+                  onClick={() => salvarLista(removerProduto(usados, usado.produtoId))}
+                  disabled={salvando}
                   aria-label={`Remover ${usado.nome}`}
                 >
                   Remover
@@ -105,7 +121,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
         </ul>
       )}
 
-      {editavel && (
+      {produtosEditaveis && (
         <div className="produtos-os__adicionar">
           <label className="produtos-os__campo produtos-os__campo--produto">
             Produto
@@ -144,19 +160,24 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
               }}
             />
           </label>
-          <button type="button" className="lista-admin__botao produtos-os__botao-adicionar" onClick={adicionar}>
-            Adicionar
+          <button
+            type="button"
+            className="lista-admin__botao produtos-os__botao-adicionar"
+            onClick={adicionar}
+            disabled={salvando}
+          >
+            {salvando ? "Salvando…" : "Adicionar"}
           </button>
-          {erroProduto && (
-            <p className="produtos-os__erro" role="alert">
-              {erroProduto}
-            </p>
-          )}
         </div>
+      )}
+      {erroProduto && (
+        <p className="produtos-os__erro" role="alert">
+          {erroProduto}
+        </p>
       )}
 
       <div className="produtos-os__mao-de-obra">
-        {editavel ? (
+        {maoDeObraEditavel ? (
           <label className="produtos-os__campo">
             Mão de obra (R$)
             <input
@@ -164,8 +185,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
               inputMode="decimal"
               placeholder="150,00"
               value={textoMaoDeObra}
-              onChange={(e) => mudarMaoDeObra(e.target.value)}
-              onBlur={sairDaMaoDeObra}
+              onChange={(e) => onMudarMaoDeObra(e.target.value)}
               aria-invalid={Boolean(erroMaoDeObra)}
             />
           </label>
@@ -175,7 +195,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
             {atendimento.valorMaoDeObra === null ? "não informada" : formatarReais(atendimento.valorMaoDeObra)}
           </p>
         )}
-        {editavel && erroMaoDeObra && (
+        {maoDeObraEditavel && erroMaoDeObra && (
           <p className="produtos-os__erro" role="alert">
             {erroMaoDeObra}
           </p>
@@ -183,7 +203,7 @@ export function ProdutosDaOs({ atendimento, editavel, onMudar }: ProdutosDaOsPro
       </div>
 
       <p className="produtos-os__total">
-        Total <strong>{formatarReais(totalOs(atendimento))}</strong>
+        Total <strong>{formatarReais(Math.round(total * 100) / 100)}</strong>
       </p>
     </div>
   );

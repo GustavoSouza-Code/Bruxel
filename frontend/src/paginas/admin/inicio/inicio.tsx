@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
-import { useAtendimentos } from "../../../contexto/useAtendimentos";
+import { useAtendimentos } from "../../../crud/atendimentos/useAtendimentos";
 import { contarPorStatus } from "../../../crud/atendimentos/filtrarAtendimentos";
 import "./inicio.css";
 
@@ -69,9 +69,10 @@ const AREAS_ADMIN = [
  */
 export function PaginaAdminInicio() {
   const { usuario } = useAutenticacao();
-  // o card de atendimentos avisa quantos pedidos esperam confirmação
-  const { todosAtendimentos } = useAtendimentos();
-  const aguardando = contarPorStatus(todosAtendimentos).aguardando;
+  // o card de atendimentos avisa quantos pedidos esperam confirmação; enquanto
+  // carrega (ou se a busca falhar) a lista fica vazia e o card mostra a descrição
+  const { atendimentos } = useAtendimentos();
+  const aguardando = contarPorStatus(atendimentos).aguardando;
 
   return (
     <>

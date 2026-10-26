@@ -6,7 +6,7 @@ import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
 import { PainelFiltros } from "../../../componentes/ui/PainelFiltros/PainelFiltros";
 import { ChipsFiltro } from "../../../componentes/ui/ChipsFiltro/ChipsFiltro";
 import { AlternarVisualizacao } from "../../../componentes/ui/AlternarVisualizacao/AlternarVisualizacao";
-import { useAtendimentos } from "../../../contexto/useAtendimentos";
+import { useAtendimentos } from "../../../crud/atendimentos/useAtendimentos";
 import {
   FILTROS_ATENDIMENTO_INICIAIS,
   contarFiltrosAtivosAtendimento,
@@ -19,10 +19,8 @@ import type {
   FiltrosAtendimento,
   OrdemAtendimento,
 } from "../../../crud/atendimentos/filtrarAtendimentos";
-import { TIPO_SERVICO_LABELS } from "../../../crud/atendimentos/opcoesAtendimento";
-import { formatarData } from "../../../crud/atendimentos/datasAtendimento";
-import { nomeDoTecnico } from "../../../crud/atendimentos/agenda";
-import { TECNICOS } from "../../../dados/tecnicos";
+import { TIPO_SERVICO_LABELS, codigoAtendimento } from "../../../crud/atendimentos/opcoesAtendimento";
+import { formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
 import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
 import type { Atendimento } from "../../../tipos/atendimento";
@@ -45,19 +43,20 @@ const POR_VEZ = { cards: 12, lista: 20 };
 
 const ID_PAINEL = "filtros-atendimentos";
 
-// "21/10/2026 às 13:30 · Rafael"
+// "21/10/2026 às 13:30 com Rafael" (sem técnico definido, só o dia e o horário)
 function quandoEQuem(atendimento: Atendimento) {
-  return `${formatarData(atendimento.data)} às ${atendimento.horario} · ${nomeDoTecnico(atendimento.tecnicoId)}`;
+  return formatarAgendamento(atendimento.data, atendimento.horario, atendimento.tecnico?.nome ?? null);
 }
 
 /**
  * Gestão de atendimentos do painel admin (rota "/admin/atendimentos"): todos os
- * pedidos, de todas as contas e do balcão, com busca, chips de status, painel de
+ * pedidos (GET /appointments), de todas as contas, com busca, chips de status, painel de
  * filtros e a lista em cards ou compacta. Cada pedido abre a OS
  * (/admin/atendimentos/:id), onde o admin decide e acompanha o serviço.
  */
 export function PaginaAdminAtendimentos() {
-  const { todosAtendimentos } = useAtendimentos();
+  const { atendimentos: todosAtendimentos, carregando, erro, recarregar } = useAtendimentos();
+  const prontos = !carregando && !erro;
   const [filtros, setFiltros] = useState<FiltrosAtendimento>(FILTROS_ATENDIMENTO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-atendimentos");
@@ -118,17 +117,6 @@ export function PaginaAdminAtendimentos() {
 
           <PainelFiltros id={ID_PAINEL} aberto={filtrosAbertos} onLimpar={limparFiltros}>
             <label>
-              Atendente
-              <select value={filtros.tecnico} onChange={(e) => atualizarFiltro("tecnico", e.target.value)}>
-                <option value="">Qualquer</option>
-                {TECNICOS.map((tecnico) => (
-                  <option key={tecnico.id} value={tecnico.id}>
-                    {tecnico.nome}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
               Pagamento
               <select
                 value={filtros.pagamento}
@@ -163,10 +151,25 @@ export function PaginaAdminAtendimentos() {
 
           {/* aria-live: leitores de tela anunciam o novo total quando um filtro muda */}
           <p className="lista-admin__contador" aria-live="polite">
-            {contador}
+            {prontos && contador}
           </p>
 
-          {filtrados.length === 0 && (
+          {carregando && <p className="lista-admin__vazio">Carregando atendimentos…</p>}
+
+          {!carregando && erro && (
+            <div className="lista-admin__aviso" role="alert">
+              <span>{erro}</span>
+              <button
+                type="button"
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={recarregar}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {prontos && filtrados.length === 0 && (
             <div className="lista-admin__vazio">
               <p>Nenhum atendimento por aqui. Troque o status ou limpe os filtros.</p>
               <button
@@ -179,7 +182,7 @@ export function PaginaAdminAtendimentos() {
             </div>
           )}
 
-          {filtrados.length > 0 && modo === "cards" && (
+          {prontos && filtrados.length > 0 && modo === "cards" && (
             <ul className="lista-admin__grade">
               {visiveis.map((atendimento) => (
                 <li key={atendimento.id}>
@@ -188,7 +191,7 @@ export function PaginaAdminAtendimentos() {
                     className="lista-admin__card pagina-admin-atendimentos__card"
                   >
                     <span className="lista-admin__card-titulo">
-                      #{atendimento.id} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
+                      #{codigoAtendimento(atendimento.id)} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                     </span>
                     <span className="lista-admin__card-corpo">
                       <span className="lista-admin__card-detalhe">
@@ -204,7 +207,7 @@ export function PaginaAdminAtendimentos() {
             </ul>
           )}
 
-          {filtrados.length > 0 && modo === "lista" && (
+          {prontos && filtrados.length > 0 && modo === "lista" && (
             <ul className="lista-admin__compacta pagina-admin-atendimentos__compacta">
               {/* títulos das colunas; aria-hidden porque cada linha já é lida inteira */}
               <li className="lista-admin__linha lista-admin__linha--titulos" aria-hidden="true">
@@ -224,7 +227,7 @@ export function PaginaAdminAtendimentos() {
                       {atendimento.abertoNaLoja && <SeloLoja />}
                     </span>
                     <span className="lista-admin__so-largo">
-                      #{atendimento.id} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
+                      #{codigoAtendimento(atendimento.id)} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                     </span>
                     <span className="lista-admin__so-largo">{quandoEQuem(atendimento)}</span>
                     <SelosDoAtendimento atendimento={atendimento} />
@@ -234,7 +237,7 @@ export function PaginaAdminAtendimentos() {
             </ul>
           )}
 
-          {temMais && (
+          {prontos && temMais && (
             <div className="lista-admin__carregar-mais">
               <button
                 type="button"

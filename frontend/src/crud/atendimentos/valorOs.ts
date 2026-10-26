@@ -34,7 +34,8 @@ export function quantidadeNaOs(produtos: ProdutoUsado[], produtoId: string) {
 /**
  * null se dá pra lançar; senão, o erro. `jaNaOs` é o que a OS já tem do mesmo
  * produto: a soma não pode passar do estoque.
- * TODO: o estoque só é conferido aqui; a baixa de verdade é do backend (ver o spec).
+ * É só um aviso rápido com o estoque da tela: o backend confere de novo e dá a
+ * baixa quando o atendimento é concluído.
  */
 export function validarQuantidade(quantidade: number, estoque: number, jaNaOs = 0): string | null {
   if (!Number.isInteger(quantidade) || quantidade < 1) return "Informe uma quantidade de pelo menos 1.";
