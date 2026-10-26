@@ -14,11 +14,11 @@ import { useAutenticacao } from "../../contexto/useAutenticacao";
  * rejeita com um ErroApi e quem chamou mostra a mensagem.
  *
  * As rotas de usuários exigem token de administrador. Se a API responder 401
- * (token vencido ou usuário apagado), a sessão é encerrada e o RotaAdmin
- * manda a pessoa pro /entrar.
+ * (token vencido ou usuário apagado), o cliente.ts encerra a sessão e o
+ * RotaAdmin manda a pessoa pro /entrar.
  */
 export function useUsuarios() {
-  const { token, sair } = useAutenticacao();
+  const { token } = useAutenticacao();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   // começa true porque a busca dispara assim que a página abre
   const [carregando, setCarregando] = useState(true);
@@ -40,7 +40,6 @@ export function useUsuarios() {
         if (!cancelado) setUsuarios(lista);
       })
       .catch((falha: unknown) => {
-        if (falha instanceof ErroApi && falha.status === 401) sair();
         if (!cancelado) setErro(mensagemDeErro(falha));
       })
       .finally(() => {
@@ -50,7 +49,7 @@ export function useUsuarios() {
     return () => {
       cancelado = true;
     };
-  }, [token, sair, tentativa]);
+  }, [token, tentativa]);
 
   function recarregar() {
     setCarregando(true);
@@ -58,15 +57,11 @@ export function useUsuarios() {
     setTentativa((atual) => atual + 1);
   }
 
-  // roda uma chamada autenticada; se o token não vale mais (401), encerra a sessão antes de repassar o erro
+  // roda uma chamada autenticada. Um 401 da API já encerra a sessão no cliente.ts
+  // (ver registrarSessaoExpirada), então aqui só repassamos o erro
   async function comToken<T>(chamada: (token: string) => Promise<T>): Promise<T> {
     if (!token) throw new ErroApi(401, "Sessão encerrada. Entre novamente.");
-    try {
-      return await chamada(token);
-    } catch (falha) {
-      if (falha instanceof ErroApi && falha.status === 401) sair();
-      throw falha;
-    }
+    return chamada(token);
   }
 
   async function criarUsuario(dados: DadosNovoUsuario) {

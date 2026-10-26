@@ -1,0 +1,65 @@
+.mensagem-pagina {
+  padding: clamp(3rem, 2rem + 5vw, 7rem) 0 var(--space-section);
+}
+
+.mensagem-pagina__interno {
+  max-width: 560px;
+  text-align: center;
+}
+
+.mensagem-pagina__codigo {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--font-size-display);
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.mensagem-pagina__titulo {
+  margin: 1rem 0 0.75rem;
+  font-weight: 600;
+  font-size: var(--font-size-h2);
+  color: var(--color-primary);
+}
+
+.mensagem-pagina__texto {
+  margin: 0 0 2rem;
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+}
+
+.mensagem-pagina__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* botão/link principal e contorno, no mesmo estilo das outras telas */
+.mensagem-pagina__botao {
+  display: inline-block;
+  padding: 0.8rem 1.75rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mensagem-pagina__botao:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.mensagem-pagina__botao--contorno {
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.mensagem-pagina__botao--contorno:hover {
+  background-color: var(--color-store-button);
+  border-color: var(--color-primary);
+}

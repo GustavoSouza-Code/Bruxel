@@ -10,14 +10,13 @@ import { useAutenticacao } from "../../../contexto/useAutenticacao";
  * abrir e salva as edições.
  *
  * A sessão só guarda id, nome, e-mail e perfil; CPF, telefone e endereço vêm
- * do GET /users/:id. Essa rota (e o PUT) aceita o próprio usuário ou um
- * administrador; trocar a própria senha exige a senha atual.
+ * do GET /users/:id. A rota (e o PUT) aceita o próprio usuário ou um admin.
  *
- * Se a API responder 401 (token vencido ou usuário apagado), a sessão é
- * encerrada e o RotaLogado manda a pessoa pro /entrar.
+ * Se a API responder 401 (token vencido ou usuário apagado), o cliente.ts
+ * encerra a sessão e o RotaLogado manda a pessoa pro /entrar.
  */
 export function usePerfil() {
-  const { usuario, token, sair, atualizarDadosSessao } = useAutenticacao();
+  const { usuario, token, atualizarDadosSessao } = useAutenticacao();
   const id = usuario?.id;
   // dados vindos do banco; null enquanto carrega ou se a busca falhar
   const [dados, setDados] = useState<Usuario | null>(null);
@@ -41,7 +40,6 @@ export function usePerfil() {
         if (!cancelado) setDados(encontrado);
       })
       .catch((falha: unknown) => {
-        if (falha instanceof ErroApi && falha.status === 401) sair();
         if (!cancelado) setErro(mensagemDeErro(falha));
       })
       .finally(() => {
@@ -51,7 +49,7 @@ export function usePerfil() {
     return () => {
       cancelado = true;
     };
-  }, [token, id, sair, tentativa]);
+  }, [token, id, tentativa]);
 
   function recarregar() {
     setCarregando(true);
@@ -66,20 +64,15 @@ export function usePerfil() {
    */
   async function salvar(editado: Usuario) {
     if (!token || !id) throw new ErroApi(401, "Sessão encerrada. Entre novamente.");
-    try {
-      const atualizado = await apiUsuarios.atualizarUsuario(token, id, paraCamposAtualizacao(editado));
-      setDados(atualizado);
-      // o Cabecalho mostra o nome da sessão, então ela acompanha a edição
-      atualizarDadosSessao({
-        id: atualizado.id,
-        nome: atualizado.nome,
-        email: atualizado.email,
-        perfil: atualizado.perfil,
-      });
-    } catch (falha) {
-      if (falha instanceof ErroApi && falha.status === 401) sair();
-      throw falha;
-    }
+    const atualizado = await apiUsuarios.atualizarUsuario(token, id, paraCamposAtualizacao(editado));
+    setDados(atualizado);
+    // o Cabecalho mostra o nome da sessão, então ela acompanha a edição
+    atualizarDadosSessao({
+      id: atualizado.id,
+      nome: atualizado.nome,
+      email: atualizado.email,
+      perfil: atualizado.perfil,
+    });
   }
 
   return { dados, carregando, erro, recarregar, salvar };

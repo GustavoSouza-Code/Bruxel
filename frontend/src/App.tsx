@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
@@ -19,6 +19,46 @@ import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
 import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
 import { PaginaAdminAtendimentos } from "./paginas/admin/atendimentos/atendimentos";
 import { PaginaAdminAtendimento } from "./paginas/admin/atendimento/atendimento";
+import { PaginaNaoEncontrada } from "./paginas/portal/nao-encontrada/nao-encontrada";
+import { LimiteDeErro } from "./componentes/ui/LimiteDeErro/LimiteDeErro";
+
+/**
+ * Rotas dentro do LimiteDeErro. Fica separado do App porque o useLocation só
+ * funciona dentro do BrowserRouter; a rota atual reinicia o aviso de falha.
+ */
+function RotasDoSite() {
+  const { pathname } = useLocation();
+  return (
+    <LimiteDeErro chaveReinicio={pathname}>
+      <Routes>
+        {/* portal: site público da Bruxel */}
+        <Route path="/" element={<PaginaInicio />} />
+        <Route path="/sobre" element={<PaginaSobre />} />
+        <Route path="/loja" element={<PaginaLoja />} />
+        <Route path="/piscinator" element={<PaginaPiscinator />} />
+        <Route path="/carrinho" element={<PaginaCarrinho />} />
+        <Route path="/entrar" element={<PaginaEntrar />} />
+        <Route path="/criar-conta" element={<PaginaCriarConta />} />
+        {/* área do cliente: o RotaLogado manda quem não está logado pro /entrar */}
+        <Route element={<RotaLogado />}>
+          <Route path="/perfil" element={<PaginaPerfil />} />
+          <Route path="/solicitar-atendimento" element={<PaginaSolicitarAtendimento />} />
+        </Route>
+        {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
+            o RotaAdmin só deixa passar quem está logado como administrador */}
+        <Route element={<RotaAdmin />}>
+          <Route path="/admin" element={<PaginaAdminInicio />} />
+          <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
+          <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
+          <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
+          <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
+        </Route>
+        {/* qualquer endereço que nenhuma rota acima reconhece */}
+        <Route path="*" element={<PaginaNaoEncontrada />} />
+      </Routes>
+    </LimiteDeErro>
+  );
+}
 
 /**
  * Raiz da aplicação: define as rotas do site.
@@ -34,30 +74,7 @@ function App() {
       <ProvedorCarrinho>
         <ProvedorAtendimentos>
           <BrowserRouter>
-            <Routes>
-              {/* portal: site público da Bruxel */}
-              <Route path="/" element={<PaginaInicio />} />
-              <Route path="/sobre" element={<PaginaSobre />} />
-              <Route path="/loja" element={<PaginaLoja />} />
-              <Route path="/piscinator" element={<PaginaPiscinator />} />
-              <Route path="/carrinho" element={<PaginaCarrinho />} />
-              <Route path="/entrar" element={<PaginaEntrar />} />
-              <Route path="/criar-conta" element={<PaginaCriarConta />} />
-              {/* área do cliente: o RotaLogado manda quem não está logado pro /entrar */}
-              <Route element={<RotaLogado />}>
-                <Route path="/perfil" element={<PaginaPerfil />} />
-                <Route path="/solicitar-atendimento" element={<PaginaSolicitarAtendimento />} />
-              </Route>
-              {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
-                  o RotaAdmin só deixa passar quem está logado como administrador */}
-              <Route element={<RotaAdmin />}>
-                <Route path="/admin" element={<PaginaAdminInicio />} />
-                <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
-                <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
-                <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
-                <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
-              </Route>
-            </Routes>
+            <RotasDoSite />
           </BrowserRouter>
         </ProvedorAtendimentos>
       </ProvedorCarrinho>

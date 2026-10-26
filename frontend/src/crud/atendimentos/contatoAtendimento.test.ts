@@ -85,8 +85,8 @@ describe("validarContato", () => {
     expect(validarContato(contato({ estado: "", cep: "" }))).toEqual({});
     expect(validarContato(contato({ cep: "95900-000" }))).toEqual({});
     expect(validarContato(contato({ estado: "R", cep: "9590" }))).toEqual({
-      estado: "Use a sigla do estado, com 2 letras (ex.: RS).",
-      cep: "O CEP tem 8 dígitos.",
+      estado: "A UF deve ter 2 letras (ex.: RS).",
+      cep: "O CEP deve ter 8 dígitos.",
     });
   });
 });

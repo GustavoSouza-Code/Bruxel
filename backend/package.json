@@ -2,14 +2,18 @@
   "name": "bruxel",
   "version": "1.0.0",
   "type": "commonjs",
-  "main": "dist/server.js",
+  "main": "dist/server/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/server/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/server/server.js",
     "db:migrate": "prisma migrate deploy",
     "db:pull": "prisma db pull",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "test:smoke:produtos": "node scripts/smoke-produtos.mjs",
+    "test:smoke:pedidos": "node scripts/smoke-pedidos.mjs",
+    "test:smoke:atendimentos": "node scripts/smoke-atendimentos.mjs",
+    "test:smoke": "npm run test:smoke:produtos && npm run test:smoke:pedidos && npm run test:smoke:atendimentos"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -28,8 +32,11 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.1",
     "@types/pg": "^8.23.1",
+    "@types/supertest": "^7.2.1",
     "prisma": "^7.10.0",
+    "supertest": "^7.3.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^5.0.5"
   }
 }

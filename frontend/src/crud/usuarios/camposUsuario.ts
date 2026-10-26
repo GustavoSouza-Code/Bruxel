@@ -48,11 +48,14 @@ export type ErrosUfCep = Partial<Record<"estado" | "cep", string>>;
  */
 export function validarUfCep({ estado, cep }: { estado?: string | null; cep?: string | null }): ErrosUfCep {
   const erros: ErrosUfCep = {};
-  if (estado && !/^[A-Za-z]{2}$/.test(estado)) {
-    erros.estado = "Use a sigla do estado, com 2 letras (ex.: RS).";
+  // só espaços conta como vazio (vira null no banco)
+  const uf = estado?.trim();
+  const digitosCep = cep?.trim();
+  if (uf && !/^[A-Za-z]{2}$/.test(uf)) {
+    erros.estado = "A UF deve ter 2 letras (ex.: RS).";
   }
-  if (cep && cep.replace(/\D/g, "").length !== 8) {
-    erros.cep = "O CEP tem 8 dígitos.";
+  if (digitosCep && digitosCep.replace(/\D/g, "").length !== 8) {
+    erros.cep = "O CEP deve ter 8 dígitos.";
   }
   return erros;
 }
@@ -65,6 +68,15 @@ export function formatarEndereco(endereco: Pick<Usuario, Exclude<ParteEndereco, 
   const logradouro = [endereco.rua, endereco.numero].filter(Boolean).join(", ");
   const cidadeUf = [endereco.cidade, endereco.estado].filter(Boolean).join(" - ");
   return [logradouro, endereco.bairro, cidadeUf].filter(Boolean).join(" - ");
+}
+
+/**
+ * Versão de uma mensagem só do validarUfCep, pros formulários que mostram um
+ * erro geral. Devolve a mensagem do primeiro problema (CEP antes da UF), ou null.
+ */
+export function validarEndereco(endereco: Pick<Usuario, "estado" | "cep">): string | null {
+  const erros = validarUfCep(endereco);
+  return erros.cep ?? erros.estado ?? null;
 }
 
 // texto vazio vira null: assim o PUT apaga o valor no banco em vez de gravar ""

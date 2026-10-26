@@ -8,19 +8,64 @@ datasource db {
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// Atendimento/OS: o pedido de visita e a ordem de serviço que o técnico preenche.
 model appointments {
-  id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  data_hora     DateTime           @db.Timestamptz(6)
-  status        status_agendamento @default(DISPONIVEL)
-  usuario_id    String?            @db.Uuid
-  observacoes   String?
-  valor         Decimal?           @db.Decimal(10, 2)
-  criado_em     DateTime           @default(now()) @db.Timestamptz(6)
-  atualizado_em DateTime           @default(now()) @db.Timestamptz(6)
-  users         users?             @relation(fields: [usuario_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_agendamentos_usuario")
+  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  data_hora           DateTime           @db.Timestamptz(6)
+  status              status_agendamento @default(AGUARDANDO)
+  /// cliente que pediu o atendimento; null quando o cliente não tem cadastro (balcão)
+  usuario_id          String?            @db.Uuid
+  /// funcionário responsável técnico pela visita
+  tecnico_id          String?            @db.Uuid
+  tipo                tipo_servico?
+  /// descrição do problema informada pelo cliente
+  descricao           String?
+  /// uma foto opcional do local/problema (URL)
+  foto_url            String?
+  /// nome do cliente sem cadastro; null quando o atendimento usa usuario_id
+  nome_cliente        String?            @db.VarChar(150)
+  /// true quando um administrador abriu o pedido pela loja (balcão)
+  aberto_na_loja      Boolean            @default(false)
+  /// contato e endereço copiados no pedido, para não mudarem se o usuário editar o perfil
+  telefone            String?            @db.VarChar(20)
+  rua                 String?            @db.VarChar(150)
+  numero              String?            @db.VarChar(10)
+  bairro              String?            @db.VarChar(80)
+  cidade              String?            @db.VarChar(80)
+  estado              String?            @db.Char(2)
+  cep                 String?            @db.VarChar(8)
+  /// mensagem que o cliente vê quando o pedido é recusado ou cancelado
+  mensagem_cliente    String?
+  /// o que o técnico anotou na OS (diagnóstico, peças, reparos)
+  observacoes_tecnico String?
+  /// valor do serviço sem os produtos; null = ainda não informado
+  valor_mao_de_obra   Decimal?           @db.Decimal(10, 2)
+  /// data e hora do pagamento; null = a pagar
+  pago_em             DateTime?          @db.Timestamptz(6)
+  criado_em           DateTime           @default(now()) @db.Timestamptz(6)
+  atualizado_em       DateTime           @default(now()) @db.Timestamptz(6)
+  cliente             users?             @relation("AgendamentoCliente", fields: [usuario_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_agendamentos_usuario")
+  tecnico             users?             @relation("AgendamentoTecnico", fields: [tecnico_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_agendamentos_tecnico")
+  itens               appointment_items[]
 
   @@index([status, data_hora], map: "idx_agendamentos_status_data")
   @@index([usuario_id], map: "idx_agendamentos_usuario")
+  @@index([tecnico_id, data_hora], map: "idx_agendamentos_tecnico")
+}
+
+/// Produtos do estoque usados numa OS; o preço fica guardado como era na hora.
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model appointment_items {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  appointment_id String       @db.Uuid
+  produto_id     String       @db.Uuid
+  quantidade     Int
+  preco_unitario Decimal      @db.Decimal(10, 2)
+  appointments   appointments @relation(fields: [appointment_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_itens_agendamento_agendamento")
+  products       products     @relation(fields: [produto_id], references: [id], onUpdate: NoAction, map: "fk_itens_agendamento_produto")
+
+  @@unique([appointment_id, produto_id], map: "uq_itens_agendamento_produto")
+  @@index([produto_id], map: "idx_itens_agendamento_produto")
 }
 
 model categories {
@@ -86,6 +131,7 @@ model products {
   atualizado_em DateTime      @default(now()) @db.Timestamptz(6)
   favorites     favorites[]
   order_items   order_items[]
+  appointment_items appointment_items[]
   categories    categories    @relation(fields: [categoria_id], references: [id], onUpdate: NoAction, map: "fk_produtos_categoria")
 
   @@index([categoria_id], map: "idx_produtos_categoria")
@@ -108,7 +154,8 @@ model users {
   perfil        perfil_usuario @default(CLIENTE)
   criado_em     DateTime       @default(now()) @db.Timestamptz(6)
   atualizado_em DateTime       @default(now()) @db.Timestamptz(6)
-  appointments  appointments[]
+  appointments  appointments[] @relation("AgendamentoCliente")
+  appointments_tecnico appointments[] @relation("AgendamentoTecnico")
   favorites     favorites[]
   orders        orders[]
 }
@@ -126,9 +173,20 @@ enum perfil_usuario {
 
 enum status_agendamento {
   DISPONIVEL
+  AGUARDANDO
   AGENDADO
+  EM_ANDAMENTO
   CONCLUIDO
   CANCELADO
+  RECUSADO
+}
+
+enum tipo_servico {
+  LIMPEZA
+  BOMBA_FILTRO
+  VAZAMENTO
+  INSTALACAO
+  OUTRO
 }
 
 enum status_pedido {

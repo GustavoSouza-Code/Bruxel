@@ -1,26 +1,30 @@
-// cria o objeto usuário e seus atributos
+// tipos usados no cadastro, login e atualização de usuários
 
-import {perfil_usuario} from "../generated/prisma/enums";
+import { perfil_usuario } from "../generated/prisma/enums";
 
-// define o esqueleto do usuário
+// usuário como vem do banco (a senha só é usada no login)
 export interface User {
     id: string;
     nome: string;
     email: string;
     senha: string;
     cpf: string;
-    phone?: string;
-    rua?: string;
-    cidade?: string;
-    bairro?: string;
-    estado?: string;
-    cep?: string;
+    telefone?: string | null;
+    rua?: string | null;
+    numero?: string | null;
+    bairro?: string | null;
+    cidade?: string | null;
+    estado?: string | null;
+    cep?: string | null;
     perfil: perfil_usuario;
     criado_em: Date | string;
     atualizado_em: Date | string;
 }
 
-// objeto de esqueleto para create
+// dados do usuário disponíveis em req.usuario depois do verificaToken
+export type UsuarioAutenticado = Pick<User, "id" | "nome" | "email" | "perfil">;
+
+// entrada do cadastro
 export interface CreateUserDTO {
     nome: string;
     email: string;
@@ -28,21 +32,22 @@ export interface CreateUserDTO {
     cpf: string;
 }
 
+// campos aceitos na atualização; senhaAtual só confirma a troca da própria senha
 export interface UpdateUserDTO {
-    nome?: string
-    email?: string
-    senha?: string
-    // obrigatória junto com `senha` quando o usuário troca a própria senha
-    senhaAtual?: string
-    phone?: string
-    rua?: string
-    cidade?: string
-    bairro?: string
-    estado?: string;
-    cep?: string;
+    nome?: string;
+    email?: string;
+    senha?: string;
+    senhaAtual?: string;
+    telefone?: string | null;
+    rua?: string | null;
+    numero?: string | null;
+    bairro?: string | null;
+    cidade?: string | null;
+    estado?: string | null;
+    cep?: string | null;
 }
 
-// objeto bruto para login
+// entrada do login
 export interface LoginDTO {
     email: string;
     senha: string;

@@ -3,7 +3,7 @@ import type { FormEvent } from "react";
 import { mensagemDeErro } from "../../../api/cliente";
 import type { CamposAtualizacaoUsuario } from "../../../api/usuarios";
 import type { Usuario } from "../../../tipos/usuario";
-import { CAMPOS_ENDERECO, paraCamposAtualizacao, validarUfCep } from "../camposUsuario";
+import { CAMPOS_ENDERECO, paraCamposAtualizacao, validarEndereco } from "../camposUsuario";
 import type { CampoEditavelUsuario } from "../camposUsuario";
 import "./FormularioEdicaoUsuario.css";
 
@@ -41,9 +41,9 @@ export function FormularioEdicaoUsuario({
       setErro("Nome e e-mail são obrigatórios.");
       return;
     }
-    const errosEndereco = Object.values(validarUfCep(rascunho));
-    if (errosEndereco.length > 0) {
-      setErro(errosEndereco.join(" "));
+    const erroEndereco = validarEndereco(rascunho);
+    if (erroEndereco) {
+      setErro(erroEndereco);
       return;
     }
     setSalvando(true);

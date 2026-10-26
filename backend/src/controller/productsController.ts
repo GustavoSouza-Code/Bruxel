@@ -1,62 +1,57 @@
-import {Request, Response} from "express";
-import {ProductsService} from "../service/productsService";
+import { NextFunction, Request, Response } from "express";
+import { ProductsService } from "../service/productsService";
 
 // controller de produtos, cuida da parte de requisições e respostas HTTP
 export class ProductsController {
     private productsService = new ProductsService();
 
-    create = async (req: Request, res: Response) => {
-        const product = req.body;
+    // cadastro de produto (rota protegida por admin)
+    create = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const result = await this.productsService.create(product);
+            const result = await this.productsService.create(req.body);
             return res.status(201).json(result);
-        } catch (error: any) {
-            try {
-                const errosValidacao = JSON.parse(error.message);
-                return res.status(400).json({erros: errosValidacao});
-            } catch {
-                return res.status(500).json({mensagem: error.message || "Erro interno do servidor."});
-            }
+        } catch (error) {
+            next(error);
         }
-    }
+    };
 
-    getAll = async (req: Request, res: Response) => {
+    // catálogo público
+    getAll = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await this.productsService.getAll();
             return res.status(200).json(result);
-        } catch (error: any) {
-            return res.status(500).json({mensagem: error.message || "Erro ao buscar produtos."});
+        } catch (error) {
+            next(error);
         }
-    }
+    };
 
-    getById = async (req: Request, res: Response) => {
+    // detalhe público de um produto
+    getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = req.params.id as string;
-            const result = await this.productsService.getById(id);
+            const result = await this.productsService.getById(String(req.params.id));
             return res.status(200).json(result);
-        } catch (error: any) {
-            return res.status(404).json({mensagem: "Produto não encontrado."});
+        } catch (error) {
+            next(error);
         }
-    }
+    };
 
-    update = async (req: Request, res: Response) => {
+    // edição de produto (rota protegida por admin)
+    update = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = req.params.id as string;
-            const data = req.body;
-            const result = await this.productsService.update(id, data);
+            const result = await this.productsService.update(String(req.params.id), req.body);
             return res.status(200).json(result);
-        } catch (error: any) {
-            return res.status(400).json({mensagem: "Erro ao atualizar produto."});
+        } catch (error) {
+            next(error);
         }
-    }
+    };
 
-    delete = async (req: Request, res: Response) => {
+    // exclusão de produto (rota protegida por admin)
+    delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id = String(req.params.id);
-            const result = await this.productsService.delete(id);
+            const result = await this.productsService.delete(String(req.params.id));
             return res.status(200).json(result);
-        } catch (error: any) {
-            return res.status(400).json({mensagem: "Erro ao deletar produto."});
+        } catch (error) {
+            next(error);
         }
-    }
+    };
 }
