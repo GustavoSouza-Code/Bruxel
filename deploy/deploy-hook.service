@@ -1,0 +1,13 @@
+[Unit]
+Description=Webhook de deploy do Bruxel
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+User=univates
+ExecStart=/usr/bin/webhook -hooks /home/univates/deploy/hooks.json -port 9000 -verbose
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

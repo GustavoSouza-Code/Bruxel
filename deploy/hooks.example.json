@@ -1,0 +1,26 @@
+[
+  {
+    "id": "deploy",
+    "execute-command": "/home/univates/deploy/deploy.sh",
+    "command-working-directory": "/home/univates/deploy",
+    "response-message": "deploy enfileirado",
+    "trigger-rule": {
+      "and": [
+        {
+          "match": {
+            "type": "payload-hmac-sha256",
+            "secret": "TROQUE_PELO_SEGREDO_DO_WEBHOOK",
+            "parameter": { "source": "header", "name": "X-Hub-Signature-256" }
+          }
+        },
+        {
+          "match": {
+            "type": "value",
+            "value": "refs/heads/main",
+            "parameter": { "source": "payload", "name": "ref" }
+          }
+        }
+      ]
+    }
+  }
+]
