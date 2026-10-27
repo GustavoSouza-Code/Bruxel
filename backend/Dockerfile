@@ -8,7 +8,9 @@ RUN npm ci
 COPY prisma ./prisma
 COPY prisma7.config.ts tsconfig.json ./
 COPY src ./src
-RUN npx prisma generate && npm run build
+COPY tests ./tests
+COPY vitest.config.mts ./
+RUN npx prisma generate && npm test && npm run build
 
 FROM node:22-slim
 WORKDIR /app
