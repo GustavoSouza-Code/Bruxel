@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { Produto } from "../../../tipos/produto";
 import { useCarrinho } from "../../../contexto/useCarrinho";
 import "./CardProduto.css";
@@ -43,6 +44,14 @@ export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
       <div className="card-produto__info">
         <p className="card-produto__nome">{produto.nome}</p>
       </div>
+
+      {/* link esticado sobre o card inteiro; ♡ e o botão do carrinho ficam acima dele (z-index) e não navegam */}
+      <Link
+        to={`/produto/${produto.id}`}
+        className="card-produto__link"
+        aria-label={`Ver detalhes de ${produto.nome}`}
+      />
+
 
       {/* toFixed(2) garante 2 casas decimais; o replace troca o ponto pela vírgula (formato brasileiro) */}
       <p className="card-produto__preco">

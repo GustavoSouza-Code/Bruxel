@@ -7,6 +7,7 @@ import { RotaLogado } from "./componentes/layout/RotaLogado/RotaLogado";
 import { PaginaInicio } from "./paginas/portal/inicio/inicio";
 import { PaginaSobre } from "./paginas/portal/sobre/sobre";
 import { PaginaLoja } from "./paginas/portal/loja/loja";
+import { PaginaProduto } from "./paginas/portal/produto/produto";
 import { PaginaPiscinator } from "./paginas/portal/piscinator/piscinator";
 import { PaginaCarrinho } from "./paginas/portal/carrinho/carrinho";
 import { PaginaEntrar } from "./paginas/portal/entrar/entrar";
@@ -34,6 +35,7 @@ function RotasDoSite() {
         <Route path="/" element={<PaginaInicio />} />
         <Route path="/sobre" element={<PaginaSobre />} />
         <Route path="/loja" element={<PaginaLoja />} />
+        <Route path="/produto/:id" element={<PaginaProduto />} />
         <Route path="/piscinator" element={<PaginaPiscinator />} />
         <Route path="/carrinho" element={<PaginaCarrinho />} />
         <Route path="/entrar" element={<PaginaEntrar />} />
