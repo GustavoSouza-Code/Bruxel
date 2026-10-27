@@ -7,6 +7,7 @@
     "dev": "ts-node-dev --respawn src/server/server.ts",
     "build": "tsc",
     "start": "node dist/server/server.js",
+    "test": "vitest run",
     "db:migrate": "prisma migrate deploy",
     "db:pull": "prisma db pull",
     "db:generate": "prisma generate",
