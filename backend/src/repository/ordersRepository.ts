@@ -64,6 +64,7 @@ export class OrdersRepository {
                 return await tx.orders.create({
                     data: {
                         usuario_id: usuarioId,
+                        status: dados.status,
                         forma_pagamento: dados.forma_pagamento,
                         endereco_entrega: dados.endereco_entrega,
                         valor_frete: 0,

@@ -3,10 +3,13 @@ import { OrdersRepository } from "../repository/ordersRepository";
 import { ProductsRepository } from "../repository/productsRepository";
 import { AppError } from "../errors/AppError";
 import { ehUuid } from "../utils/validacoes";
-import { forma_pagamento } from "../generated/prisma/enums";
+import { forma_pagamento, status_pedido } from "../generated/prisma/enums";
 
 const FORMAS_PAGAMENTO = Object.values(forma_pagamento) as readonly string[];
 const MAXIMO_DE_ITENS = 100;
+
+// simulação acadêmica: a compra já nasce paga, sem etapa separada de confirmação
+const STATUS_INICIAL_PEDIDO: status_pedido = "PAGO";
 
 // limite da coluna NUMERIC(10,2) usada em valor_total
 const TOTAL_MAXIMO_CENTAVOS = 9999999999;
@@ -60,6 +63,7 @@ export class OrdersService {
         });
 
         const dadosPedido: DadosPedido = {
+            status: STATUS_INICIAL_PEDIDO,
             forma_pagamento: formaPagamento,
             endereco_entrega: enderecoEntrega,
         };

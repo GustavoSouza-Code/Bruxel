@@ -204,7 +204,7 @@ async function main() {
     201,
     pedidoCliente,
     conferirPedido(pedidoCliente.corpo, {
-      status: "PENDENTE",
+      status: "PAGO",
       total: 41,
       quantidadeItens: 2,
       usuarioId: idCliente,
@@ -280,7 +280,7 @@ async function main() {
     201,
     pedidoAdmin,
     conferirPedido(pedidoAdmin.corpo, {
-      status: "PENDENTE",
+      status: "PAGO",
       total: 20,
       quantidadeItens: 1,
       usuarioId: idAdmin,
