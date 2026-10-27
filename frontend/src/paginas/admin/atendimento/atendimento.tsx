@@ -2,25 +2,21 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
-import { useAtendimentos } from "../../../contexto/useAtendimentos";
-import {
-  acoesDoStatus,
-  atualizarOs,
-  cancelar,
-  concluir,
-  confirmar,
-  iniciar,
-  marcarPago,
-  osEditavel,
-  recusar,
-} from "../../../crud/atendimentos/andamento";
-import type { CamposOs } from "../../../crud/atendimentos/andamento";
-import { TIPO_SERVICO_LABELS } from "../../../crud/atendimentos/opcoesAtendimento";
-import { formatarAgendamento, nomeDoTecnico } from "../../../crud/atendimentos/agenda";
+import { mensagemDeErro } from "../../../api/cliente";
+import { useAtendimento } from "../../../crud/atendimentos/useAtendimento";
+import { STATUS_DA_ACAO, acoesDoStatus, osEditavel } from "../../../crud/atendimentos/andamento";
+import { TIPO_SERVICO_LABELS, codigoAtendimento } from "../../../crud/atendimentos/opcoesAtendimento";
+import { formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { formatarDataHora } from "../../../crud/atendimentos/datasAtendimento";
-import { formatarReais, totalOs } from "../../../crud/atendimentos/valorOs";
+import {
+  formatarReais,
+  maoDeObraParaTexto,
+  paraValorEmReais,
+  totalOs,
+  validarMaoDeObra,
+} from "../../../crud/atendimentos/valorOs";
 import { linkWhatsApp, textoMensagemCliente } from "../../../crud/atendimentos/whatsapp";
-import type { Atendimento } from "../../../tipos/atendimento";
+import type { Atendimento, ProdutoUsado } from "../../../tipos/atendimento";
 import { SeloPagamento, SeloStatusAtendimento } from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
 import { CartaoClienteOs } from "./componentes/CartaoClienteOs/CartaoClienteOs";
 import { GaleriaFotosOs } from "./componentes/GaleriaFotosOs/GaleriaFotosOs";
@@ -33,68 +29,99 @@ type AcaoDireta = "confirmar" | "iniciar" | "concluir";
 type AcaoComMensagem = "recusar" | "cancelar";
 
 // ações que mudam o status sem mensagem: texto do botão, pergunta de confirmação e aviso depois
-const ACOES_DIRETAS: Record<AcaoDireta, { botao: string; pergunta: string; aviso: string; aplicar: (at: Atendimento) => Atendimento }> = {
+const ACOES_DIRETAS: Record<AcaoDireta, { botao: string; pergunta: string; aviso: string }> = {
   confirmar: {
     botao: "Confirmar visita",
     pergunta: "Confirmar a visita deste pedido?",
     aviso: "Visita confirmada.",
-    aplicar: confirmar,
   },
   iniciar: {
     botao: "Iniciar atendimento",
     pergunta: "Marcar que o atendimento começou?",
     aviso: "Atendimento iniciado. Agora dá pra lançar as observações, os produtos e a mão de obra.",
-    aplicar: iniciar,
   },
   concluir: {
     botao: "Marcar como concluído",
-    pergunta: "Marcar o atendimento como concluído?",
-    aviso: "Atendimento concluído. Falta registrar o pagamento.",
-    aplicar: concluir,
+    pergunta: "Marcar o atendimento como concluído? O estoque dos produtos lançados vai ser baixado.",
+    aviso: "Atendimento concluído e estoque atualizado. Falta registrar o pagamento.",
   },
 };
 
 const ORDEM_ACOES_DIRETAS: AcaoDireta[] = ["confirmar", "iniciar", "concluir"];
 
 /**
- * OS de um atendimento no painel (rota "/admin/atendimentos/:id"): dados do
- * cliente, visita, fotos e descrição, a OS (observações, produtos e valor) e os
- * botões do andamento. Se o id não existe (ex.: a página foi recarregada e os
- * pedidos em memória sumiram), mostra um aviso com o caminho de volta.
+ * OS de um atendimento no painel (rota "/admin/atendimentos/:id"): busca o
+ * atendimento na API e mostra carregando, erro (com "Tentar novamente") ou
+ * "não encontrado" enquanto não tem o que exibir.
  */
 export function PaginaAdminAtendimento() {
   const { id } = useParams();
-  const { todosAtendimentos } = useAtendimentos();
-  const atendimento = todosAtendimentos.find((item) => item.id === id) ?? null;
+  const os = useAtendimento(id);
 
-  if (!atendimento) {
+  if (!os.atendimento) {
     return (
       <>
         <NavAdmin />
         <section className="pagina-admin-atendimento">
           <Container>
-            <div className="lista-admin__vazio">
-              <p>Atendimento não encontrado.</p>
-              <Link to="/admin/atendimentos" className="lista-admin__botao pagina-admin-atendimento__link-botao">
-                Ver os atendimentos
-              </Link>
-            </div>
+            {os.carregando ? (
+              <p className="lista-admin__vazio">Carregando atendimento…</p>
+            ) : os.erro ? (
+              <div className="lista-admin__aviso" role="alert">
+                <span>{os.erro}</span>
+                <button
+                  type="button"
+                  className="lista-admin__botao lista-admin__botao--contorno"
+                  onClick={os.recarregar}
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            ) : (
+              <div className="lista-admin__vazio">
+                <p>Atendimento não encontrado.</p>
+                <Link to="/admin/atendimentos" className="lista-admin__botao pagina-admin-atendimento__link-botao">
+                  Ver os atendimentos
+                </Link>
+              </div>
+            )}
           </Container>
         </section>
       </>
     );
   }
 
-  // key: trocar de OS pela URL começa a tela do zero (aviso, modal)
-  return <ConteudoOs key={atendimento.id} atendimento={atendimento} />;
+  // key: trocar de OS pela URL começa a tela do zero (aviso, modal, rascunho)
+  return (
+    <ConteudoOs
+      key={os.atendimento.id}
+      atendimento={os.atendimento}
+      salvando={os.salvando}
+      mudarStatus={os.mudarStatus}
+      salvarOs={os.salvarOs}
+      marcarPago={os.marcarPago}
+    />
+  );
 }
 
-function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
-  const { atualizarAtendimento } = useAtendimentos();
+interface ConteudoOsProps {
+  atendimento: Atendimento;
+  salvando: boolean;
+  mudarStatus: ReturnType<typeof useAtendimento>["mudarStatus"];
+  salvarOs: ReturnType<typeof useAtendimento>["salvarOs"];
+  marcarPago: ReturnType<typeof useAtendimento>["marcarPago"];
+}
+
+function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }: ConteudoOsProps) {
   // aviso depois de cada ação; null = sem aviso
   const [aviso, setAviso] = useState<string | null>(null);
+  // erro da última ação (o backend recusou ou caiu); null = sem erro
+  const [erroAcao, setErroAcao] = useState<string | null>(null);
   // qual janela de mensagem está aberta; null = nenhuma
   const [mensagemAberta, setMensagemAberta] = useState<AcaoComMensagem | null>(null);
+  // rascunho da OS: só vai pro banco no "Salvar OS" (antes, cada tecla gravava)
+  const [observacoes, setObservacoes] = useState(atendimento.observacoesTecnico);
+  const [textoMaoDeObra, setTextoMaoDeObra] = useState(() => maoDeObraParaTexto(atendimento.valorMaoDeObra));
 
   const acoes = acoesDoStatus(atendimento);
   const encerrado = atendimento.status === "recusado" || atendimento.status === "cancelado";
@@ -105,15 +132,45 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
   const mostrarOs = atendimento.status === "em-andamento" || atendimento.status === "concluido";
   const editavel = osEditavel(atendimento);
 
-  function mudarOs(campos: CamposOs) {
-    atualizarAtendimento(atendimento.id, (atual) => atualizarOs(atual, campos));
+  const erroMaoDeObra = validarMaoDeObra(textoMaoDeObra);
+  const maoDeObraDoRascunho = erroMaoDeObra ? atendimento.valorMaoDeObra : paraValorEmReais(textoMaoDeObra);
+  // tem coisa digitada que ainda não foi pro banco
+  const temAlteracoes =
+    editavel &&
+    (observacoes !== atendimento.observacoesTecnico ||
+      textoMaoDeObra !== maoDeObraParaTexto(atendimento.valorMaoDeObra));
+
+  // roda uma ação da API: mostra o aviso se deu certo ou o erro do backend se não
+  async function executar(acao: () => Promise<unknown>, textoAviso: string) {
+    setErroAcao(null);
+    setAviso(null);
+    try {
+      await acao();
+      setAviso(textoAviso);
+    } catch (falha) {
+      setErroAcao(mensagemDeErro(falha));
+    }
+  }
+
+  async function salvarRascunho() {
+    if (erroMaoDeObra) return;
+    await executar(async () => {
+      const atualizado = await salvarOs({ observacoesTecnico: observacoes, valorMaoDeObra: maoDeObraDoRascunho });
+      // o campo volta formatado como ficou no banco ("150" → "150,00")
+      setObservacoes(atualizado.observacoesTecnico);
+      setTextoMaoDeObra(maoDeObraParaTexto(atualizado.valorMaoDeObra));
+    }, "OS salva.");
+  }
+
+  function salvarProdutos(produtos: ProdutoUsado[]) {
+    setAviso(null);
+    return salvarOs({ produtosUsados: produtos });
   }
 
   function fazerAcaoDireta(acao: AcaoDireta) {
-    const { pergunta, aviso: textoAviso, aplicar } = ACOES_DIRETAS[acao];
+    const { pergunta, aviso: textoAviso } = ACOES_DIRETAS[acao];
     if (!window.confirm(pergunta)) return;
-    atualizarAtendimento(atendimento.id, aplicar);
-    setAviso(textoAviso);
+    executar(() => mudarStatus(STATUS_DA_ACAO[acao]), textoAviso);
   }
 
   function registrarPagamento() {
@@ -124,19 +181,16 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
         ? "Esta OS está com total de R$ 0,00 (sem mão de obra e sem produtos). Registrar o pagamento assim mesmo? Depois disso a OS não pode mais mudar."
         : `Registrar o pagamento de ${formatarReais(valor)}? Depois disso a OS não pode mais mudar.`;
     if (!window.confirm(pergunta)) return;
-    // a hora é pega aqui fora: o transformar roda dentro do setState e precisa ser puro
-    const agora = new Date();
-    atualizarAtendimento(atendimento.id, (atual) => marcarPago(atual, agora));
-    setAviso("Pagamento registrado. A OS está fechada.");
+    executar(marcarPago, "Pagamento registrado. A OS está fechada.");
   }
 
-  function enviarMensagem(mensagem: string) {
+  // o modal mostra o erro e continua aberto se a API recusar
+  async function enviarMensagem(mensagem: string) {
     if (!mensagemAberta) return;
     const acao = mensagemAberta;
-    atualizarAtendimento(atendimento.id, (atual) =>
-      acao === "recusar" ? recusar(atual, mensagem) : cancelar(atual, mensagem)
-    );
+    await mudarStatus(STATUS_DA_ACAO[acao], mensagem);
     setMensagemAberta(null);
+    setErroAcao(null);
     setAviso(
       acao === "recusar"
         ? "Pedido recusado. O cliente vê a mensagem no Minha conta."
@@ -155,7 +209,7 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
           </Link>
 
           <div className="pagina-admin-atendimento__topo">
-            <h1 className="pagina-admin-atendimento__titulo">#{atendimento.id}</h1>
+            <h1 className="pagina-admin-atendimento__titulo">#{codigoAtendimento(atendimento.id)}</h1>
             <SeloStatusAtendimento status={atendimento.status} />
             {atendimento.status === "concluido" && <SeloPagamento pagoEm={atendimento.pagoEm} />}
           </div>
@@ -165,15 +219,16 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
             {atendimento.pagoEm && ` · pago em ${formatarDataHora(atendimento.pagoEm)}`}
           </p>
 
-          {/* a região fica sempre montada: o leitor de tela anuncia o texto quando ele entra */}
+          {/* as regiões ficam sempre montadas: o leitor de tela anuncia o texto quando ele entra */}
           <div role="status">{aviso && <p className="pagina-admin-atendimento__aviso">{aviso}</p>}</div>
+          <div role="alert">{erroAcao && <p className="pagina-admin-atendimento__erro-acao">{erroAcao}</p>}</div>
 
           <div className="pagina-admin-atendimento__blocos">
             <CartaoClienteOs atendimento={atendimento} />
 
             <section className="pagina-admin-atendimento__bloco">
               <h2>Visita</h2>
-              <p>{formatarAgendamento(atendimento.data, atendimento.horario, nomeDoTecnico(atendimento.tecnicoId))}</p>
+              <p>{formatarAgendamento(atendimento.data, atendimento.horario, atendimento.tecnico?.nome ?? null)}</p>
               <p className="pagina-admin-atendimento__detalhe">{TIPO_SERVICO_LABELS[atendimento.tipo]}</p>
             </section>
 
@@ -195,8 +250,8 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
             )}
 
             <section className="pagina-admin-atendimento__bloco">
-              <h2>Fotos do problema</h2>
-              <GaleriaFotosOs fotos={atendimento.fotos} />
+              <h2>Foto do problema</h2>
+              <GaleriaFotosOs fotoUrl={atendimento.fotoUrl} />
             </section>
 
             <section className="pagina-admin-atendimento__bloco">
@@ -208,13 +263,12 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
               <section className="pagina-admin-atendimento__bloco">
                 <h2 id="titulo-observacoes">Observações do técnico</h2>
                 {editavel ? (
-                  // TODO: com a API (PUT /appointments/:id/os), guardar um rascunho local e salvar ao sair do campo, em vez de gravar a cada tecla
                   <textarea
                     className="pagina-admin-atendimento__observacoes"
                     aria-labelledby="titulo-observacoes"
                     placeholder="Descreva o diagnóstico, as peças e os reparos feitos na visita."
-                    value={atendimento.observacoesTecnico}
-                    onChange={(e) => mudarOs({ observacoesTecnico: e.target.value })}
+                    value={observacoes}
+                    onChange={(e) => setObservacoes(e.target.value)}
                     maxLength={2000}
                     rows={5}
                   />
@@ -229,51 +283,88 @@ function ConteudoOs({ atendimento }: { atendimento: Atendimento }) {
             {mostrarOs && (
               <section className="pagina-admin-atendimento__bloco">
                 <h2>Produtos e valor</h2>
-                <ProdutosDaOs atendimento={atendimento} editavel={editavel} onMudar={mudarOs} />
+                <ProdutosDaOs
+                  atendimento={atendimento}
+                  produtosEditaveis={atendimento.status === "em-andamento"}
+                  maoDeObraEditavel={editavel}
+                  textoMaoDeObra={textoMaoDeObra}
+                  onMudarMaoDeObra={setTextoMaoDeObra}
+                  erroMaoDeObra={erroMaoDeObra}
+                  valorMaoDeObra={maoDeObraDoRascunho}
+                  onSalvarProdutos={salvarProdutos}
+                  salvando={salvando}
+                />
               </section>
+            )}
+
+            {editavel && (
+              <div className="pagina-admin-atendimento__salvar-os">
+                <button
+                  type="button"
+                  className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--principal"
+                  onClick={salvarRascunho}
+                  disabled={!temAlteracoes || Boolean(erroMaoDeObra) || salvando}
+                >
+                  {salvando ? "Salvando…" : "Salvar OS"}
+                </button>
+                <span className="pagina-admin-atendimento__detalhe">
+                  {temAlteracoes ? "Observações ou mão de obra ainda não salvas." : "Tudo salvo."}
+                </span>
+              </div>
             )}
           </div>
 
           {acoes.length > 0 && (
-            <div className="pagina-admin-atendimento__acoes">
-              {acoes.includes("recusar") && (
-                <button
-                  type="button"
-                  className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--perigo"
-                  onClick={() => setMensagemAberta("recusar")}
-                >
-                  Recusar
-                </button>
+            <>
+              {temAlteracoes && (
+                <p className="pagina-admin-atendimento__detalhe">
+                  Salve a OS antes de mudar o andamento, pra nada do que foi digitado se perder.
+                </p>
               )}
-              {acoes.includes("cancelar") && (
-                <button
-                  type="button"
-                  className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--perigo"
-                  onClick={() => setMensagemAberta("cancelar")}
-                >
-                  Cancelar atendimento
-                </button>
-              )}
-              {ORDEM_ACOES_DIRETAS.filter((acao) => acoes.includes(acao)).map((acao) => (
-                <button
-                  key={acao}
-                  type="button"
-                  className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--principal"
-                  onClick={() => fazerAcaoDireta(acao)}
-                >
-                  {ACOES_DIRETAS[acao].botao}
-                </button>
-              ))}
-              {acoes.includes("marcar-pago") && (
-                <button
-                  type="button"
-                  className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--principal"
-                  onClick={registrarPagamento}
-                >
-                  Marcar como pago
-                </button>
-              )}
-            </div>
+              <div className="pagina-admin-atendimento__acoes">
+                {acoes.includes("recusar") && (
+                  <button
+                    type="button"
+                    className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--perigo"
+                    onClick={() => setMensagemAberta("recusar")}
+                    disabled={salvando}
+                  >
+                    Recusar
+                  </button>
+                )}
+                {acoes.includes("cancelar") && (
+                  <button
+                    type="button"
+                    className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--perigo"
+                    onClick={() => setMensagemAberta("cancelar")}
+                    disabled={salvando}
+                  >
+                    Cancelar atendimento
+                  </button>
+                )}
+                {ORDEM_ACOES_DIRETAS.filter((acao) => acoes.includes(acao)).map((acao) => (
+                  <button
+                    key={acao}
+                    type="button"
+                    className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--principal"
+                    onClick={() => fazerAcaoDireta(acao)}
+                    disabled={salvando || temAlteracoes}
+                  >
+                    {ACOES_DIRETAS[acao].botao}
+                  </button>
+                ))}
+                {acoes.includes("marcar-pago") && (
+                  <button
+                    type="button"
+                    className="pagina-admin-atendimento__botao pagina-admin-atendimento__botao--principal"
+                    onClick={registrarPagamento}
+                    disabled={salvando || temAlteracoes}
+                  >
+                    Marcar como pago
+                  </button>
+                )}
+              </div>
+            </>
           )}
         </Container>
       </section>

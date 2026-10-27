@@ -1,5 +1,6 @@
 import type { Atendimento } from "../../tipos/atendimento";
 import { contemTexto } from "../busca";
+import { codigoAtendimento } from "./opcoesAtendimento";
 
 /** Os chips da lista: um por status, "encerrados" (recusado + cancelado) e "todos". */
 export type FiltroStatus = "aguardando" | "agendado" | "em-andamento" | "concluido" | "encerrados" | "todos";
@@ -13,8 +14,6 @@ export type OrdemAtendimento = "visita" | "visita-desc";
 export interface FiltrosAtendimento {
   busca: string;
   status: FiltroStatus;
-  /** id do atendente (dados/tecnicos.ts); "" = qualquer */
-  tecnico: string;
   pagamento: FiltroPagamento;
   ordem: OrdemAtendimento;
 }
@@ -23,7 +22,6 @@ export interface FiltrosAtendimento {
 export const FILTROS_ATENDIMENTO_INICIAIS: FiltrosAtendimento = {
   busca: "",
   status: "aguardando",
-  tecnico: "",
   pagamento: "",
   ordem: "visita",
 };
@@ -41,7 +39,7 @@ function combinaComStatus(atendimento: Atendimento, status: FiltroStatus) {
 function combinaComBusca(atendimento: Atendimento, busca: string) {
   return (
     contemTexto(atendimento.cliente.nome, busca) ||
-    contemTexto(atendimento.id, busca) ||
+    contemTexto(codigoAtendimento(atendimento.id), busca.replace("#", "")) ||
     contemTexto(atendimento.contato.bairro, busca)
   );
 }
@@ -65,7 +63,6 @@ export function filtrarAtendimentos(atendimentos: Atendimento[], filtros: Filtro
       (atendimento) =>
         combinaComStatus(atendimento, filtros.status) &&
         combinaComBusca(atendimento, filtros.busca) &&
-        (!filtros.tecnico || atendimento.tecnicoId === filtros.tecnico) &&
         combinaComPagamento(atendimento, filtros.pagamento)
     )
     .sort((a, b) => sentido * momentoDaVisita(a).localeCompare(momentoDaVisita(b)));
@@ -94,7 +91,6 @@ export function contarPorStatus(atendimentos: Atendimento[]): Record<FiltroStatu
  */
 export function contarFiltrosAtivosAtendimento(filtros: FiltrosAtendimento) {
   return [
-    filtros.tecnico !== "",
     filtros.pagamento !== "",
     filtros.ordem !== FILTROS_ATENDIMENTO_INICIAIS.ordem,
   ].filter(Boolean).length;

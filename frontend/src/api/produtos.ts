@@ -38,8 +38,8 @@ function textoOuNull(texto?: string) {
  * Corpo do PUT /products/:id. O backend repassa o corpo cru pro Prisma, então
  * qualquer campo extra (id, datas) quebra a atualização: só vão os permitidos.
  */
-export function paraCorpoProduto(dados: DadosProduto): Record<string, unknown> {
-  return {
+export function paraCorpoProduto(dados: DadosProduto, estoqueAnterior?: number): Record<string, unknown> {
+  const corpo: Record<string, unknown> = {
     categoria_id: dados.categoria_id,
     codigo: dados.codigo,
     nome: dados.nome,
@@ -49,6 +49,10 @@ export function paraCorpoProduto(dados: DadosProduto): Record<string, unknown> {
     url_imagem: textoOuNull(dados.url_imagem),
     ativo: dados.ativo,
   };
+  // estoque sem mudança fica fora do PUT: o valor da tela pode estar velho e
+  // desfaria as baixas feitas por pedidos desde que a lista foi carregada
+  if (dados.estoque === estoqueAnterior) delete corpo.estoque;
+  return corpo;
 }
 
 /**
@@ -87,11 +91,19 @@ export async function criarProduto(token: string, dados: DadosProduto): Promise<
   return atualizarProduto(token, criado.id, dados);
 }
 
-/** Atualiza o produto e devolve o resultado já convertido. */
-export async function atualizarProduto(token: string, id: string, dados: DadosProduto): Promise<Produto> {
+/**
+ * Atualiza o produto e devolve o resultado já convertido. `estoqueAnterior` é o
+ * estoque que a tela tinha antes da edição; igual ao do formulário, não vai no PUT.
+ */
+export async function atualizarProduto(
+  token: string,
+  id: string,
+  dados: DadosProduto,
+  estoqueAnterior?: number
+): Promise<Produto> {
   const atualizado = await requisicao<ProdutoApi>(`/products/${id}`, {
     metodo: "PUT",
-    corpo: paraCorpoProduto(dados),
+    corpo: paraCorpoProduto(dados, estoqueAnterior),
     token,
   });
   return paraProduto(atualizado);

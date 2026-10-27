@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { BannerLoja } from "./componentes/BannerLoja/BannerLoja";
@@ -17,6 +18,15 @@ export function PaginaLoja() {
   const { produtos, categorias, carregando, erro, recarregar } = useCatalogo();
   // texto digitado no campo de busca do BannerLoja
   const [searchTerm, setSearchTerm] = useState("");
+  const { hash } = useLocation();
+
+  // vindo de "/loja#<id da categoria>" (ex.: trilha da página do produto), rola
+  // até a seção da categoria assim que os produtos aparecem
+  useEffect(() => {
+    if (!carregando && hash) {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: "start" });
+    }
+  }, [carregando, hash]);
 
   // busca por nome, sem diferenciar maiúsculas de minúsculas; campo vazio mostra tudo
   const filteredProducts = useMemo(() => {

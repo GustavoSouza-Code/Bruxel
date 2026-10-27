@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import "./Modal.css";
 
@@ -17,6 +17,8 @@ interface ModalProps {
  */
 export function Modal({ titulo, onFechar, children, largo = false }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // id único por modal, pra dois modais não disputarem o mesmo aria-labelledby
+  const idTitulo = useId();
 
   // showModal() só existe no elemento real do DOM, por isso roda depois de montar.
   // Depois de abrir, foca o primeiro campo (senão o navegador foca o botão ✕)
@@ -36,7 +38,7 @@ export function Modal({ titulo, onFechar, children, largo = false }: ModalProps)
     <dialog
       ref={dialogRef}
       className={largo ? "modal modal--largo" : "modal"}
-      aria-labelledby="modal-title"
+      aria-labelledby={idTitulo}
       onClick={handleClick}
       // Esc dispara "cancel"; o preventDefault deixa o React desmontar o modal em vez do navegador fechá-lo
       onCancel={(event) => {
@@ -46,7 +48,7 @@ export function Modal({ titulo, onFechar, children, largo = false }: ModalProps)
     >
       <div className="modal__conteudo">
         <div className="modal__cabecalho">
-          <h2 id="modal-title" className="modal__titulo">
+          <h2 id={idTitulo} className="modal__titulo">
             {titulo}
           </h2>
           <button

@@ -29,3 +29,9 @@
 .pagina-admin-produtos__miniatura--vazio {
   background-color: var(--color-border-soft);
 }
+
+.pagina-admin-produtos__acoes-topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

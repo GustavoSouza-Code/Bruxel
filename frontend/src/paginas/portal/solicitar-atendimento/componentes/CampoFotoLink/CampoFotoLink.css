@@ -1,0 +1,35 @@
+.campo-foto-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.campo-foto-link__input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  background-color: var(--color-white);
+}
+
+.campo-foto-link__input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.campo-foto-link__dica {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.campo-foto-link__previa {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  align-self: flex-start;
+  border-radius: 10px;
+}

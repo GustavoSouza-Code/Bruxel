@@ -1,5 +1,6 @@
 import type { ContatoAtendimento } from "../../tipos/atendimento";
 import type { Usuario } from "../../tipos/usuario";
+import { validarUfCep } from "../usuarios/camposUsuario";
 
 /** Uma mensagem por campo do contato com problema; objeto vazio = contato ok. */
 export type ErrosContato = Partial<Record<keyof ContatoAtendimento, string>>;
@@ -54,12 +55,6 @@ export function validarContato(contato: ContatoAtendimento): ErrosContato {
   if (!contato.rua.trim()) erros.rua = "Informe a rua.";
   if (!contato.numero.trim()) erros.numero = "Informe o número.";
   if (!contato.cidade.trim()) erros.cidade = "Informe a cidade.";
-  if (contato.estado && !/^[A-Za-z]{2}$/.test(contato.estado)) {
-    erros.estado = "Use a sigla do estado, com 2 letras (ex.: RS).";
-  }
-  if (contato.cep && somenteDigitos(contato.cep).length !== 8) {
-    erros.cep = "O CEP tem 8 dígitos.";
-  }
 
-  return erros;
+  return { ...erros, ...validarUfCep(contato) };
 }

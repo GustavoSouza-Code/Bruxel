@@ -39,6 +39,27 @@ export const CAMPOS_ENDERECO: CampoEndereco[] = [
   },
 ];
 
+/** Uma mensagem por campo com formato errado; objeto vazio = UF e CEP ok. */
+export type ErrosUfCep = Partial<Record<"estado" | "cep", string>>;
+
+/**
+ * UF e CEP são opcionais, mas preenchidos precisam do formato que o banco aceita
+ * (CHAR(2) e CHECK de 8 dígitos); sem isso o backend responde 500.
+ */
+export function validarUfCep({ estado, cep }: { estado?: string | null; cep?: string | null }): ErrosUfCep {
+  const erros: ErrosUfCep = {};
+  // só espaços conta como vazio (vira null no banco)
+  const uf = estado?.trim();
+  const digitosCep = cep?.trim();
+  if (uf && !/^[A-Za-z]{2}$/.test(uf)) {
+    erros.estado = "A UF deve ter 2 letras (ex.: RS).";
+  }
+  if (digitosCep && digitosCep.replace(/\D/g, "").length !== 8) {
+    erros.cep = "O CEP deve ter 8 dígitos.";
+  }
+  return erros;
+}
+
 /**
  * Monta o endereço (do usuário ou de um atendimento) num texto só pra exibir, ex.: "Rua X, 850 - Centro, Lajeado - RS".
  * Pula as partes vazias; sem endereço nenhum devolve "".
@@ -50,16 +71,12 @@ export function formatarEndereco(endereco: Pick<Usuario, Exclude<ParteEndereco, 
 }
 
 /**
- * Confere o que o banco recusa e que o backend ainda não valida (hoje CEP ou
- * UF fora do formato viram erro 500). Campo vazio é permitido (vira null).
- * Devolve a mensagem do primeiro problema, ou null se está tudo certo.
+ * Versão de uma mensagem só do validarUfCep, pros formulários que mostram um
+ * erro geral. Devolve a mensagem do primeiro problema (CEP antes da UF), ou null.
  */
 export function validarEndereco(endereco: Pick<Usuario, "estado" | "cep">): string | null {
-  const cep = endereco.cep?.trim();
-  if (cep && !/^\d{8}$/.test(cep)) return "O CEP deve ter 8 dígitos.";
-  const uf = endereco.estado?.trim();
-  if (uf && !/^[A-Za-z]{2}$/.test(uf)) return "A UF deve ter 2 letras (ex.: RS).";
-  return null;
+  const erros = validarUfCep(endereco);
+  return erros.cep ?? erros.estado ?? null;
 }
 
 // texto vazio vira null: assim o PUT apaga o valor no banco em vez de gravar ""

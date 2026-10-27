@@ -1,39 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
-import { useAtendimentos } from "../../../contexto/useAtendimentos";
+import { errosPorCampo, mensagemDeErro } from "../../../api/cliente";
+import { criarAtendimento } from "../../../api/atendimentos";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import { contatoDoUsuario, validarContato } from "../../../crud/atendimentos/contatoAtendimento";
 import { DESCRICAO_MAX, validarSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
 import type { ErrosSolicitacao, RascunhoSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
-import {
-  SEM_PREFERENCIA,
-  diaTemHorarioLivre,
-  diasDaAgenda,
-  formatarAgendamento,
-  horarioEstaLivre,
-  nomeDoTecnico,
-  primeiroTecnicoLivre,
-} from "../../../crud/atendimentos/agenda";
-import {
-  ESCOLHA_CLIENTE_INICIAL,
-  clienteDoAtendimento,
-  validarClienteDaLoja,
-} from "../../../crud/atendimentos/clienteDaLoja";
-import type { EscolhaCliente } from "../../../crud/atendimentos/clienteDaLoja";
-import { TECNICOS } from "../../../dados/tecnicos";
+import { diasDaAgenda, formatarAgendamento } from "../../../crud/atendimentos/agenda";
+import { validarClienteDaLoja } from "../../../crud/atendimentos/clienteDaLoja";
 import type { ContatoAtendimento, HorarioVisita } from "../../../tipos/atendimento";
+import type { Usuario } from "../../../tipos/usuario";
 import { usePerfil } from "../perfil/usePerfil";
 import { SeletorCliente } from "./componentes/SeletorCliente/SeletorCliente";
 import { SeletorTipoServico } from "./componentes/SeletorTipoServico/SeletorTipoServico";
-import { SeletorAtendente } from "./componentes/SeletorAtendente/SeletorAtendente";
 import { SeletorDiaHorario } from "./componentes/SeletorDiaHorario/SeletorDiaHorario";
-import { CampoFotos } from "./componentes/CampoFotos/CampoFotos";
-import type { FotoSelecionada } from "./componentes/CampoFotos/CampoFotos";
+import { CampoFotoLink } from "./componentes/CampoFotoLink/CampoFotoLink";
 import "./solicitar-atendimento.css";
 
 /** O rascunho sem o contato: o contato é calculado à parte (do perfil do cliente, ou da conta escolhida pelo admin). */
@@ -42,7 +28,7 @@ type CamposRascunho = Omit<RascunhoSolicitacao, "contato">;
 const RASCUNHO_INICIAL: CamposRascunho = {
   tipo: null,
   descricao: "",
-  tecnico: SEM_PREFERENCIA,
+  fotoUrl: "",
   data: "",
   horario: null,
 };
@@ -50,30 +36,25 @@ const RASCUNHO_INICIAL: CamposRascunho = {
 // depois de um envio pela loja, cliques no "Enviar" dentro deste intervalo são o resto de um duplo clique
 const INTERVALO_DUPLO_CLIQUE_MS = 1000;
 
-/** A conta do cliente escolhido; null quando ninguém foi escolhido ou o cliente não tem cadastro. */
-function contaDaEscolha(escolha: EscolhaCliente) {
-  return escolha.tipo === "cadastrado" ? (escolha.usuario?.id ?? null) : null;
-}
-
 /**
  * Formulário de pedido de visita técnica (rota "/solicitar-atendimento", só pra quem está logado).
- * Os blocos — tipo, descrição, fotos, atendente e horário, e contato — são numerados pelo CSS
+ * Os blocos — tipo, descrição, foto, dia e horário, e contato — são numerados pelo CSS
  * (counter), então dá pra incluir um bloco no meio sem renumerar nada.
  *
  * Cliente: o contato vem do próprio perfil — completo, aparece só um resumo com "Alterar";
  * incompleto (ou se a busca do perfil falhar), os campos já abrem pra digitar. Mudar o contato
  * aqui vale só pra este atendimento. Ao enviar, vai pra aba "Atendimentos" do /perfil com um aviso.
  *
- * Administrador (abrindo pela loja): ganha o bloco "Cliente" no topo (uma conta cadastrada ou só o
- * nome de quem não tem conta), o contato vem da conta escolhida e, ao enviar, fica na página com
- * um aviso e o formulário limpo, pronto pro próximo cliente.
+ * Administrador (abrindo pela loja): ganha o bloco "Cliente" no topo (uma conta cadastrada), o
+ * contato vem da conta escolhida e, ao enviar, fica na página com um aviso e o formulário limpo,
+ * pronto pro próximo cliente.
  *
- * Os pedidos vão pro ProvedorAtendimentos (em memória, sem backend ainda).
+ * O pedido vai pro POST /appointments. Se o backend recusar, o que foi digitado fica na tela, com
+ * o erro geral embaixo do formulário e os erros por campo em cada bloco.
  */
 export function PaginaSolicitarAtendimento() {
-  const { solicitarAtendimento, ocupacoes } = useAtendimentos();
   const navigate = useNavigate();
-  const { usuario, ehAdmin } = useAutenticacao();
+  const { token, ehAdmin } = useAutenticacao();
   // perfil de quem está logado, pra pré-preencher o contato; se a busca falhar
   // (ex.: 403 enquanto o backend não libera o próprio usuário), o cliente digita
   const { dados: perfil, carregando: carregandoPerfil } = usePerfil();
@@ -88,38 +69,24 @@ export function PaginaSolicitarAtendimento() {
   // dias da faixa (amanhã em diante, sem domingo): calculados na montagem (o render não pode chamar
   // new Date()) e de novo no envio, caso a página tenha ficado aberta de um dia pro outro
   const [dias, setDias] = useState(() => diasDaAgenda(new Date()));
-  // trava contra duplo clique: um segundo submit antes de a página trocar não cria outro atendimento
-  const enviadoRef = useRef(false);
+  // trava contra duplo clique: um segundo submit enquanto o primeiro está indo não cria outro atendimento
+  const enviandoRef = useRef(false);
+  // true enquanto o POST está em andamento (o botão mostra "Enviando…")
+  const [enviando, setEnviando] = useState(false);
+  // erro geral do envio (sem conexão, recusa do backend); os por campo vão pro `erros`
+  const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   // quando foi o último envio pela loja: o formulário volta limpo na hora, então o 2º clique de um
   // duplo clique validaria o formulário vazio e encheria a tela de erros logo depois do aviso
   const ultimoEnvioLojaRef = useRef(0);
   // admin abrindo pela loja: quem é o cliente, o erro do bloco "Cliente" e o aviso depois do envio
-  const [escolhaCliente, setEscolhaCliente] = useState<EscolhaCliente>(ESCOLHA_CLIENTE_INICIAL);
+  const [cliente, setCliente] = useState<Usuario | null>(null);
   const [erroCliente, setErroCliente] = useState<string | null>(null);
   const [avisoLoja, setAvisoLoja] = useState<string | null>(null);
   // muda a cada envio do admin: recria o SeletorCliente, que volta com a busca vazia
   const [envios, setEnvios] = useState(0);
-  const [fotos, setFotos] = useState<FotoSelecionada[]>([]);
-  // cópia das fotos pra limpeza ao sair da página (o cleanup do useEffect não enxerga o estado atual)
-  const fotosRef = useRef<FotoSelecionada[]>([]);
-
-  // ao sair sem enviar, libera as URLs temporárias das miniaturas; se enviou,
-  // as URLs continuam valendo, porque foram pro ProvedorAtendimentos
-  useEffect(() => {
-    return () => {
-      if (enviadoRef.current) return;
-      fotosRef.current.forEach((foto) => URL.revokeObjectURL(foto.url));
-    };
-  }, []);
-
-  function mudarFotos(novas: FotoSelecionada[]) {
-    setFotos(novas);
-    fotosRef.current = novas;
-  }
-
-  // de onde vem o contato: pro admin, da conta do cliente escolhido (sem cadastro, de lugar nenhum);
-  // pro cliente, do próprio perfil. O endereço do admin nunca entra num pedido de outra pessoa
-  const usuarioBase = ehAdmin ? (escolhaCliente.tipo === "cadastrado" ? escolhaCliente.usuario : null) : perfil;
+  // de onde vem o contato: pro admin, da conta do cliente escolhido; pro cliente, do próprio perfil.
+  // O endereço do admin nunca entra num pedido de outra pessoa
+  const usuarioBase = ehAdmin ? cliente : perfil;
   // o contato é derivado a cada renderização, em vez de um useEffect copiar a base pro estado
   const contatoBase = contatoDoUsuario(usuarioBase);
   const contato = contatoEditado ?? contatoBase;
@@ -141,25 +108,6 @@ export function PaginaSolicitarAtendimento() {
   function atualizarCampo<C extends keyof CamposRascunho>(campo: C, valor: CamposRascunho[C]) {
     setRascunho((atual) => ({ ...atual, [campo]: valor }));
     limparErro(campo);
-  }
-
-  // trocar de atendente pode deixar o dia ou o horário escolhidos sem vaga: aí eles são limpos
-  function escolherTecnico(escolha: string) {
-    const diaContinua = rascunho.data !== "" && diaTemHorarioLivre(escolha, rascunho.data, ocupacoes);
-    const horarioContinua =
-      diaContinua &&
-      rascunho.horario !== null &&
-      horarioEstaLivre(escolha, rascunho.data, rascunho.horario, ocupacoes);
-    setRascunho((atual) => ({
-      ...atual,
-      tecnico: escolha,
-      data: diaContinua ? atual.data : "",
-      horario: horarioContinua ? atual.horario : null,
-    }));
-    limparErro("tecnico");
-    // o dia ou o horário que foi limpo leva junto o erro que era dele
-    if (rascunho.data !== "" && !diaContinua) limparErro("data");
-    if (rascunho.horario !== null && !horarioContinua) limparErro("horario");
   }
 
   // outro dia, outros horários: o horário escolhido antes é limpo
@@ -187,23 +135,31 @@ export function PaginaSolicitarAtendimento() {
   }
 
   // o contato digitado é de quem está no balcão: só é descartado quando a conta do cliente muda
-  // (escolher, trocar ou largar uma conta cadastrada, que traz o próprio contato). Passar de
-  // "ninguém escolhido" pra "sem cadastro" (ou voltar pra busca), ou corrigir o nome, mantém o contato
-  function escolherCliente(escolha: EscolhaCliente) {
-    const mesmaConta = contaDaEscolha(escolha) === contaDaEscolha(escolhaCliente);
-    setEscolhaCliente(escolha);
+  function escolherCliente(novo: Usuario | null) {
+    const mesmaConta = novo?.id === cliente?.id;
+    setCliente(novo);
     setErroCliente(null);
-    // o aviso do envio anterior sai quando o atendente começa o próximo cliente
-    if (escolha.tipo !== escolhaCliente.tipo || !mesmaConta) setAvisoLoja(null);
     if (mesmaConta) return;
+    // o aviso do envio anterior sai quando o atendente começa o próximo cliente
+    setAvisoLoja(null);
     setContatoEditado(null);
     setEditandoContato(false);
     (Object.keys(contatoBase) as (keyof ContatoAtendimento)[]).forEach(limparErro);
   }
 
-  function enviar(evento: FormEvent) {
+  // depois que o React mostrar as mensagens, rola até o primeiro bloco com erro
+  function rolarAtePrimeiroErro() {
+    requestAnimationFrame(() => {
+      document
+        .querySelector(".pagina-atendimento__erro")
+        ?.closest("fieldset")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
+  async function enviar(evento: FormEvent) {
     evento.preventDefault();
-    if (enviadoRef.current) return;
+    if (enviandoRef.current || !token) return;
     // resto de um duplo clique logo depois de um envio pela loja: ignora
     if (ehAdmin && Date.now() - ultimoEnvioLojaRef.current < INTERVALO_DUPLO_CLIQUE_MS) return;
 
@@ -220,68 +176,67 @@ export function PaginaSolicitarAtendimento() {
       }
     }
     const completo: RascunhoSolicitacao = { ...rascunhoAtual, contato };
-    const encontrados = validarSolicitacao(completo, hoje, ocupacoes);
+    const encontrados = validarSolicitacao(completo, hoje);
     // pela loja, o cliente também precisa estar escolhido
-    const problemaCliente = ehAdmin ? validarClienteDaLoja(escolhaCliente) : null;
+    const problemaCliente = ehAdmin ? validarClienteDaLoja(cliente) : null;
     setErroCliente(problemaCliente);
+    setErroEnvio(null);
     if (Object.keys(encontrados).length > 0 || problemaCliente) {
       setErros(encontrados);
-      // depois que o React mostrar as mensagens, rola até o primeiro bloco com erro
-      requestAnimationFrame(() => {
-        document
-          .querySelector(".pagina-atendimento__erro")
-          ?.closest("fieldset")
-          ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
+      rolarAtePrimeiroErro();
       return;
     }
 
     const { tipo, horario } = completo;
     // a validação já garante os dois; o if é só pro TypeScript saber que não são null
     if (!tipo || !horario) return;
-    // "Sem preferência" vira o primeiro atendente livre naquele dia e horário
-    const tecnicoId =
-      completo.tecnico === SEM_PREFERENCIA
-        ? primeiroTecnicoLivre(completo.data, horario, ocupacoes)
-        : completo.tecnico;
-    // a validação também já garantiu que tem alguém livre
-    if (!tecnicoId) return;
+    enviandoRef.current = true;
+    setEnviando(true);
+    try {
+      await criarAtendimento(token, {
+        tipo,
+        descricao: completo.descricao,
+        fotoUrl: completo.fotoUrl.trim() || null,
+        // pela loja, o pedido é do cliente escolhido; pelo site, o backend usa quem está logado
+        clienteId: ehAdmin ? (cliente?.id ?? null) : null,
+        data: completo.data,
+        horario,
+        contato,
+      });
+    } catch (falha) {
+      // o backend chama os campos pelos nomes do banco; aqui cada um vai pro bloco certo da tela
+      const porCampo = errosPorCampo(falha);
+      const { data_hora, foto_url, usuario_id, ...outros } = porCampo;
+      setErros({
+        ...(outros as ErrosSolicitacao),
+        ...(data_hora ? { horario: data_hora } : {}),
+        ...(foto_url ? { fotoUrl: foto_url } : {}),
+      });
+      if (usuario_id) setErroCliente(usuario_id);
+      setErroEnvio(mensagemDeErro(falha));
+      if (Object.keys(porCampo).length > 0) rolarAtePrimeiroErro();
+      return;
+    } finally {
+      enviandoRef.current = false;
+      setEnviando(false);
+    }
 
-    // pela loja, o cliente é o escolhido no bloco "Cliente"; pelo site, é quem está logado
-    const cliente = ehAdmin
-      ? clienteDoAtendimento(escolhaCliente)
-      : { id: usuario?.id ?? null, nome: usuario?.nome ?? "" };
-    enviadoRef.current = true;
-    solicitarAtendimento({
-      tipo,
-      descricao: completo.descricao.trim(),
-      fotos: fotos.map((foto) => foto.url),
-      cliente,
-      abertoNaLoja: ehAdmin,
-      tecnicoId,
-      data: completo.data,
-      horario,
-      contato,
-    });
-    const agendamento = formatarAgendamento(completo.data, horario, nomeDoTecnico(tecnicoId));
+    const agendamento = formatarAgendamento(completo.data, horario, null);
     if (ehAdmin) {
       // no balcão o atendente abre vários seguidos: fica na página, com o aviso e o formulário limpo
-      setAvisoLoja(`Atendimento aberto para ${cliente.nome}: ${agendamento}.`);
+      setAvisoLoja(`Atendimento aberto para ${cliente?.nome ?? "o cliente"}: ${agendamento}.`);
       setRascunho(RASCUNHO_INICIAL);
-      setEscolhaCliente(ESCOLHA_CLIENTE_INICIAL);
+      setCliente(null);
       setEnvios((atual) => atual + 1);
       setContatoEditado(null);
       setEditandoContato(false);
       setErros({});
-      // as fotos foram pro pedido: só esvazia o campo, sem revogar as URLs
-      mudarFotos([]);
-      // libera o próximo envio; o resto de um duplo clique é barrado pelo ultimoEnvioLojaRef
-      enviadoRef.current = false;
+      // o resto de um duplo clique é barrado pelo ultimoEnvioLojaRef
       ultimoEnvioLojaRef.current = Date.now();
       window.scrollTo(0, 0);
       return;
     }
-    const mensagem = `Pedido enviado! Horário reservado pra ${agendamento}. A Bruxel confirma a visita com você.`;
+    const mensagem = `Pedido enviado pra ${agendamento}! A Bruxel confirma a visita com você.`;
     // o /perfil abre na mesma rolagem desta página (lá embaixo); volta pro topo pra o aviso aparecer
     window.scrollTo(0, 0);
     // replace: o botão Voltar do navegador não retorna pro formulário que já foi enviado
@@ -322,7 +277,7 @@ export function PaginaSolicitarAtendimento() {
             {ehAdmin && (
               <fieldset className="pagina-atendimento__bloco">
                 <legend className="pagina-atendimento__titulo-bloco">Cliente</legend>
-                <SeletorCliente key={envios} escolha={escolhaCliente} onChange={escolherCliente} />
+                <SeletorCliente key={envios} cliente={cliente} onChange={escolherCliente} />
                 {erroCliente && (
                   <p className="pagina-atendimento__erro" role="alert">
                     {erroCliente}
@@ -367,30 +322,26 @@ export function PaginaSolicitarAtendimento() {
 
             <fieldset className="pagina-atendimento__bloco">
               <legend className="pagina-atendimento__titulo-bloco">
-                Fotos do problema <span className="pagina-atendimento__opcional">(opcional)</span>
+                Foto do problema <span className="pagina-atendimento__opcional">(opcional)</span>
               </legend>
-              <CampoFotos key={envios} fotos={fotos} onChange={mudarFotos} />
+              <CampoFotoLink
+                valor={rascunho.fotoUrl}
+                onChange={(valor) => atualizarCampo("fotoUrl", valor)}
+                erro={erros.fotoUrl}
+              />
             </fieldset>
 
             <fieldset className="pagina-atendimento__bloco">
-              <legend className="pagina-atendimento__titulo-bloco">Atendente e horário</legend>
-              <SeletorAtendente tecnicos={TECNICOS} valor={rascunho.tecnico} onChange={escolherTecnico} />
-              {erros.tecnico && (
-                <p className="pagina-atendimento__erro" role="alert">
-                  {erros.tecnico}
-                </p>
-              )}
+              <legend className="pagina-atendimento__titulo-bloco">Dia e horário</legend>
               <SeletorDiaHorario
                 dias={dias}
-                escolha={rascunho.tecnico}
-                ocupacoes={ocupacoes}
                 data={rascunho.data}
                 horario={rascunho.horario}
                 onChangeData={escolherDia}
                 onChangeHorario={(horario: HorarioVisita) => atualizarCampo("horario", horario)}
               />
               <p className="pagina-atendimento__dica">
-                O horário fica reservado e a Bruxel confirma a visita com você.
+                A Bruxel confirma o horário e quem vai fazer a visita com você.
               </p>
               {erros.data && (
                 <p className="pagina-atendimento__erro" role="alert">
@@ -476,15 +427,21 @@ export function PaginaSolicitarAtendimento() {
               </p>
             </fieldset>
 
+            {erroEnvio && (
+              <p className="pagina-atendimento__erro pagina-atendimento__erro-envio" role="alert">
+                {erroEnvio}
+              </p>
+            )}
+
             <div className="pagina-atendimento__acoes">
               {/* o bloco do contato ainda está carregando: enviar agora validaria um contato vazio que a pessoa nem vê */}
               <button
                 type="submit"
                 className="pagina-atendimento__enviar"
-                disabled={esperandoPerfil}
-                aria-busy={esperandoPerfil}
+                disabled={esperandoPerfil || enviando}
+                aria-busy={esperandoPerfil || enviando}
               >
-                Enviar solicitação
+                {enviando ? "Enviando…" : "Enviar solicitação"}
               </button>
               <Link to="/" className="pagina-atendimento__cancelar">
                 Cancelar

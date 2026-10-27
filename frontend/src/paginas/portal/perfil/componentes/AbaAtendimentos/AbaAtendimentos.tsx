@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { useAtendimentos } from "../../../../../contexto/useAtendimentos";
-import { STATUS_LABELS, TIPO_SERVICO_LABELS } from "../../../../../crud/atendimentos/opcoesAtendimento";
-import { formatarData } from "../../../../../crud/atendimentos/datasAtendimento";
-import { nomeDoTecnico } from "../../../../../crud/atendimentos/agenda";
+import { useAtendimentos } from "../../../../../crud/atendimentos/useAtendimentos";
+import {
+  STATUS_LABELS,
+  TIPO_SERVICO_LABELS,
+  codigoAtendimento,
+} from "../../../../../crud/atendimentos/opcoesAtendimento";
+import { formatarAgendamento } from "../../../../../crud/atendimentos/agenda";
 import { IconeFerramenta } from "../../../../../componentes/ui/Icones/Icones";
-import { formatarReais, totalOs } from "../../../../../crud/atendimentos/valorOs";
 import "./AbaAtendimentos.css";
 
 interface AbaAtendimentosProps {
@@ -14,11 +16,13 @@ interface AbaAtendimentosProps {
 
 /**
  * Aba "Atendimentos" do /perfil: os atendimentos que o cliente pediu, do mais
- * novo pro mais antigo, com o status de cada um, e o atalho pro formulário.
+ * novo pro mais antigo (GET /appointments), com o status de cada um, e o atalho
+ * pro formulário. O valor da OS não aparece: o backend não manda a mão de obra
+ * pro cliente, então um total aqui sairia errado.
  * Usa as classes de card do perfil.css, porque só aparece dentro do /perfil.
  */
 export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
-  const { atendimentos } = useAtendimentos();
+  const { atendimentos, carregando, erro, recarregar } = useAtendimentos();
 
   return (
     <>
@@ -36,7 +40,18 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
         </p>
       )}
 
-      {atendimentos.length === 0 ? (
+      {carregando ? (
+        <p className="pagina-perfil__vazio">Carregando seus atendimentos…</p>
+      ) : erro ? (
+        <div className="pagina-perfil__falha">
+          <p className="pagina-perfil__erro" role="alert">
+            {erro}
+          </p>
+          <button type="button" className="pagina-perfil__cancelar" onClick={recarregar}>
+            Tentar novamente
+          </button>
+        </div>
+      ) : atendimentos.length === 0 ? (
         <p className="pagina-perfil__vazio">
           Você ainda não solicitou nenhum atendimento.{" "}
           <Link to="/solicitar-atendimento">Solicite o primeiro.</Link>
@@ -44,32 +59,25 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
       ) : (
         <ul className="aba-atendimentos__lista">
           {atendimentos.map((atendimento) => {
-            const quantidadeFotos = atendimento.fotos.length;
-            const total = totalOs(atendimento);
             const encerrado = atendimento.status === "recusado" || atendimento.status === "cancelado";
             return (
               <li key={atendimento.id} className="pagina-perfil__card aba-atendimentos__item">
                 <div className="aba-atendimentos__principal">
                   <strong>
-                    #{atendimento.id} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
+                    #{codigoAtendimento(atendimento.id)} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                   </strong>
                   <span>
-                    Visita: {formatarData(atendimento.data)} às {atendimento.horario} ·{" "}
-                    {nomeDoTecnico(atendimento.tecnicoId)}
+                    Visita: {formatarAgendamento(atendimento.data, atendimento.horario, atendimento.tecnico?.nome ?? null)}
                   </span>
                   <span>
                     Enviado em {new Date(atendimento.criadoEm).toLocaleDateString("pt-BR")}
                     {atendimento.abertoNaLoja && " · aberto na loja"}
-                    {quantidadeFotos > 0 &&
-                      ` · ${quantidadeFotos} ${quantidadeFotos === 1 ? "foto" : "fotos"}`}
+                    {atendimento.fotoUrl && " · com foto"}
                   </span>
                   {encerrado && atendimento.mensagemCliente && (
                     <span className="aba-atendimentos__mensagem">
                       Mensagem da Bruxel: {atendimento.mensagemCliente}
                     </span>
-                  )}
-                  {atendimento.status === "concluido" && total > 0 && (
-                    <span>Total: {formatarReais(total)}</span>
                   )}
                 </div>
                 {/* o sufixo da classe é o próprio status (ver AbaAtendimentos.css) */}

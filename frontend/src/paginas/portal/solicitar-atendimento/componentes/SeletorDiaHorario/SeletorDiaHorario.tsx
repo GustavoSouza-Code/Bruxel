@@ -1,22 +1,12 @@
 import { useRef } from "react";
 import type { HorarioVisita } from "../../../../../tipos/atendimento";
-import type { Ocupacao } from "../../../../../tipos/tecnico";
-import {
-  diaTemHorarioLivre,
-  formatarDiaCurto,
-  horarioEstaLivre,
-  horariosDoDia,
-  partesDoDia,
-} from "../../../../../crud/atendimentos/agenda";
+import { formatarDiaCurto, horariosDoDia, partesDoDia } from "../../../../../crud/atendimentos/agenda";
 import { useBordasRolagem } from "../../../../../hooks/useBordasRolagem";
 import "./SeletorDiaHorario.css";
 
 interface SeletorDiaHorarioProps {
   /** dias que aparecem na faixa ("aaaa-mm-dd"), já sem domingo */
   dias: string[];
-  /** id do atendente escolhido, ou SEM_PREFERENCIA */
-  escolha: string;
-  ocupacoes: Ocupacao[];
   /** dia escolhido; "" = nenhum */
   data: string;
   horario: HorarioVisita | null;
@@ -25,15 +15,13 @@ interface SeletorDiaHorarioProps {
 }
 
 /**
- * Segunda parte do bloco "Atendente e horário": uma faixa de dias que rola pro
- * lado e, depois de escolher o dia, os horários dele. Dia sem nenhum horário livre
- * fica apagado; horário ocupado fica riscado. Tudo depende do atendente escolhido
- * (ou de qualquer um, no "Sem preferência").
+ * Bloco "Dia e horário": uma faixa de dias que rola pro lado e, depois de
+ * escolher o dia, os horários dele (os blocos de 2h do horário de funcionamento).
+ * O backend ainda não informa a agenda ocupada (ver o recado no spec), então
+ * todos aparecem livres e a Bruxel confirma o horário com o cliente.
  */
 export function SeletorDiaHorario({
   dias,
-  escolha,
-  ocupacoes,
   data,
   horario,
   onChangeData,
@@ -62,16 +50,11 @@ export function SeletorDiaHorario({
       >
         {dias.map((dia) => {
           const { semana, dia: numero } = partesDoDia(dia);
-          const livre = diaTemHorarioLivre(escolha, dia, ocupacoes);
           const ativo = data === dia;
           return (
             <label
               key={dia}
-              className={[
-                "seletor-dia-horario__dia",
-                ativo && "seletor-dia-horario__dia--ativo",
-                !livre && "seletor-dia-horario__dia--lotado",
-              ]
+              className={["seletor-dia-horario__dia", ativo && "seletor-dia-horario__dia--ativo"]
                 .filter(Boolean)
                 .join(" ")}
             >
@@ -80,10 +63,9 @@ export function SeletorDiaHorario({
                 name="dia"
                 value={dia}
                 checked={ativo}
-                disabled={!livre}
                 onChange={() => onChangeData(dia)}
                 className="seletor-dia-horario__radio"
-                aria-label={livre ? formatarDiaCurto(dia) : `${formatarDiaCurto(dia)}, sem horário livre`}
+                aria-label={formatarDiaCurto(dia)}
               />
               <span>{semana}</span>
               <strong>{numero}</strong>
@@ -95,20 +77,15 @@ export function SeletorDiaHorario({
       {data ? (
         <>
           <p className="seletor-dia-horario__titulo" id="titulo-horarios">
-            Horários livres em {formatarDiaCurto(data)}
+            Horários em {formatarDiaCurto(data)}
           </p>
           <div className="seletor-dia-horario__horarios" role="radiogroup" aria-labelledby="titulo-horarios">
             {horariosDoDia(data).map((opcao) => {
-              const livre = horarioEstaLivre(escolha, data, opcao, ocupacoes);
               const ativo = horario === opcao;
               return (
                 <label
                   key={opcao}
-                  className={[
-                    "seletor-dia-horario__horario",
-                    ativo && "seletor-dia-horario__horario--ativo",
-                    !livre && "seletor-dia-horario__horario--ocupado",
-                  ]
+                  className={["seletor-dia-horario__horario", ativo && "seletor-dia-horario__horario--ativo"]
                     .filter(Boolean)
                     .join(" ")}
                 >
@@ -117,10 +94,9 @@ export function SeletorDiaHorario({
                     name="horario"
                     value={opcao}
                     checked={ativo}
-                    disabled={!livre}
                     onChange={() => onChangeHorario(opcao)}
                     className="seletor-dia-horario__radio"
-                    aria-label={livre ? opcao : `${opcao}, ocupado`}
+                    aria-label={opcao}
                   />
                   {opcao}
                 </label>

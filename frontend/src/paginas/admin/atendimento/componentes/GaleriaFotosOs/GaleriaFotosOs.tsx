@@ -1,40 +1,31 @@
 import { useState } from "react";
 import "./GaleriaFotosOs.css";
 
-/** Fotos que o cliente mandou: a escolhida em tamanho grande e as outras em miniatura. */
-export function GaleriaFotosOs({ fotos }: { fotos: string[] }) {
-  const [indice, setIndice] = useState(0);
+/**
+ * Foto que o cliente mandou (o backend guarda um link só). Se a imagem não
+ * carregar, fica o link pra abrir em outra aba.
+ */
+export function GaleriaFotosOs({ fotoUrl }: { fotoUrl: string | null }) {
+  // link cuja imagem falhou; aí só o link aparece
+  const [falhou, setFalhou] = useState<string | null>(null);
 
-  if (fotos.length === 0) {
-    return <p className="galeria-fotos-os__vazio">O cliente não mandou fotos.</p>;
+  if (!fotoUrl) {
+    return <p className="galeria-fotos-os__vazio">O cliente não mandou foto.</p>;
   }
-
-  const escolhida = Math.min(indice, fotos.length - 1);
 
   return (
     <div className="galeria-fotos-os">
-      <img
-        className="galeria-fotos-os__principal"
-        src={fotos[escolhida]}
-        alt={`Foto ${escolhida + 1} de ${fotos.length} do problema`}
-      />
-      {fotos.length > 1 && (
-        <ul className="galeria-fotos-os__miniaturas">
-          {fotos.map((foto, posicao) => (
-            <li key={foto}>
-              <button
-                type="button"
-                className={`galeria-fotos-os__miniatura${posicao === escolhida ? " galeria-fotos-os__miniatura--ativa" : ""}`}
-                aria-label={`Ver a foto ${posicao + 1}`}
-                aria-pressed={posicao === escolhida}
-                onClick={() => setIndice(posicao)}
-              >
-                <img src={foto} alt="" />
-              </button>
-            </li>
-          ))}
-        </ul>
+      {falhou !== fotoUrl && (
+        <img
+          className="galeria-fotos-os__principal"
+          src={fotoUrl}
+          alt="Foto do problema"
+          onError={() => setFalhou(fotoUrl)}
+        />
       )}
+      <a className="galeria-fotos-os__link" href={fotoUrl} target="_blank" rel="noreferrer">
+        {falhou === fotoUrl ? "A foto não carregou aqui. Abrir o link" : "Abrir a foto em outra aba"}
+      </a>
     </div>
   );
 }

@@ -2,12 +2,12 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
-import { ProvedorAtendimentos } from "./contexto/ContextoAtendimentos";
 import { RotaAdmin } from "./componentes/layout/RotaAdmin/RotaAdmin";
 import { RotaLogado } from "./componentes/layout/RotaLogado/RotaLogado";
 import { PaginaInicio } from "./paginas/portal/inicio/inicio";
 import { PaginaSobre } from "./paginas/portal/sobre/sobre";
 import { PaginaLoja } from "./paginas/portal/loja/loja";
+import { PaginaProduto } from "./paginas/portal/produto/produto";
 import { PaginaPiscinator } from "./paginas/portal/piscinator/piscinator";
 import { PaginaCarrinho } from "./paginas/portal/carrinho/carrinho";
 import { PaginaEntrar } from "./paginas/portal/entrar/entrar";
@@ -35,6 +35,7 @@ function RotasDoSite() {
         <Route path="/" element={<PaginaInicio />} />
         <Route path="/sobre" element={<PaginaSobre />} />
         <Route path="/loja" element={<PaginaLoja />} />
+        <Route path="/produto/:id" element={<PaginaProduto />} />
         <Route path="/piscinator" element={<PaginaPiscinator />} />
         <Route path="/carrinho" element={<PaginaCarrinho />} />
         <Route path="/entrar" element={<PaginaEntrar />} />
@@ -63,20 +64,19 @@ function RotasDoSite() {
 /**
  * Raiz da aplicação: define as rotas do site.
  *
- * Os provedores envolvem tudo pra que a sessão (ProvedorAutenticacao), o
- * carrinho (ProvedorCarrinho) e os atendimentos pedidos (ProvedorAtendimentos)
- * sejam estados únicos, compartilhados por todas as páginas e pelo Cabecalho.
+ * Os provedores envolvem tudo pra que a sessão (ProvedorAutenticacao) e o
+ * carrinho (ProvedorCarrinho) sejam estados únicos, compartilhados por todas as
+ * páginas e pelo Cabecalho. Os atendimentos vêm da API em cada tela
+ * (crud/atendimentos/useAtendimentos).
  * Como ficam acima das rotas, não se perdem ao navegar entre elas.
  */
 function App() {
   return (
     <ProvedorAutenticacao>
       <ProvedorCarrinho>
-        <ProvedorAtendimentos>
-          <BrowserRouter>
-            <RotasDoSite />
-          </BrowserRouter>
-        </ProvedorAtendimentos>
+        <BrowserRouter>
+          <RotasDoSite />
+        </BrowserRouter>
       </ProvedorCarrinho>
     </ProvedorAutenticacao>
   );

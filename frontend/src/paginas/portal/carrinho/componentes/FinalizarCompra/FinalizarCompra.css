@@ -1,0 +1,87 @@
+/* o bloco usa o fundo e as linhas do resumo do carrinho.css; aqui só o formulário */
+.finalizar-compra {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.finalizar-compra__pagamento {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.finalizar-compra__pagamento legend,
+.finalizar-compra__campo span {
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  margin-bottom: 0.4rem;
+}
+
+.finalizar-compra__opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.finalizar-compra__opcao input {
+  accent-color: var(--color-primary);
+  margin: 0;
+}
+
+.finalizar-compra__campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.finalizar-compra__campo textarea {
+  font: inherit;
+  font-size: var(--font-size-small);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  resize: vertical;
+  background-color: var(--color-white);
+}
+
+.finalizar-compra__campo textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.finalizar-compra__erro {
+  margin: 0;
+  color: #c0392b;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+/* o botão do resumo já tem margem; dentro do formulário o gap faz esse papel */
+.finalizar-compra .pagina-carrinho__continuar {
+  margin-top: 0;
+}
+
+.pagina-carrinho__continuar:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.finalizar-compra__aviso {
+  margin: 1.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* o atalho pro login é um link com a cara do botão */
+.finalizar-compra__entrar {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}

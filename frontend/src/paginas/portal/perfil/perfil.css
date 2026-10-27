@@ -279,13 +279,19 @@
   white-space: nowrap;
 }
 
-/* cores por status do pedido (o sufixo da classe é o valor de OrderStatus) */
+/* cores por status do pedido (o sufixo da classe é o status do banco em minúsculas) */
+.pagina-perfil__status--pendente {
+  background-color: #fdf3e1;
+  color: #9a5b00;
+}
+
+.pagina-perfil__status--pago,
 .pagina-perfil__status--entregue {
   background-color: #e3f5e8;
   color: #1e7a3c;
 }
 
-.pagina-perfil__status--a-caminho {
+.pagina-perfil__status--enviado {
   background-color: #e2effa;
   color: var(--color-accent);
 }

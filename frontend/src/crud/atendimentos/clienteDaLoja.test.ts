@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Usuario } from "../../tipos/usuario";
-import {
-  buscarClientes,
-  clienteDoAtendimento,
-  mascararCpf,
-  validarClienteDaLoja,
-} from "./clienteDaLoja";
+import { buscarClientes, mascararCpf, validarClienteDaLoja } from "./clienteDaLoja";
 
 function usuario(dados: Partial<Usuario> & Pick<Usuario, "id" | "nome">): Usuario {
   return { email: `${dados.id}@exemplo.com`, cpf: "00000000000", perfil: "CLIENTE", ...dados };
@@ -45,37 +40,12 @@ describe("buscarClientes", () => {
 });
 
 describe("validarClienteDaLoja", () => {
-  it("cadastrado sem ninguém escolhido é recusado", () => {
-    expect(validarClienteDaLoja({ tipo: "cadastrado", usuario: null })).toBe(
-      "Escolha o cliente ou digite o nome de quem não tem cadastro."
-    );
+  it("sem ninguém escolhido é recusado", () => {
+    expect(validarClienteDaLoja(null)).toBe("Escolha o cliente. Quem ainda não tem conta precisa ser cadastrado antes.");
   });
 
-  it("cadastrado com cliente escolhido passa", () => {
-    expect(validarClienteDaLoja({ tipo: "cadastrado", usuario: USUARIOS[0] })).toBeNull();
-  });
-
-  it("sem cadastro precisa de pelo menos 3 letras, sem contar os espaços das pontas", () => {
-    expect(validarClienteDaLoja({ tipo: "sem-cadastro", nome: "  Al  " })).toBe(
-      "Informe o nome do cliente (pelo menos 3 letras)."
-    );
-    expect(validarClienteDaLoja({ tipo: "sem-cadastro", nome: "Ana" })).toBeNull();
-  });
-});
-
-describe("clienteDoAtendimento", () => {
-  it("cliente cadastrado leva o id e o nome da conta", () => {
-    expect(clienteDoAtendimento({ tipo: "cadastrado", usuario: USUARIOS[0] })).toEqual({
-      id: "1",
-      nome: "João Silva",
-    });
-  });
-
-  it("cliente sem cadastro fica sem id, com o nome limpo", () => {
-    expect(clienteDoAtendimento({ tipo: "sem-cadastro", nome: "  Maria Oliveira " })).toEqual({
-      id: null,
-      nome: "Maria Oliveira",
-    });
+  it("com cliente escolhido passa", () => {
+    expect(validarClienteDaLoja(USUARIOS[0])).toBeNull();
   });
 });
 

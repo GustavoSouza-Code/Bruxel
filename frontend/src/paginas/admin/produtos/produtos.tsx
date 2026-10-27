@@ -17,6 +17,7 @@ import {
   filtrarProdutos,
 } from "../../../crud/produtos/filtrarProdutos";
 import type { FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtrarProdutos";
+import { GerenciarCategorias } from "../../../crud/produtos/GerenciarCategorias/GerenciarCategorias";
 import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import { mensagemDeErro } from "../../../api/cliente";
 import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
@@ -51,12 +52,20 @@ function formatarPreco(preco: number) {
 export function PaginaAdminProdutos() {
   const { produtos, carregando, erro, recarregar, criarProduto, atualizarProduto, excluirProduto } =
     useProdutos();
-  const { categorias, carregando: carregandoCategorias } = useCategorias();
+  const {
+    categorias,
+    carregando: carregandoCategorias,
+    criarCategoria,
+    atualizarCategoria,
+    excluirCategoria,
+  } = useCategorias();
   const [filtros, setFiltros] = useState<FiltrosProduto>(FILTROS_PRODUTO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-produtos");
   // modal do formulário: null = fechado; "novo" = cadastro; senão, o id do produto em edição
   const [formularioAberto, setFormularioAberto] = useState<string | null>(null);
+  // modal de gerenciar categorias
+  const [categoriasAbertas, setCategoriasAbertas] = useState(false);
   // erro ao excluir, mostrado acima da lista; null = sem erro
   const [erroAcao, setErroAcao] = useState<string | null>(null);
 
@@ -137,19 +146,27 @@ export function PaginaAdminProdutos() {
         <Container>
           <div className="lista-admin__topo">
             <h1 className="lista-admin__titulo">Gestão de Produtos</h1>
-            <button
-              className="lista-admin__botao"
-              onClick={() => abrirFormulario("novo")}
-              // enquanto as categorias carregam, o formulário abriria com o select vazio
-              disabled={carregandoCategorias || semCategorias}
-            >
-              + Novo produto
-            </button>
+            <div className="pagina-admin-produtos__acoes-topo">
+              <button
+                className="lista-admin__botao lista-admin__botao--contorno"
+                onClick={() => setCategoriasAbertas(true)}
+              >
+                Gerenciar categorias
+              </button>
+              <button
+                className="lista-admin__botao"
+                onClick={() => abrirFormulario("novo")}
+                // enquanto as categorias carregam, o formulário abriria com o select vazio
+                disabled={carregandoCategorias || semCategorias}
+              >
+                + Novo produto
+              </button>
+            </div>
           </div>
 
           {semCategorias && (
             <p className="lista-admin__aviso" role="status">
-              Categorias indisponíveis: não dá pra cadastrar produto agora.
+              Sem categorias: crie uma em "Gerenciar categorias" pra cadastrar produtos.
             </p>
           )}
 
@@ -365,6 +382,21 @@ export function PaginaAdminProdutos() {
           )}
         </Container>
       </section>
+
+      {categoriasAbertas && (
+        <Modal titulo="Categorias" onFechar={() => setCategoriasAbertas(false)}>
+          <GerenciarCategorias
+            categorias={categorias}
+            onCriar={criarCategoria}
+            onRenomear={atualizarCategoria}
+            onExcluir={async (id) => {
+              await excluirCategoria(id);
+              // o chip da categoria some: se ela estava filtrada, volta pra "Todos"
+              if (filtros.categoriaId === id) atualizarFiltro("categoriaId", "");
+            }}
+          />
+        </Modal>
+      )}
 
       {formularioAberto && (
         <Modal

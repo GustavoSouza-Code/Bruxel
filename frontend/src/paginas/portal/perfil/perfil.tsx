@@ -10,37 +10,11 @@ import { CAMPOS_ENDERECO, formatarEndereco, validarEndereco } from "../../../cru
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import { usePerfil } from "./usePerfil";
 import { AbaAtendimentos } from "./componentes/AbaAtendimentos/AbaAtendimentos";
+import { AbaCompras } from "./componentes/AbaCompras/AbaCompras";
 import "./perfil.css";
 
 /** Abas do menu lateral da conta. */
 type ProfileSection = "perfil" | "enderecos" | "compras" | "atendimentos";
-
-/** Situação de um pedido; também vira o sufixo da classe CSS profile-page__status--… */
-type OrderStatus = "entregue" | "a-caminho" | "cancelado";
-
-/** Pedido do histórico de compras. */
-interface Order {
-  id: string;
-  /** data já formatada (dd/mm/aaaa) */
-  date: string;
-  itemCount: number;
-  total: number;
-  status: OrderStatus;
-}
-
-// Mock até o backend ter a rota de pedidos
-const MOCK_ORDERS: Order[] = [
-  { id: "10482", date: "12/09/2026", itemCount: 3, total: 289.7, status: "a-caminho" },
-  { id: "10231", date: "28/07/2026", itemCount: 1, total: 159.9, status: "entregue" },
-  { id: "09877", date: "03/05/2026", itemCount: 2, total: 74.8, status: "cancelado" },
-];
-
-// texto amigável de cada status, mostrado na etiqueta do pedido
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  entregue: "Entregue",
-  "a-caminho": "A caminho",
-  cancelado: "Cancelado",
-};
 
 // itens do menu lateral, na ordem em que aparecem
 const SECTIONS: { id: ProfileSection; label: string }[] = [
@@ -67,17 +41,10 @@ const PROFILE_FIELDS: {
   { field: "cpf", label: "CPF", type: "text", maxLength: 11, travado: true },
 ];
 
-/** Formata um valor em reais no padrão brasileiro: 289.7 → "R$ 289,70". */
-function formatPrice(value: number) {
-  return `R$ ${value.toFixed(2).replace(".", ",")}`;
-}
-
 /**
  * Área "Minha conta" (rota "/perfil", só pra quem está logado): menu lateral
  * com quatro abas — dados do perfil e endereços (os dois vindos do banco e
  * editáveis), histórico de compras e os atendimentos pedidos.
- *
- * As compras ainda são dados de exemplo (MOCK_ORDERS): o backend não tem rota de pedidos.
  */
 export function PaginaPerfil() {
   const { usuario: usuarioSessao, sair } = useAutenticacao();
@@ -85,7 +52,7 @@ export function PaginaPerfil() {
   // dados do banco (null enquanto carrega ou se a busca falhou)
   const { dados, carregando, erro, recarregar, salvar } = usePerfil();
   const location = useLocation();
-  // recado do /solicitar-atendimento (state do navigate): aba pra abrir e aviso de sucesso
+  // recado do /solicitar-atendimento ou do /carrinho (state do navigate): aba pra abrir e aviso de sucesso
   const recado = location.state as { aba?: string; mensagem?: string } | null;
   // só aceita uma aba que existe; qualquer outra coisa abre "Informações do perfil"
   const abaDoRecado = SECTIONS.find((section) => section.id === recado?.aba)?.id;
@@ -325,41 +292,7 @@ export function PaginaPerfil() {
                 </>
               )}
 
-              {activeSection === "compras" && (
-                <>
-                  <div className="pagina-perfil__cabecalho-conteudo">
-                    <h2>Compras</h2>
-                  </div>
-                  {MOCK_ORDERS.length === 0 ? (
-                    <p className="pagina-perfil__vazio">
-                      Você ainda não fez nenhuma compra.{" "}
-                      <Link to="/loja">Conheça a loja virtual.</Link>
-                    </p>
-                  ) : (
-                    <div className="pagina-perfil__pedidos">
-                      {MOCK_ORDERS.map((order) => (
-                        <div key={order.id} className="pagina-perfil__card pagina-perfil__pedido">
-                          <div className="pagina-perfil__pedido-principal">
-                            <strong>Pedido #{order.id}</strong>
-                            <span>
-                              {order.date} · {order.itemCount}{" "}
-                              {order.itemCount === 1 ? "item" : "itens"}
-                            </span>
-                          </div>
-                          <span
-                            className={`pagina-perfil__status pagina-perfil__status--${order.status}`}
-                          >
-                            {STATUS_LABELS[order.status]}
-                          </span>
-                          <strong className="pagina-perfil__pedido-total">
-                            {formatPrice(order.total)}
-                          </strong>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
+              {activeSection === "compras" && <AbaCompras mensagem={mensagemRecado} />}
 
               {activeSection === "atendimentos" && (
                 <AbaAtendimentos mensagem={mensagemRecado} />

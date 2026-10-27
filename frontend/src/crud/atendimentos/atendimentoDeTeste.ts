@@ -6,13 +6,13 @@ import type { Atendimento } from "../../tipos/atendimento";
  */
 export function atendimentoDeTeste(campos: Partial<Atendimento> = {}): Atendimento {
   return {
-    id: "AT-2026-0003",
+    id: "3f2a9c1b-0000-4000-8000-000000000003",
     tipo: "vazamento",
     descricao: "Está vazando água perto da escada.",
-    fotos: [],
+    fotoUrl: null,
     cliente: { id: "u1", nome: "Ana Souza" },
     abertoNaLoja: false,
-    tecnicoId: "rafael",
+    tecnico: null,
     data: "2026-10-21",
     horario: "13:30",
     contato: {

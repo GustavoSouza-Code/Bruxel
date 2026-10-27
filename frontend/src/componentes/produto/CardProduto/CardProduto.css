@@ -20,6 +20,7 @@
 
 .card-produto__imagem {
   align-self: center;
+  max-width: 100%;
   height: clamp(120px, 8vw + 90px, 170px);
   object-fit: contain; /* mostra a imagem inteira, sem cortar nem esticar */
   margin-bottom: 1.1rem;
@@ -64,4 +65,31 @@
   text-align: left;
   padding: 0;
   cursor: pointer;
+}
+
+/* link invisível que cobre o card todo, deixando imagem, nome e preço clicáveis */
+.card-produto__link {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+
+.card-produto__link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.card-produto:hover {
+  border-color: var(--color-accent);
+}
+
+/* acima do link esticado, pra continuarem clicáveis */
+.card-produto__favorito,
+.card-produto__botao-adicionar {
+  z-index: 1;
+}
+
+.card-produto__botao-adicionar {
+  position: relative;
+  align-self: flex-start;
 }

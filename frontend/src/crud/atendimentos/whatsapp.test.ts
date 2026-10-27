@@ -31,10 +31,10 @@ describe("textos do WhatsApp", () => {
       mensagemCliente: "Não atendemos o seu bairro nesse dia.",
     });
     expect(textoSaudacao(atendimento)).toBe(
-      "Olá, Ana! Aqui é da Bruxel Piscinas, sobre o seu pedido de atendimento #AT-2026-0003."
+      "Olá, Ana! Aqui é da Bruxel Piscinas, sobre o seu pedido de atendimento #3F2A9C1B."
     );
     expect(textoMensagemCliente(atendimento)).toBe(
-      "Olá, Ana! Sobre o seu pedido de atendimento #AT-2026-0003 na Bruxel Piscinas: Não atendemos o seu bairro nesse dia."
+      "Olá, Ana! Sobre o seu pedido de atendimento #3F2A9C1B na Bruxel Piscinas: Não atendemos o seu bairro nesse dia."
     );
   });
 });

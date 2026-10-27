@@ -50,7 +50,7 @@ export function registrarSessaoExpirada(funcao: () => void): () => void {
 }
 
 interface OpcoesRequisicao {
-  metodo?: "GET" | "POST" | "PUT" | "DELETE";
+  metodo?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   /** objeto enviado como JSON no corpo */
   corpo?: unknown;
   /** JWT do usuário logado; vai no header Authorization */

@@ -64,16 +64,6 @@
   color: var(--color-white);
 }
 
-/* dia sem nenhum horário livre: apagado e sem clique */
-.seletor-dia-horario__dia--lotado {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.seletor-dia-horario__dia--lotado:hover {
-  border-color: var(--color-border-soft);
-}
-
 .seletor-dia-horario__horarios {
   display: flex;
   flex-wrap: wrap;
@@ -96,15 +86,6 @@
 .seletor-dia-horario__horario--ativo {
   background-color: var(--color-primary);
   color: var(--color-white);
-}
-
-/* horário ocupado: riscado, apagado e sem clique */
-.seletor-dia-horario__horario--ocupado {
-  border-color: var(--color-border-soft);
-  color: var(--color-text-muted);
-  text-decoration: line-through;
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 /* foco do teclado nos radios escondidos aparece no dia ou na pílula */
