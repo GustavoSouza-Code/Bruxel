@@ -1,0 +1,89 @@
+/*
+ * Movimento do site inteiro: só microinterações (hover, clique, foco). Cada
+ * componente anima o que é dele no próprio CSS, usando os tokens de tokens.css.
+ *
+ * Regra da casa: deslocamento e escala só dentro de
+ * "prefers-reduced-motion: no-preference". Quem pede menos movimento vê a tela
+ * já no estado final; só cor e opacidade mudam.
+ */
+
+/* os hovers que já existem (cor, fundo, borda, opacidade) passam a ser suaves em vez de instantâneos */
+a,
+button {
+  transition:
+    color var(--t-hover) ease,
+    background-color var(--t-hover) ease,
+    border-color var(--t-hover) ease,
+    opacity var(--t-hover) ease,
+    text-decoration-color var(--t-hover) ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* botões (e links com cara de botão) "afundam" de leve ao clicar */
+  button,
+  .cabecalho__botao-entrar,
+  .cabecalho__botao-atendimento,
+  .secao-produtos__botao-loja,
+  .lista-admin__botao {
+    transition:
+      transform var(--t-press) var(--ease-out),
+      color var(--t-hover) ease,
+      background-color var(--t-hover) ease,
+      border-color var(--t-hover) ease,
+      opacity var(--t-hover) ease;
+  }
+
+  button:not(:disabled):active,
+  .cabecalho__botao-entrar:active,
+  .cabecalho__botao-atendimento:active,
+  .secao-produtos__botao-loja:active,
+  .lista-admin__botao:active {
+    transform: scale(0.97);
+  }
+
+  /* Piscinator: cada etapa e cada pergunta nova entram com um fade curto, subindo 8px */
+  .piscinator-introducao,
+  .piscinator-resultado,
+  .piscinator-questionario__pergunta {
+    animation: entrar-suave 200ms var(--ease-out);
+  }
+
+  /* <details> (ex.: "Ver produtos e preços" no perfil) abre com a altura suave
+     nos navegadores que já suportam ::details-content; nos outros, abre na hora */
+  @supports selector(::details-content) {
+    :root {
+      interpolate-size: allow-keywords;
+    }
+
+    details::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition:
+        block-size var(--t-ui) var(--ease-out),
+        content-visibility var(--t-ui) allow-discrete;
+    }
+
+    details[open]::details-content {
+      block-size: auto;
+    }
+  }
+}
+
+@keyframes entrar-suave {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* menos movimento: tudo chega no estado final na hora, sem deslocamento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

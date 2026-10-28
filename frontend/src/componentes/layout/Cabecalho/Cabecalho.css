@@ -8,7 +8,7 @@
   background-color: var(--color-primary);
   color: var(--color-white);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0);
-  transition: box-shadow 0.18s ease;
+  transition: box-shadow var(--t-hover) ease;
 }
 
 /*  linha divisória */
@@ -43,7 +43,7 @@
   gap: 1rem;
   padding-top: clamp(1.25rem, 1rem + 1vw, 3.25rem);
   padding-bottom: clamp(1.25rem, 1rem + 1vw, 3.25rem);
-  transition: padding 0.18s ease;
+  transition: padding var(--t-hover) var(--ease-out);
 }
 
 .cabecalho--rolado .cabecalho__interno {

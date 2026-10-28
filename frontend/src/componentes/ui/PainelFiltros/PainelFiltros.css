@@ -5,11 +5,6 @@
   margin-bottom: 0.75rem;
 }
 
-/* o display: grid abaixo venceria o atributo hidden; isto garante que ele some */
-.painel-filtros[hidden] {
-  display: none;
-}
-
 /* os campos se ajeitam em quantas colunas couberem (1 no celular) */
 .painel-filtros__campos {
   display: grid;

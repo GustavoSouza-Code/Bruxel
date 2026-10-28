@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { usePresenca } from "../../../hooks/usePresenca";
 // a pílula usa a classe .cabecalho__botao-entrar; o NavAdmin não renderiza o Cabecalho, então importa aqui
 import "../Cabecalho/Cabecalho.css";
 import "./MenuUsuario.css";
@@ -18,6 +19,8 @@ export function MenuUsuario() {
   const { usuario, ehAdmin, sair } = useAutenticacao();
   const navigate = useNavigate();
   const [aberto, setAberto] = useState(false);
+  // o menu continua na tela uns 120ms depois de fechar, pra animar a saída
+  const { montado, saindo } = usePresenca(aberto, 120);
   // envolve o botão e o menu: clique dentro dele não conta como "clique fora"
   const raizRef = useRef<HTMLDivElement>(null);
 
@@ -73,8 +76,11 @@ export function MenuUsuario() {
         </svg>
       </button>
 
-      {aberto && (
-        <div id="menu-usuario-opcoes" className="menu-usuario__menu">
+      {montado && (
+        <div
+          id="menu-usuario-opcoes"
+          className={`menu-usuario__menu${saindo ? " menu-usuario__menu--saindo" : ""}`}
+        >
           <div className="menu-usuario__topo">
             <strong>{usuario.nome}</strong>
             <span>{usuario.email}</span>

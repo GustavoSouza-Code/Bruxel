@@ -79,6 +79,10 @@
   outline-offset: 2px;
 }
 
+.card-produto {
+  transition: border-color var(--t-hover) ease;
+}
+
 .card-produto:hover {
   border-color: var(--color-accent);
 }

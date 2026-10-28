@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
+import { ProvedorAvisos } from "./contexto/ContextoAvisos";
 import { RotaAdmin } from "./componentes/layout/RotaAdmin/RotaAdmin";
 import { RotaLogado } from "./componentes/layout/RotaLogado/RotaLogado";
 import { PaginaInicio } from "./paginas/portal/inicio/inicio";
@@ -69,13 +70,17 @@ function RotasDoSite() {
  * páginas e pelo Cabecalho. Os atendimentos vêm da API em cada tela
  * (crud/atendimentos/useAtendimentos).
  * Como ficam acima das rotas, não se perdem ao navegar entre elas.
+ * Os avisos (ProvedorAvisos) ficam dentro do BrowserRouter porque o link
+ * de um aviso ("Ver carrinho") é um Link do router.
  */
 function App() {
   return (
     <ProvedorAutenticacao>
       <ProvedorCarrinho>
         <BrowserRouter>
-          <RotasDoSite />
+          <ProvedorAvisos>
+            <RotasDoSite />
+          </ProvedorAvisos>
         </BrowserRouter>
       </ProvedorCarrinho>
     </ProvedorAutenticacao>

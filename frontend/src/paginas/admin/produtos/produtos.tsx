@@ -20,6 +20,7 @@ import type { FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtra
 import { GerenciarCategorias } from "../../../crud/produtos/GerenciarCategorias/GerenciarCategorias";
 import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import { mensagemDeErro } from "../../../api/cliente";
+import { useAvisos } from "../../../contexto/useAvisos";
 import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
 import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
@@ -68,6 +69,7 @@ export function PaginaAdminProdutos() {
   const [categoriasAbertas, setCategoriasAbertas] = useState(false);
   // erro ao excluir, mostrado acima da lista; null = sem erro
   const [erroAcao, setErroAcao] = useState<string | null>(null);
+  const { avisar } = useAvisos();
 
   // só refiltra quando a lista ou os filtros mudam (não a cada renderização)
   const filtrados = useMemo(() => filtrarProdutos(produtos, filtros), [produtos, filtros]);
@@ -111,6 +113,7 @@ export function PaginaAdminProdutos() {
       await criarProduto(data);
     }
     setFormularioAberto(null);
+    avisar({ tipo: "sucesso", mensagem: editingProduct ? "Produto salvo." : "Produto cadastrado." });
   }
 
   function abrirFormulario(id: string) {
@@ -124,6 +127,7 @@ export function PaginaAdminProdutos() {
     setErroAcao(null);
     try {
       await excluirProduto(product.id);
+      avisar({ tipo: "sucesso", mensagem: "Produto excluído." });
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
     }

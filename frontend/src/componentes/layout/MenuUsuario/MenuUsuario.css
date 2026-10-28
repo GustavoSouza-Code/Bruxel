@@ -9,7 +9,7 @@
 }
 
 .menu-usuario__seta {
-  transition: transform 0.15s ease;
+  transition: transform var(--t-ui) var(--ease-out);
 }
 
 .menu-usuario__seta--aberta {
@@ -29,6 +29,34 @@
   border-radius: 14px;
   box-shadow: 0 12px 32px rgba(10, 13, 77, 0.25);
   white-space: normal; /* o .cabecalho__acoes usa nowrap; aqui o e-mail pode quebrar */
+}
+
+/* saindo (ver usePresenca): já não recebe clique enquanto some */
+.menu-usuario__menu--saindo {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* abre a partir do botão (canto de cima à direita) e fecha mais rápido do que abre */
+@media (prefers-reduced-motion: no-preference) {
+  .menu-usuario__menu {
+    transform-origin: top right;
+    animation: menu-usuario-entrar 180ms var(--ease-out);
+    transition:
+      opacity 120ms var(--ease-saida),
+      transform 120ms var(--ease-saida);
+  }
+
+  .menu-usuario__menu--saindo {
+    transform: scale(0.97) translateY(-4px);
+  }
+}
+
+@keyframes menu-usuario-entrar {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-4px);
+  }
 }
 
 .menu-usuario__topo {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Produto } from "../../../tipos/produto";
 import { useCarrinho } from "../../../contexto/useCarrinho";
+import { useAvisos } from "../../../contexto/useAvisos";
 import "./CardProduto.css";
 
 interface CardProdutoProps {
@@ -16,6 +17,16 @@ interface CardProdutoProps {
  */
 export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
   const { adicionarItem } = useCarrinho();
+  const { avisar } = useAvisos();
+
+  function adicionar() {
+    adicionarItem(produto);
+    avisar({
+      tipo: "sucesso",
+      mensagem: `${produto.nome} no carrinho.`,
+      acao: { rotulo: "Ver carrinho", para: "/carrinho" },
+    });
+  }
   // URL cuja imagem falhou; o placeholder vale só pra ela (se a URL mudar, tenta de novo)
   const [urlComErro, setUrlComErro] = useState<string | null>(null);
   const mostrarImagem = Boolean(produto.url_imagem) && produto.url_imagem !== urlComErro;
@@ -60,7 +71,7 @@ export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
 
       <button
         className="card-produto__botao-adicionar"
-        onClick={() => adicionarItem(produto)}
+        onClick={adicionar}
       >
         Adicionar ao carrinho
       </button>

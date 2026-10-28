@@ -39,14 +39,28 @@
 }
 
 .faq__seta {
+  display: flex;
   color: var(--color-text-muted);
   margin-left: 1rem;
   flex-shrink: 0;
 }
 
-/* resposta: só existe no DOM enquanto o item está aberto (ver Faq.tsx) */
+/* aberta: a seta vira pra cima */
+.faq__seta--aberta {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .faq__seta {
+    transition: transform var(--t-ui) var(--ease-out);
+  }
+}
+
+/* resposta: fica sempre no DOM, dentro do Recolhivel (ver Faq.tsx). Padding e não margin
+   no topo, senão o espaço sobraria com o item fechado */
 .faq__resposta {
-  margin: 0.85rem 0 0;
+  margin: 0;
+  padding-top: 0.85rem;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
   line-height: 1.6;

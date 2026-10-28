@@ -1,0 +1,21 @@
+/* a linha do grid vai de 0fr (fechado) a 1fr (altura do conteúdo), sem medir nada em JS */
+.recolhivel {
+  display: grid;
+  grid-template-rows: 0fr;
+}
+
+.recolhivel[data-aberto="true"] {
+  grid-template-rows: 1fr;
+}
+
+/* min-height: 0 deixa a linha encolher até 0; o overflow esconde o conteúdo enquanto fecha */
+.recolhivel__interno {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .recolhivel {
+    transition: grid-template-rows var(--t-ui) var(--ease-out);
+  }
+}

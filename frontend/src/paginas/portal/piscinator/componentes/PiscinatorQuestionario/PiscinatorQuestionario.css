@@ -39,12 +39,20 @@
   overflow: hidden;
 }
 
-/* preenchimento: a largura vem do React (style inline) e o transition anima a mudança */
+/* preenchimento: largura toda, encolhido pelo scaleX que vem do React (style inline);
+   a origem à esquerda faz ele crescer da esquerda pra direita */
 .piscinator-questionario__preenchimento-progresso {
+  width: 100%;
   height: 100%;
   background-color: var(--color-accent);
   border-radius: 999px;
-  transition: width 0.3s ease;
+  transform-origin: left;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .piscinator-questionario__preenchimento-progresso {
+    transition: transform 300ms var(--ease-in-out);
+  }
 }
 
 .piscinator-questionario__pergunta {

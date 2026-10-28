@@ -21,6 +21,7 @@ import type { FiltrosUsuario, OrdemUsuario } from "../../../crud/usuarios/filtra
 import type { CamposAtualizacaoUsuario } from "../../../api/usuarios";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { useAvisos } from "../../../contexto/useAvisos";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
 import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
 import type { Usuario } from "../../../tipos/usuario";
@@ -63,6 +64,7 @@ export function PaginaAdminUsuarios() {
     useUsuarios();
   // admin logado: a conta dele não pode ser excluída
   const { usuario: usuarioLogado } = useAutenticacao();
+  const { avisar } = useAvisos();
   const [filtros, setFiltros] = useState<FiltrosUsuario>(FILTROS_USUARIO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-usuarios");
@@ -99,6 +101,7 @@ export function PaginaAdminUsuarios() {
   async function handleCreate(data: DadosFormularioCadastro) {
     await criarUsuario(data);
     setIsCreateOpen(false);
+    avisar({ tipo: "sucesso", mensagem: "Usuário cadastrado." });
   }
 
   function startEdit(user: Usuario) {
@@ -111,6 +114,7 @@ export function PaginaAdminUsuarios() {
     if (!editingId) return;
     await atualizarUsuario(editingId, campos);
     setEditingId(null);
+    avisar({ tipo: "sucesso", mensagem: "Usuário salvo." });
   }
 
   async function handleDelete(user: Usuario) {
@@ -119,6 +123,7 @@ export function PaginaAdminUsuarios() {
     setErroAcao(null);
     try {
       await excluirUsuario(user.id);
+      avisar({ tipo: "sucesso", mensagem: "Usuário excluído." });
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
     }
