@@ -101,6 +101,8 @@ export function PaginaAdminPagamentos() {
       atend.recarregar();
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
+      // o erro aparece na página; com o modal aberto ele ficaria escondido atrás dele
+      setOsAberta(null);
     } finally {
       setPagando(null);
     }

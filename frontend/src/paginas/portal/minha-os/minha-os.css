@@ -66,9 +66,14 @@
 }
 
 .pagina-minha-os__ajuda {
-  margin: 1.25rem 0 1.75rem;
+  margin: 1.25rem 0 0;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
+}
+
+/* "Ver meus atendimentos" no fim, com ou sem a frase de ajuda acima */
+.pagina-minha-os__voltar {
+  margin-top: 1.75rem;
 }
 
 /* pílulas iguais às da confirmação de compra e do 404 */

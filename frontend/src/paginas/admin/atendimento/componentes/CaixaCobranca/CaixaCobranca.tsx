@@ -25,8 +25,11 @@ function diaMes(iso: string) {
 export function CaixaCobranca({ atendimento }: { atendimento: Atendimento }) {
   const { avisar } = useAvisos();
   const { cobradoEm, registrar } = useCobrancasLocais();
+  // o texto padrão é recalculado a cada render: se a OS mudar (ex.: mão de obra salva na
+  // própria tela), ele acompanha. Só o que o admin digitou fica guardado (null = sem edição)
   const padrao = textoCobranca(atendimento, linkOsCliente(atendimento.id, window.location.origin));
-  const [texto, setTexto] = useState(padrao);
+  const [rascunho, setRascunho] = useState<string | null>(null);
+  const texto = rascunho ?? padrao;
   const idTexto = useId();
 
   const telefone = atendimento.contato.telefone;
@@ -48,13 +51,13 @@ export function CaixaCobranca({ atendimento }: { atendimento: Atendimento }) {
         className="caixa-cobranca__texto"
         rows={6}
         value={texto}
-        onChange={(e) => setTexto(e.target.value)}
+        onChange={(e) => setRascunho(e.target.value)}
       />
 
       <div className="caixa-cobranca__meta">
         <span>{link ? `Pode editar antes de enviar · Para ${formatarTelefone(telefone)}` : "Pode editar antes de enviar"}</span>
-        {texto !== padrao && (
-          <button type="button" className="caixa-cobranca__restaurar" onClick={() => setTexto(padrao)}>
+        {rascunho !== null && rascunho !== padrao && (
+          <button type="button" className="caixa-cobranca__restaurar" onClick={() => setRascunho(null)}>
             Voltar ao texto padrão
           </button>
         )}

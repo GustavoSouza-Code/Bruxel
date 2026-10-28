@@ -9,10 +9,11 @@
   font-size: var(--font-size-small);
 }
 
-/* tipo | código | cliente | data | valor | situação | ação. A ação tem largura fixa (cabe o
-   "Marcar como pago"): cada linha é uma grade própria, e uma largura "automática" desalinharia as colunas */
+/* tipo | código | cliente | data | valor | situação | ação. A ação tem largura fixa (cabem "Ver OS" e
+   "Marcar como pago") e a situação tem um mínimo (cabe "Atrasada há 10 dias"): cada linha é uma grade
+   própria, e uma largura "automática" desalinharia as colunas */
 .pagina-admin-pagamentos__lista {
-  --colunas-lista: minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 0.9fr) 17rem;
+  --colunas-lista: minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(9.5rem, 0.9fr) 17rem;
 }
 
 /* dinheiro: à direita e com dígitos da mesma largura, pra os valores alinharem na coluna */

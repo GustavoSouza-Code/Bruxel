@@ -1,4 +1,4 @@
-import type { StatusAtendimento, TipoServico } from "../../tipos/atendimento";
+import type { Atendimento, StatusAtendimento, TipoServico } from "../../tipos/atendimento";
 
 // texto de cada tipo de serviço; a ordem das chaves é a ordem dos cards no formulário
 export const TIPO_SERVICO_LABELS: Record<TipoServico, string> = {
@@ -27,4 +27,12 @@ export const STATUS_LABELS: Record<StatusAtendimento, string> = {
  */
 export function codigoAtendimento(id: string) {
   return id.slice(0, 8).toUpperCase();
+}
+
+/**
+ * O cliente só vê o total da OS quando o serviço já começou ou terminou: antes
+ * disso (ou cancelada/recusada) o backend manda R$ 0,00, que não diz nada.
+ */
+export function totalVisivelParaCliente(atendimento: Pick<Atendimento, "status" | "valorTotal">) {
+  return atendimento.valorTotal !== null && (atendimento.status === "em-andamento" || atendimento.status === "concluido");
 }

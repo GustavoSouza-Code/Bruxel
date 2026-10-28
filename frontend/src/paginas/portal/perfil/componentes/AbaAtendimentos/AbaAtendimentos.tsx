@@ -4,6 +4,7 @@ import {
   STATUS_LABELS,
   TIPO_SERVICO_LABELS,
   codigoAtendimento,
+  totalVisivelParaCliente,
 } from "../../../../../crud/atendimentos/opcoesAtendimento";
 import { formatarAgendamento } from "../../../../../crud/atendimentos/agenda";
 import { formatarReais } from "../../../../../crud/atendimentos/valorOs";
@@ -102,8 +103,7 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                         </div>
                       )}
 
-                      {atendimento.valorTotal !== null &&
-                        (atendimento.status === "em-andamento" || atendimento.status === "concluido") && (
+                      {totalVisivelParaCliente(atendimento) && atendimento.valorTotal !== null && (
                           <p>
                             <strong>Total da OS:</strong> {formatarReais(atendimento.valorTotal)}
                           </p>

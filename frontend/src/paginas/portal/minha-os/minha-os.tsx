@@ -4,7 +4,12 @@ import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { MensagemPagina } from "../../../componentes/ui/MensagemPagina/MensagemPagina";
 import { useAtendimento } from "../../../crud/atendimentos/useAtendimento";
-import { STATUS_LABELS, TIPO_SERVICO_LABELS, codigoAtendimento } from "../../../crud/atendimentos/opcoesAtendimento";
+import {
+  STATUS_LABELS,
+  TIPO_SERVICO_LABELS,
+  codigoAtendimento,
+  totalVisivelParaCliente,
+} from "../../../crud/atendimentos/opcoesAtendimento";
 import { formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { formatarReais } from "../../../crud/atendimentos/valorOs";
 import type { Atendimento } from "../../../tipos/atendimento";
@@ -96,8 +101,8 @@ function ResumoDaOs({ atendimento }: { atendimento: Atendimento }) {
           </div>
         )}
 
-        {/* o backend só manda o total pro cliente quando a OS tem valor */}
-        {atendimento.valorTotal !== null && (
+        {/* antes de começar (ou cancelada) o total é R$ 0,00 e não diz nada: só aparece em andamento ou concluída */}
+        {totalVisivelParaCliente(atendimento) && atendimento.valorTotal !== null && (
           <div className="pagina-minha-os__linha pagina-minha-os__linha--total">
             <span>Total</span>
             <span>{formatarReais(atendimento.valorTotal)}</span>
@@ -111,9 +116,16 @@ function ResumoDaOs({ atendimento }: { atendimento: Atendimento }) {
         </p>
       )}
 
-      <p className="pagina-minha-os__ajuda">Dúvidas sobre o pagamento? Responda a mensagem da Bruxel no WhatsApp.</p>
+      {/* pagamento só existe na OS concluída */}
+      {atendimento.status === "concluido" && (
+        <p className="pagina-minha-os__ajuda">Dúvidas sobre o pagamento? Responda a mensagem da Bruxel no WhatsApp.</p>
+      )}
 
-      <Link to="/perfil" state={{ aba: "atendimentos" }} className="pagina-minha-os__botao pagina-minha-os__botao--contorno">
+      <Link
+        to="/perfil"
+        state={{ aba: "atendimentos" }}
+        className="pagina-minha-os__botao pagina-minha-os__botao--contorno pagina-minha-os__voltar"
+      >
         Ver meus atendimentos
       </Link>
     </>
