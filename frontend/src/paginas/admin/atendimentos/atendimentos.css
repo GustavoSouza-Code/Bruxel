@@ -8,22 +8,39 @@
   text-decoration: none;
 }
 
-/* o card inteiro é o link pra OS */
+/* card e linha: um link invisível (LinkDaOs) cobre tudo e leva à OS; o "Cobrar" fica por cima dele */
 .pagina-admin-atendimentos__card {
+  position: relative;
   height: 100%;
   box-sizing: border-box;
-  color: inherit;
-  text-decoration: none;
 }
 
 .pagina-admin-atendimentos__card:hover {
   border-color: var(--color-primary);
 }
 
-.pagina-admin-atendimentos__card:focus-visible,
-.pagina-admin-atendimentos__linha:focus-visible {
+.pagina-admin-atendimentos__link {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+/* o foco do link aparece no card (ou na linha) inteiro */
+.pagina-admin-atendimentos__link:focus-visible {
+  outline: none;
+}
+
+.pagina-admin-atendimentos__card:has(.pagina-admin-atendimentos__link:focus-visible),
+.pagina-admin-atendimentos__linha:has(.pagina-admin-atendimentos__link:focus-visible) {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* acima do link esticado, pra o clique não abrir a OS */
+.pagina-admin-atendimentos__cobrar {
+  position: relative;
+  z-index: 1;
+  padding: 0.2rem 0.75rem;
 }
 
 /* os selos ficam no pé do card, alinhando cards de alturas diferentes */
@@ -44,10 +61,21 @@
 }
 
 .pagina-admin-atendimentos__linha {
-  color: inherit;
-  text-decoration: none;
+  position: relative;
 }
 
 .pagina-admin-atendimentos__linha:hover {
   background-color: #f7f7fb;
+}
+
+/* celular, lista compacta: o nome numa linha e os selos (com o "Cobrar") embaixo,
+   senão o selo de atraso e o botão espremem o nome do cliente */
+@media (max-width: 599px) {
+  .pagina-admin-atendimentos__compacta {
+    --colunas-lista-celular: minmax(0, 1fr);
+  }
+
+  .pagina-admin-atendimentos__linha {
+    row-gap: 0.4rem;
+  }
 }

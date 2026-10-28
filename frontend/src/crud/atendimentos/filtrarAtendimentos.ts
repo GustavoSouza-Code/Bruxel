@@ -1,12 +1,13 @@
 import type { Atendimento } from "../../tipos/atendimento";
 import { contemTexto } from "../busca";
+import { estaAtrasada } from "../pagamentos/atraso";
 import { codigoAtendimento } from "./opcoesAtendimento";
 
 /** Os chips da lista: um por status, "encerrados" (recusado + cancelado) e "todos". */
 export type FiltroStatus = "aguardando" | "agendado" | "em-andamento" | "concluido" | "encerrados" | "todos";
 
-/** "" = qualquer; só os concluídos têm pagamento. */
-export type FiltroPagamento = "" | "a-pagar" | "pago";
+/** "" = qualquer; só os concluídos têm pagamento. "atrasado" = a pagar com a visita há 7 dias ou mais. */
+export type FiltroPagamento = "" | "a-pagar" | "pago" | "atrasado";
 
 export type OrdemAtendimento = "visita" | "visita-desc";
 
@@ -44,9 +45,10 @@ function combinaComBusca(atendimento: Atendimento, busca: string) {
   );
 }
 
-function combinaComPagamento(atendimento: Atendimento, pagamento: FiltroPagamento) {
+function combinaComPagamento(atendimento: Atendimento, pagamento: FiltroPagamento, hoje: Date) {
   if (!pagamento) return true;
   if (atendimento.status !== "concluido") return false;
+  if (pagamento === "atrasado") return estaAtrasada(atendimento, hoje);
   return pagamento === "pago" ? atendimento.pagoEm !== null : atendimento.pagoEm === null;
 }
 
@@ -55,15 +57,15 @@ function momentoDaVisita(atendimento: Atendimento) {
   return `${atendimento.data} ${atendimento.horario}`;
 }
 
-/** Aplica os filtros e a ordenação; devolve uma lista nova (não altera a original). */
-export function filtrarAtendimentos(atendimentos: Atendimento[], filtros: FiltrosAtendimento) {
+/** Aplica os filtros e a ordenação; devolve uma lista nova (não altera a original). `hoje` decide o atraso. */
+export function filtrarAtendimentos(atendimentos: Atendimento[], filtros: FiltrosAtendimento, hoje: Date = new Date()) {
   const sentido = filtros.ordem === "visita-desc" ? -1 : 1;
   return atendimentos
     .filter(
       (atendimento) =>
         combinaComStatus(atendimento, filtros.status) &&
         combinaComBusca(atendimento, filtros.busca) &&
-        combinaComPagamento(atendimento, filtros.pagamento)
+        combinaComPagamento(atendimento, filtros.pagamento, hoje)
     )
     .sort((a, b) => sentido * momentoDaVisita(a).localeCompare(momentoDaVisita(b)));
 }

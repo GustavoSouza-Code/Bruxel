@@ -43,3 +43,20 @@
   background-color: #fdf2d8;
   color: #8a5a00;
 }
+
+/* OS concluída sem pagamento há 7 dias ou mais (amarelo) e há 30 ou mais (vermelho); ver SeloAtraso */
+.selo-atendimento--atraso-semana {
+  background-color: #fdf3d7;
+  color: #8a6100;
+}
+
+.selo-atendimento--atraso-mes {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+/* "A receber" ainda no prazo, na gestão de pagamentos: neutro, pra o atraso se destacar */
+.selo-atendimento--a-receber {
+  background-color: #f1f1f4;
+  color: #5f6368;
+}

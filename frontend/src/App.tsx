@@ -16,6 +16,7 @@ import { PaginaCriarConta } from "./paginas/portal/criar-conta/criar-conta";
 import { PaginaPerfil } from "./paginas/portal/perfil/perfil";
 import { PaginaSolicitarAtendimento } from "./paginas/portal/solicitar-atendimento/solicitar-atendimento";
 import { PaginaPedido } from "./paginas/portal/pedido/pedido";
+import { PaginaMinhaOs } from "./paginas/portal/minha-os/minha-os";
 import { PaginaAdminInicio } from "./paginas/admin/inicio/inicio";
 import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
 import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
@@ -49,6 +50,7 @@ function RotasDoSite() {
           <Route path="/perfil" element={<PaginaPerfil />} />
           <Route path="/solicitar-atendimento" element={<PaginaSolicitarAtendimento />} />
           <Route path="/pedido/:id" element={<PaginaPedido />} />
+          <Route path="/minha-conta/atendimentos/:id" element={<PaginaMinhaOs />} />
         </Route>
         {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
             o RotaAdmin só deixa passar quem está logado como administrador */}

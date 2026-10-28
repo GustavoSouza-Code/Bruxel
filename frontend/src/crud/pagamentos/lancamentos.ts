@@ -5,9 +5,11 @@ import { codigoPedido, pedidoRecebido } from "../pedidos/opcoesPedido";
 import { codigoAtendimento } from "../atendimentos/opcoesAtendimento";
 import { totalOs } from "../atendimentos/valorOs";
 import { contemTexto } from "../busca";
+import { LIMITE_SEMANA, diasDesdeVisita } from "./atraso";
 
 export type SituacaoLancamento = "a-receber" | "recebido";
-export type FiltroSituacao = SituacaoLancamento | "todos";
+/** "atrasadas" = OS a receber com a visita há 7 dias ou mais (ver atraso.ts). */
+export type FiltroSituacao = SituacaoLancamento | "atrasadas" | "todos";
 
 /**
  * Uma linha da gestão de pagamentos: uma OS (serviço) ou um pedido (loja), já
@@ -25,6 +27,13 @@ export interface Lancamento {
   situacao: SituacaoLancamento;
   /** só pedido tem; a OS não guarda como foi paga */
   formaPagamento: FormaPagamento | null;
+  /** dias desde a visita, só em OS a receber (o atraso); null nos outros */
+  diasEmAberto: number | null;
+}
+
+// atrasada = OS a receber com a visita há 7 dias ou mais
+function lancamentoAtrasado(lancamento: Lancamento) {
+  return lancamento.diasEmAberto !== null && lancamento.diasEmAberto >= LIMITE_SEMANA;
 }
 
 // "2026-10-21" + "13:30" no relógio de quem usa → ISO
@@ -36,9 +45,14 @@ function dataDaVisita(atendimento: Atendimento) {
  * Junta as OS concluídas e os pedidos numa lista só. OS concluída sem pagoEm
  * está a receber; com pagoEm, recebida. Pedido pago, enviado ou entregue já
  * entrou; pendente (pedidos antigos, de antes da simulação de pagamento) está
- * a receber; cancelado fica de fora.
+ * a receber; cancelado fica de fora. Na OS a receber, `diasEmAberto` conta os
+ * dias desde a visita até `hoje`.
  */
-export function lancamentosDePagamento(atendimentos: Atendimento[], pedidos: PedidoComCliente[]): Lancamento[] {
+export function lancamentosDePagamento(
+  atendimentos: Atendimento[],
+  pedidos: PedidoComCliente[],
+  hoje: Date = new Date()
+): Lancamento[] {
   const servicos = atendimentos
     .filter((atendimento) => atendimento.status === "concluido")
     .map(
@@ -51,6 +65,7 @@ export function lancamentosDePagamento(atendimentos: Atendimento[], pedidos: Ped
         valor: totalOs(atendimento),
         situacao: atendimento.pagoEm ? "recebido" : "a-receber",
         formaPagamento: null,
+        diasEmAberto: atendimento.pagoEm ? null : diasDesdeVisita(atendimento, hoje),
       })
     );
 
@@ -66,6 +81,7 @@ export function lancamentosDePagamento(atendimentos: Atendimento[], pedidos: Ped
         valor: pedido.valorTotal,
         situacao: pedidoRecebido(pedido.status) ? "recebido" : "a-receber",
         formaPagamento: pedido.formaPagamento,
+        diasEmAberto: null,
       })
     );
 
@@ -90,13 +106,19 @@ export function resumoPagamentos(lancamentos: Lancamento[], hoje: Date) {
   });
 
   return {
-    aReceber: { valor: somar(aReceber), quantidade: aReceber.length },
+    aReceber: { valor: somar(aReceber), quantidade: aReceber.length, atrasadas: aReceber.filter(lancamentoAtrasado).length },
     recebidoNoMes: {
       valor: somar(doMes),
       pedidos: doMes.filter((l) => l.origem === "pedido").length,
       os: doMes.filter((l) => l.origem === "os").length,
     },
   };
+}
+
+function combinaComSituacao(lancamento: Lancamento, situacao: FiltroSituacao) {
+  if (situacao === "todos") return true;
+  if (situacao === "atrasadas") return lancamentoAtrasado(lancamento);
+  return lancamento.situacao === situacao;
 }
 
 /** Situação escolhida no chip e busca por cliente ou código; do mais recente pro mais antigo. */
@@ -107,14 +129,19 @@ export function filtrarLancamentos(
   return lancamentos
     .filter(
       (l) =>
-        (filtros.situacao === "todos" || l.situacao === filtros.situacao) &&
+        combinaComSituacao(l, filtros.situacao) &&
         (contemTexto(l.cliente, filtros.busca) || contemTexto(l.codigo, filtros.busca))
     )
     .sort((a, b) => b.data.localeCompare(a.data));
 }
 
-/** Quantos em cada chip: "A receber (n)", "Recebidos (n)", "Todos (n)". */
+/** Quantos em cada chip: "A receber (n)", "Atrasadas (n)", "Recebidos (n)", "Todos (n)". */
 export function contarPorSituacao(lancamentos: Lancamento[]): Record<FiltroSituacao, number> {
   const aReceber = lancamentos.filter((l) => l.situacao === "a-receber").length;
-  return { "a-receber": aReceber, recebido: lancamentos.length - aReceber, todos: lancamentos.length };
+  return {
+    "a-receber": aReceber,
+    atrasadas: lancamentos.filter(lancamentoAtrasado).length,
+    recebido: lancamentos.length - aReceber,
+    todos: lancamentos.length,
+  };
 }

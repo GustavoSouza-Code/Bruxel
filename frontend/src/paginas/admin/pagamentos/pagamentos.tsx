@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
@@ -15,18 +15,28 @@ import { usePedidosAdmin } from "../../../crud/pedidos/usePedidosAdmin";
 import { FORMA_PAGAMENTO_LABELS, codigoPedido } from "../../../crud/pedidos/opcoesPedido";
 import { contarPorSituacao, filtrarLancamentos, lancamentosDePagamento } from "../../../crud/pagamentos/lancamentos";
 import type { FiltroSituacao, Lancamento } from "../../../crud/pagamentos/lancamentos";
+import { LIMITE_SEMANA } from "../../../crud/pagamentos/atraso";
 import { DetalhePedido } from "../pedidos/componentes/DetalhePedido/DetalhePedido";
+import { ModalCobrancaOs } from "../atendimento/componentes/ModalCobrancaOs/ModalCobrancaOs";
+import { SeloAtraso } from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
 // o campo de busca usa o visual da BarraBusca (aqui sem o botão de filtros, que esta tela não tem)
 import "../../../componentes/ui/BarraBusca/BarraBusca.css";
 import "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento.css";
 import "../lista-admin.css";
 import "./pagamentos.css";
 
+// texto de cada chip, na ordem em que aparecem
 const ROTULOS: Record<FiltroSituacao, string> = {
   "a-receber": "A receber",
+  atrasadas: "Atrasadas",
   recebido: "Recebidos",
   todos: "Todos",
 };
+
+// "/admin/pagamentos?situacao=atrasadas" (link da home) já abre no chip certo
+function situacaoDaUrl(valor: string | null): FiltroSituacao {
+  return valor && valor in ROTULOS ? (valor as FiltroSituacao) : "a-receber";
+}
 
 // ISO → "27/10", no relógio de quem usa
 function diaMes(iso: string) {
@@ -45,12 +55,15 @@ export function PaginaAdminPagamentos() {
   const { avisar } = useAvisos();
   const atend = useAtendimentos();
   const ped = usePedidosAdmin();
-  const [situacao, setSituacao] = useState<FiltroSituacao>("a-receber");
+  const [parametros] = useSearchParams();
+  const [situacao, setSituacao] = useState<FiltroSituacao>(() => situacaoDaUrl(parametros.get("situacao")));
   const [busca, setBusca] = useState("");
   // id da OS sendo marcada como paga (o botão dela mostra "Registrando…")
   const [pagando, setPagando] = useState<string | null>(null);
   const [erroAcao, setErroAcao] = useState<string | null>(null);
   const [pedidoAberto, setPedidoAberto] = useState<string | null>(null);
+  // OS aberta no modal (resumo + cobrança quando atrasada)
+  const [osAberta, setOsAberta] = useState<string | null>(null);
 
   const lancamentos = useMemo(
     () => lancamentosDePagamento(atend.atendimentos, ped.pedidos),
@@ -68,6 +81,8 @@ export function PaginaAdminPagamentos() {
   const carregandoPrimeiraVez = (atend.carregando || ped.carregando) && lancamentos.length === 0;
   const prontos = !erro && !carregandoPrimeiraVez;
   const pedido = ped.pedidos.find((p) => p.id === pedidoAberto) ?? null;
+  const os = atend.atendimentos.find((a) => a.id === osAberta) ?? null;
+  const lancamentoDaOs = lancamentos.find((l) => l.id === osAberta) ?? null;
 
   function recarregar() {
     if (atend.erro) atend.recarregar();
@@ -81,6 +96,8 @@ export function PaginaAdminPagamentos() {
     try {
       await marcarAtendimentoPago(token, lancamento.id);
       avisar({ tipo: "sucesso", mensagem: `Pagamento de ${formatarReais(lancamento.valor)} registrado.` });
+      // pagou pelo modal: fecha ele (a OS saiu de "a receber")
+      setOsAberta((aberta) => (aberta === lancamento.id ? null : aberta));
       atend.recarregar();
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
@@ -171,12 +188,9 @@ export function PaginaAdminPagamentos() {
                     {lancamento.formaPagamento && ` · ${FORMA_PAGAMENTO_LABELS[lancamento.formaPagamento]}`}
                   </span>
                   <span className="pagina-admin-pagamentos__valor">{formatarReais(lancamento.valor)}</span>
-                  <div className="lista-admin__so-largo">
-                    <span
-                      className={`selo-atendimento selo-atendimento--${lancamento.situacao === "recebido" ? "pago" : "a-pagar"}`}
-                    >
-                      {lancamento.situacao === "recebido" ? "Recebido" : "A receber"}
-                    </span>
+                  {/* sem lista-admin__so-largo: no celular o selo continua (o atraso tem que aparecer) */}
+                  <div className="pagina-admin-pagamentos__situacao">
+                    <SeloSituacao lancamento={lancamento} />
                   </div>
                   <div className="lista-admin__linha-acoes pagina-admin-pagamentos__acao">
                     <AcaoDaLinha
@@ -184,6 +198,7 @@ export function PaginaAdminPagamentos() {
                       pagando={pagando === lancamento.id}
                       onMarcarPago={() => marcarPago(lancamento)}
                       onVerPedido={() => setPedidoAberto(lancamento.id)}
+                      onVerOs={() => setOsAberta(lancamento.id)}
                     />
                   </div>
                 </li>
@@ -198,8 +213,28 @@ export function PaginaAdminPagamentos() {
           <DetalhePedido pedido={pedido} />
         </Modal>
       )}
+
+      {os && (
+        <ModalCobrancaOs
+          atendimento={os}
+          onFechar={() => setOsAberta(null)}
+          onMarcarPago={lancamentoDaOs ? () => marcarPago(lancamentoDaOs) : undefined}
+          pagando={pagando === os.id}
+        />
+      )}
     </>
   );
+}
+
+/** Um selo só por linha: recebido, atrasada (há 7 dias ou mais) ou a receber ainda no prazo. */
+function SeloSituacao({ lancamento }: { lancamento: Lancamento }) {
+  if (lancamento.situacao === "recebido") {
+    return <span className="selo-atendimento selo-atendimento--pago">Recebido</span>;
+  }
+  if (lancamento.diasEmAberto !== null && lancamento.diasEmAberto >= LIMITE_SEMANA) {
+    return <SeloAtraso dias={lancamento.diasEmAberto} />;
+  }
+  return <span className="selo-atendimento selo-atendimento--a-receber">A receber</span>;
 }
 
 interface AcaoDaLinhaProps {
@@ -207,10 +242,11 @@ interface AcaoDaLinhaProps {
   pagando: boolean;
   onMarcarPago: () => void;
   onVerPedido: () => void;
+  onVerOs: () => void;
 }
 
-/** OS a receber: "Marcar como pago"; OS paga: link pra OS; pedido: abre o detalhe. */
-function AcaoDaLinha({ lancamento, pagando, onMarcarPago, onVerPedido }: AcaoDaLinhaProps) {
+/** Pedido: abre o detalhe. OS: "Ver OS" (resumo e cobrança) e, se ainda a receber, "Marcar como pago". */
+function AcaoDaLinha({ lancamento, pagando, onMarcarPago, onVerPedido, onVerOs }: AcaoDaLinhaProps) {
   if (lancamento.origem === "pedido") {
     return (
       <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={onVerPedido}>
@@ -218,20 +254,17 @@ function AcaoDaLinha({ lancamento, pagando, onMarcarPago, onVerPedido }: AcaoDaL
       </button>
     );
   }
-  if (lancamento.situacao === "recebido") {
-    return (
-      <Link
-        to={`/admin/atendimentos/${lancamento.id}`}
-        className="lista-admin__botao lista-admin__botao--contorno pagina-admin-pagamentos__link"
-      >
-        Ver OS
-      </Link>
-    );
-  }
   return (
-    <button type="button" className="lista-admin__botao" onClick={onMarcarPago} disabled={pagando}>
-      {pagando ? "Registrando…" : "Marcar como pago"}
-    </button>
+    <>
+      <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={onVerOs}>
+        Ver OS
+      </button>
+      {lancamento.situacao === "a-receber" && (
+        <button type="button" className="lista-admin__botao" onClick={onMarcarPago} disabled={pagando}>
+          {pagando ? "Registrando…" : "Marcar como pago"}
+        </button>
+      )}
+    </>
   );
 }
 

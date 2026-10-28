@@ -29,6 +29,7 @@ function lancamento(dados: Partial<Lancamento> & Pick<Lancamento, "id">): Lancam
     valor: 10,
     situacao: "recebido",
     formaPagamento: "PIX",
+    diasEmAberto: null,
     ...dados,
   };
 }
@@ -95,7 +96,7 @@ describe("resumoPagamentos", () => {
       ],
       hoje
     );
-    expect(resumo).toEqual({ aReceber: { valor: 150, quantidade: 1 }, recebidoNoMes: { valor: 50, pedidos: 1, os: 1 } });
+    expect(resumo).toEqual({ aReceber: { valor: 150, quantidade: 1, atrasadas: 0 }, recebidoNoMes: { valor: 50, pedidos: 1, os: 1 } });
   });
 
   it("soma em centavos", () => {
@@ -133,6 +134,36 @@ describe("contarPorSituacao", () => {
       lancamento({ id: "2" }),
       lancamento({ id: "3" }),
     ];
-    expect(contarPorSituacao(lista)).toEqual({ "a-receber": 1, recebido: 2, todos: 3 });
+    expect(contarPorSituacao(lista)).toEqual({ "a-receber": 1, atrasadas: 0, recebido: 2, todos: 3 });
+  });
+});
+
+describe("atraso nos lançamentos", () => {
+  const HOJE = new Date(2026, 9, 28);
+
+  it("diasEmAberto só em OS a receber", () => {
+    const paga = { ...CONCLUIDA_A_RECEBER, id: "paga", pagoEm: "2026-10-22T10:00:00.000Z" };
+    const lista = lancamentosDePagamento([CONCLUIDA_A_RECEBER, paga], [pedido({ id: "p1", status: "PENDENTE" })], HOJE);
+    expect(lista.map((l) => [l.id, l.diasEmAberto])).toEqual([
+      ["aaaa1111-os", 7],
+      ["paga", null],
+      ["p1", null],
+    ]);
+  });
+
+  const LISTA = [
+    lancamento({ id: "velha", origem: "os", situacao: "a-receber", diasEmAberto: 12 }),
+    lancamento({ id: "nova", origem: "os", situacao: "a-receber", diasEmAberto: 3 }),
+    lancamento({ id: "pendente", situacao: "a-receber" }),
+    lancamento({ id: "paga" }),
+  ];
+
+  it("filtro atrasadas traz só OS a receber com 7 dias ou mais", () => {
+    expect(filtrarLancamentos(LISTA, { situacao: "atrasadas", busca: "" }).map((l) => l.id)).toEqual(["velha"]);
+  });
+
+  it("contarPorSituacao e resumoPagamentos contam as atrasadas", () => {
+    expect(contarPorSituacao(LISTA)).toEqual({ "a-receber": 3, atrasadas: 1, recebido: 1, todos: 4 });
+    expect(resumoPagamentos(LISTA, HOJE).aReceber).toEqual({ valor: 30, quantidade: 3, atrasadas: 1 });
   });
 });

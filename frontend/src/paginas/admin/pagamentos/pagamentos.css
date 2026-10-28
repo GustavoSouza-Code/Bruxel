@@ -12,7 +12,7 @@
 /* tipo | código | cliente | data | valor | situação | ação. A ação tem largura fixa (cabe o
    "Marcar como pago"): cada linha é uma grade própria, e uma largura "automática" desalinharia as colunas */
 .pagina-admin-pagamentos__lista {
-  --colunas-lista: minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 0.9fr) 12rem;
+  --colunas-lista: minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 1.6fr) minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 0.9fr) 17rem;
 }
 
 /* dinheiro: à direita e com dígitos da mesma largura, pra os valores alinharem na coluna */
@@ -43,26 +43,26 @@
   text-decoration-color: currentColor;
 }
 
+/* "Ver OS" e "Marcar como pago" dividem a célula; sozinho, o botão ocupa ela toda */
 .pagina-admin-pagamentos__acao .lista-admin__botao {
-  width: 100%;
+  flex: 1 1 auto;
 }
 
-/* o "Ver OS" é um link com cara de botão */
-.pagina-admin-pagamentos__link {
-  display: inline-block;
-  text-align: center;
-  text-decoration: none;
-}
-
-/* celular: duas linhas por lançamento — cliente e valor em cima, data e ação embaixo */
+/* celular: cliente e valor em cima, data e situação (o atraso) no meio, os botões embaixo */
 @media (max-width: 599px) {
   .pagina-admin-pagamentos__linha {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "cliente valor"
-      "data acao";
+      "data situacao"
+      "acao acao";
     row-gap: 0.4rem;
     padding-block: 0.75rem;
+  }
+
+  .pagina-admin-pagamentos__linha > .pagina-admin-pagamentos__situacao {
+    grid-area: situacao;
+    justify-self: end;
   }
 
   .pagina-admin-pagamentos__linha > .pagina-admin-pagamentos__cliente {
@@ -80,5 +80,6 @@
 
   .pagina-admin-pagamentos__linha > .pagina-admin-pagamentos__acao {
     grid-area: acao;
+    flex-wrap: wrap;
   }
 }

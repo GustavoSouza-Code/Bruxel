@@ -46,8 +46,14 @@ export function NumerosPainel() {
       {
         rotulo: "A receber",
         valor: pagamentosProntos ? formatarReais(resumo.aReceber.valor) : null,
-        detalhe: pagamentosProntos ? `${resumo.aReceber.quantidade} a receber` : "",
-        para: "/admin/pagamentos",
+        detalhe: pagamentosProntos
+          ? `${resumo.aReceber.quantidade} a receber` +
+            (resumo.aReceber.atrasadas > 0
+              ? ` · ${plural(resumo.aReceber.atrasadas, "atrasada", "atrasadas")}`
+              : "")
+          : "",
+        // com OS atrasada, o atalho já abre no chip "Atrasadas"
+        para: resumo.aReceber.atrasadas > 0 ? "/admin/pagamentos?situacao=atrasadas" : "/admin/pagamentos",
       },
       {
         rotulo: `Recebido em ${mes}`,

@@ -17,8 +17,14 @@ import {
 } from "../../../crud/atendimentos/valorOs";
 import { linkWhatsApp, textoMensagemCliente } from "../../../crud/atendimentos/whatsapp";
 import type { Atendimento, ProdutoUsado } from "../../../tipos/atendimento";
-import { SeloPagamento, SeloStatusAtendimento } from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
+import {
+  SeloAtraso,
+  SeloPagamento,
+  SeloStatusAtendimento,
+} from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
 import { CartaoClienteOs } from "./componentes/CartaoClienteOs/CartaoClienteOs";
+import { CaixaCobranca } from "./componentes/CaixaCobranca/CaixaCobranca";
+import { diasDesdeVisita, estaAtrasada } from "../../../crud/pagamentos/atraso";
 import { GaleriaFotosOs } from "./componentes/GaleriaFotosOs/GaleriaFotosOs";
 import { ModalMensagemCliente } from "./componentes/ModalMensagemCliente/ModalMensagemCliente";
 import { ProdutosDaOs } from "./componentes/ProdutosDaOs/ProdutosDaOs";
@@ -219,6 +225,16 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
           <div role="alert">{erroAcao && <p className="pagina-admin-atendimento__erro-acao">{erroAcao}</p>}</div>
 
           <div className="pagina-admin-atendimento__blocos">
+            {/* concluída sem pagamento há 7 dias ou mais: a cobrança vem antes de tudo */}
+            {estaAtrasada(atendimento, new Date()) && (
+              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
+                <h2>
+                  Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                </h2>
+                <CaixaCobranca atendimento={atendimento} />
+              </section>
+            )}
+
             <CartaoClienteOs atendimento={atendimento} />
 
             <section className="pagina-admin-atendimento__bloco">

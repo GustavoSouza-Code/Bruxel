@@ -1,0 +1,112 @@
+/* mesmo visual da confirmação de compra (/pedido/:id): uma coluna, resumo num cartão cinza */
+.pagina-minha-os {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+.pagina-minha-os__interno {
+  max-width: 720px;
+}
+
+.pagina-minha-os__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-hero-title);
+  color: var(--color-primary);
+  margin: 0 0 0.35rem;
+}
+
+.pagina-minha-os__meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin: 0 0 clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+.pagina-minha-os__resumo {
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pagina-minha-os__linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pagina-minha-os__linha--total {
+  font-weight: 700;
+  border-top: 1px solid var(--color-border-soft);
+  padding-top: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pagina-minha-os__bloco h2 {
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  margin: 0 0 0.35rem;
+}
+
+.pagina-minha-os__bloco p,
+.pagina-minha-os__materiais {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+}
+
+.pagina-minha-os__materiais {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.pagina-minha-os__mensagem {
+  margin: 1.25rem 0 0;
+  font-size: var(--font-size-small);
+}
+
+.pagina-minha-os__ajuda {
+  margin: 1.25rem 0 1.75rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* pílulas iguais às da confirmação de compra e do 404 */
+.pagina-minha-os__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-primary);
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 0.7rem 1.4rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pagina-minha-os__botao:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.pagina-minha-os__botao--contorno {
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.pagina-minha-os__botao--contorno:hover {
+  background-color: var(--color-store-button);
+  border-color: var(--color-primary);
+}
+
+.pagina-minha-os__estado {
+  color: var(--color-text-muted);
+}
+
+.pagina-minha-os__estado button {
+  margin-top: 1rem;
+}

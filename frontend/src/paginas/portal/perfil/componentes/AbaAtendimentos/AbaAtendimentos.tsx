@@ -110,6 +110,10 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                         )}
                     </div>
                   </details>
+                  {/* a mesma página que vai no link da cobrança pelo WhatsApp */}
+                  <Link to={`/minha-conta/atendimentos/${atendimento.id}`} className="aba-atendimentos__ver-os">
+                    Ver OS
+                  </Link>
                 </div>
                 {/* o sufixo da classe é o próprio status (ver AbaAtendimentos.css) */}
                 <span

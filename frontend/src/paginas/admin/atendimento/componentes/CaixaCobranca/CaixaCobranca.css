@@ -1,0 +1,92 @@
+.caixa-cobranca {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.caixa-cobranca__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+.caixa-cobranca__texto {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.caixa-cobranca__texto:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.caixa-cobranca__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.caixa-cobranca__restaurar {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.caixa-cobranca__restaurar:hover {
+  text-decoration: underline;
+}
+
+.caixa-cobranca__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.25rem;
+}
+
+/* o mesmo botão de WhatsApp do cartão do cliente na OS */
+.caixa-cobranca__whatsapp {
+  border: 1px solid #1e7a3c;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  color: #1e7a3c;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.caixa-cobranca__whatsapp:hover {
+  background-color: #e3f5e8;
+}
+
+.caixa-cobranca__whatsapp:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.caixa-cobranca__sem-telefone {
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: #8a6100;
+}
+
+.caixa-cobranca__cobrado {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

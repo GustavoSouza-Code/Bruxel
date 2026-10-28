@@ -143,3 +143,19 @@
     flex-basis: 100%;
   }
 }
+
+/* "Ver OS": a página da OS (a mesma do link da cobrança) */
+.aba-atendimentos__ver-os {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+}
+
+.aba-atendimentos__ver-os:hover {
+  text-decoration-color: currentColor;
+}
