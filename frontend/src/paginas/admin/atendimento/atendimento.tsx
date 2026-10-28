@@ -226,10 +226,17 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
 
           <div className="pagina-admin-atendimento__blocos">
             {/* concluída sem pagamento há 7 dias ou mais: a cobrança vem antes de tudo */}
-            {estaAtrasada(atendimento, new Date()) && (
+            {/* a cobrança já aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
+            {atendimento.status === "concluido" && !atendimento.pagoEm && (
               <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
                 <h2>
-                  Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                  {estaAtrasada(atendimento, new Date()) ? (
+                    <>
+                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                    </>
+                  ) : (
+                    "Cobrar pagamento"
+                  )}
                 </h2>
                 <CaixaCobranca atendimento={atendimento} />
               </section>
