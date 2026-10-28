@@ -88,3 +88,17 @@ describe("contarFiltrosAtivosProduto", () => {
     ).toBe(4);
   });
 });
+
+describe("filtro de estoque", () => {
+  it("estoque baixo inclui os esgotados", () => {
+    expect(ids(filtrarProdutos(PRODUTOS, filtros({ estoque: "baixo" })))).toEqual(["3", "1"]);
+  });
+
+  it("esgotado mostra só estoque 0", () => {
+    expect(ids(filtrarProdutos(PRODUTOS, filtros({ estoque: "esgotado" })))).toEqual(["3"]);
+  });
+
+  it("estoque conta como filtro ativo", () => {
+    expect(contarFiltrosAtivosProduto(filtros({ estoque: "baixo" }))).toBe(1);
+  });
+});

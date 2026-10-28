@@ -38,23 +38,12 @@ a.pagina-admin-inicio__area:hover {
   border-color: var(--color-accent);
 }
 
-/* "Em breve" fica apagado e tracejado pra não parecer clicável */
-.pagina-admin-inicio__area--em-breve {
-  background-color: transparent;
-  border-style: dashed;
-  color: var(--color-text-muted);
-}
-
 .pagina-admin-inicio__icone {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: var(--color-primary);
-}
-
-.pagina-admin-inicio__area--em-breve .pagina-admin-inicio__icone {
-  color: var(--color-text-muted);
 }
 
 /* min-width: 0 deixa o texto encolher e quebrar em vez de alargar a linha */
@@ -106,16 +95,8 @@ a.pagina-admin-inicio__area:hover {
     background-color: var(--color-store-button);
   }
 
-  .pagina-admin-inicio__area--em-breve .pagina-admin-inicio__icone {
-    background-color: #f1f1f4;
-  }
-
   .pagina-admin-inicio__texto strong {
     color: var(--color-primary);
-  }
-
-  .pagina-admin-inicio__area--em-breve .pagina-admin-inicio__texto strong {
-    color: inherit;
   }
 
   .pagina-admin-inicio__acessar {

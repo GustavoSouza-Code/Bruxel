@@ -1,7 +1,11 @@
 import type { Produto } from "../../tipos/produto";
 import { contemTexto } from "../busca";
+import { situacaoEstoque } from "./estoque";
 
 export type OrdemProduto = "nome" | "preco-asc" | "preco-desc" | "estoque-asc";
+
+/** "" = qualquer estoque; "baixo" inclui os esgotados. */
+export type FiltroEstoque = "" | "baixo" | "esgotado";
 
 /**
  * O que está escolhido na barra de busca, nos chips e no painel de filtros da
@@ -12,6 +16,7 @@ export interface FiltrosProduto {
   /** "" = todas as categorias */
   categoriaId: string;
   status: "" | "ativo" | "inativo";
+  estoque: FiltroEstoque;
   precoMin: string;
   precoMax: string;
   ordem: OrdemProduto;
@@ -21,6 +26,7 @@ export const FILTROS_PRODUTO_INICIAIS: FiltrosProduto = {
   busca: "",
   categoriaId: "",
   status: "",
+  estoque: "",
   precoMin: "",
   precoMax: "",
   ordem: "nome",
@@ -41,6 +47,14 @@ const COMPARAR: Record<OrdemProduto, (a: Produto, b: Produto) => number> = {
   "estoque-asc": (a, b) => a.estoque - b.estoque,
 };
 
+// "baixo" pega os esgotados também (os dois pedem reposição); "esgotado" só os de estoque 0
+function temEstoque(produto: Produto, filtro: FiltroEstoque) {
+  const situacao = situacaoEstoque(produto.estoque);
+  if (filtro === "baixo") return situacao !== "ok";
+  if (filtro === "esgotado") return situacao === "esgotado";
+  return true;
+}
+
 /** Aplica os filtros e a ordenação; devolve uma lista nova (não altera a original). */
 export function filtrarProdutos(produtos: Produto[], filtros: FiltrosProduto) {
   const precoMin = paraNumero(filtros.precoMin);
@@ -52,6 +66,7 @@ export function filtrarProdutos(produtos: Produto[], filtros: FiltrosProduto) {
         (contemTexto(produto.nome, filtros.busca) || contemTexto(produto.codigo, filtros.busca)) &&
         (!filtros.categoriaId || produto.categoria_id === filtros.categoriaId) &&
         (!filtros.status || produto.ativo === (filtros.status === "ativo")) &&
+        temEstoque(produto, filtros.estoque) &&
         (precoMin === null || produto.preco >= precoMin) &&
         (precoMax === null || produto.preco <= precoMax)
     )
@@ -65,6 +80,7 @@ export function filtrarProdutos(produtos: Produto[], filtros: FiltrosProduto) {
 export function contarFiltrosAtivosProduto(filtros: FiltrosProduto) {
   return [
     filtros.status !== "",
+    filtros.estoque !== "",
     filtros.precoMin.trim() !== "",
     filtros.precoMax.trim() !== "",
     filtros.ordem !== FILTROS_PRODUTO_INICIAIS.ordem,

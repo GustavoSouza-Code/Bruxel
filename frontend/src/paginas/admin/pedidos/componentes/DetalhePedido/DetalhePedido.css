@@ -1,0 +1,64 @@
+/* quatro dados lado a lado (dois no celular): rótulo cinza em cima, valor embaixo */
+.detalhe-pedido__dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+}
+
+.detalhe-pedido__dados dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin-bottom: 0.2rem;
+}
+
+.detalhe-pedido__dados dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.detalhe-pedido__itens {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.detalhe-pedido__itens th {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 0 0 0.5rem;
+}
+
+.detalhe-pedido__itens td {
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+/* números à direita e com dígitos da mesma largura, pra os valores alinharem */
+.detalhe-pedido__itens .detalhe-pedido__numero {
+  text-align: right;
+  padding-left: 1rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.detalhe-pedido__itens tfoot th,
+.detalhe-pedido__itens tfoot td {
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: var(--font-size-body);
+  padding-top: 0.75rem;
+  border-top: 2px solid var(--color-border-soft);
+}
+
+.detalhe-pedido__subtitulo {
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  margin: 1.5rem 0 0.35rem;
+}
+
+.detalhe-pedido__endereco {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}

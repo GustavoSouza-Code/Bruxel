@@ -87,3 +87,14 @@ export function maoDeObraParaTexto(valor: number | null) {
 export function formatarReais(valor: number) {
   return FORMATADOR_REAIS.format(valor).replace(/\s/g, " ");
 }
+
+/**
+ * Pergunta antes de registrar o pagamento da OS (tela da OS e tela de
+ * pagamentos). Total zero ganha um alerta: pode ser cortesia, mas o mais comum
+ * é ter esquecido de lançar a mão de obra ou os produtos.
+ */
+export function perguntaPagamento(valor: number) {
+  return valor === 0
+    ? "Esta OS está com total de R$ 0,00 (sem mão de obra e sem produtos). Registrar o pagamento assim mesmo? Depois disso a OS não pode mais mudar."
+    : `Registrar o pagamento de ${formatarReais(valor)}? Depois disso a OS não pode mais mudar.`;
+}

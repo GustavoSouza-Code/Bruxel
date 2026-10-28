@@ -8,11 +8,10 @@ import type { Produto } from "../../../tipos/produto";
 import { useCatalogo } from "../../../crud/produtos/useCatalogo";
 import { nomeDaCategoria } from "../../../crud/produtos/categorias";
 import { produtosRelacionados, quantidadeDisponivel } from "../../../crud/produtos/selecaoProdutos";
+// a partir de POUCO_ESTOQUE o selo de estoque vira "Últimas unidades"
+import { POUCO_ESTOQUE } from "../../../crud/produtos/estoque";
 import { useCarrinho } from "../../../contexto/useCarrinho";
 import "./produto.css";
-
-// a partir daqui o selo de estoque vira "Últimas unidades"
-const POUCO_ESTOQUE = 3;
 
 function formatarPreco(preco: number) {
   return preco.toFixed(2).replace(".", ",");

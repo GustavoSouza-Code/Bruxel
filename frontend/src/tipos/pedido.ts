@@ -16,6 +16,8 @@ export interface ItemPedido {
 /** Compra feita pelo carrinho (tabela `orders`). */
 export interface Pedido {
   id: string;
+  /** id da conta que comprou (o painel usa pra mostrar o nome do cliente) */
+  usuarioId: string;
   status: StatusPedido;
   formaPagamento: FormaPagamento;
   enderecoEntrega: string;

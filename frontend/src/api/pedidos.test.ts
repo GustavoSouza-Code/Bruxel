@@ -24,6 +24,10 @@ const bruto: PedidoApi = {
 };
 
 describe("paraPedido", () => {
+  it("guarda o usuario_id", () => {
+    expect(paraPedido(bruto).usuarioId).toBe("u1");
+  });
+
   it("converte os decimais em string pra número", () => {
     const pedido = paraPedido(bruto);
     expect(pedido.valorTotal).toBe(43);

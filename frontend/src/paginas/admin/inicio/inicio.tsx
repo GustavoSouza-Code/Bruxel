@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
-import { useAtendimentos } from "../../../crud/atendimentos/useAtendimentos";
-import { contarPorStatus } from "../../../crud/atendimentos/filtrarAtendimentos";
+import { NumerosPainel } from "./componentes/NumerosPainel/NumerosPainel";
 import "./inicio.css";
 
 // áreas do painel; pra uma funcionalidade nova aparecer aqui, é só adicionar um item
@@ -38,7 +37,7 @@ const AREAS_ADMIN = [
   {
     id: "atendimentos",
     titulo: "Atendimentos",
-    descricao: "Pedidos e ordens de serviço",
+    descricao: "Visitas e ordens de serviço",
     rota: "/admin/atendimentos",
     icone: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,6 +45,32 @@ const AREAS_ADMIN = [
         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
         <path d="M9 12h6" />
         <path d="M9 16h4" />
+      </svg>
+    ),
+  },
+  {
+    id: "pedidos",
+    titulo: "Pedidos",
+    descricao: "Compras feitas na loja virtual",
+    rota: "/admin/pedidos",
+    icone: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <path d="M3 6h18" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
+    ),
+  },
+  {
+    id: "pagamentos",
+    titulo: "Pagamentos",
+    descricao: "O que falta receber e o que já entrou",
+    rota: "/admin/pagamentos",
+    icone: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v3" />
+        <path d="M3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
+        <path d="M21 12h-4a2 2 0 0 0 0 4h4z" />
       </svg>
     ),
   },
@@ -63,16 +88,13 @@ const AREAS_ADMIN = [
 ];
 
 /**
- * Tela inicial do painel admin (rota "/admin"): saúda o admin e mostra as
- * áreas de gestão como atalhos. No desktop viram uma grade de cartões; no
- * celular, uma lista de linhas (o HTML é o mesmo, só o CSS muda).
+ * Tela inicial do painel admin (rota "/admin"): saúda o admin, mostra a faixa
+ * de números (NumerosPainel) e as áreas de gestão como atalhos. No desktop as
+ * áreas viram uma grade de cartões; no celular, uma lista de linhas (o HTML é
+ * o mesmo, só o CSS muda).
  */
 export function PaginaAdminInicio() {
   const { usuario } = useAutenticacao();
-  // o card de atendimentos avisa quantos pedidos esperam confirmação; enquanto
-  // carrega (ou se a busca falhar) a lista fica vazia e o card mostra a descrição
-  const { atendimentos } = useAtendimentos();
-  const aguardando = contarPorStatus(atendimentos).aguardando;
 
   return (
     <>
@@ -84,17 +106,15 @@ export function PaginaAdminInicio() {
           <h1 className="pagina-admin-inicio__titulo">Olá, {usuario?.nome.split(" ")[0]}</h1>
           <p className="pagina-admin-inicio__subtitulo">O que você quer gerenciar hoje?</p>
 
+          <NumerosPainel />
+
           <div className="pagina-admin-inicio__areas">
             {AREAS_ADMIN.map((area) => (
               <Link key={area.id} to={area.rota} className="pagina-admin-inicio__area">
                 <span className="pagina-admin-inicio__icone">{area.icone}</span>
                 <span className="pagina-admin-inicio__texto">
                   <strong>{area.titulo}</strong>
-                  <span>
-                    {area.id === "atendimentos" && aguardando > 0
-                      ? `${aguardando} aguardando confirmação`
-                      : area.descricao}
-                  </span>
+                  <span>{area.descricao}</span>
                 </span>
                 {/* "Acessar →" aparece no desktop; a seta ">" no celular (ver inicio.css) */}
                 <span className="pagina-admin-inicio__acessar">Acessar →</span>
@@ -103,20 +123,6 @@ export function PaginaAdminInicio() {
                 </svg>
               </Link>
             ))}
-
-            {/* lugar reservado pras próximas funcionalidades; não é link */}
-            <div className="pagina-admin-inicio__area pagina-admin-inicio__area--em-breve">
-              <span className="pagina-admin-inicio__icone">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 7v5l3 2" />
-                </svg>
-              </span>
-              <span className="pagina-admin-inicio__texto">
-                <strong>Em breve</strong>
-                <span>Novas funcionalidades do painel</span>
-              </span>
-            </div>
           </div>
         </Container>
       </section>

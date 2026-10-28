@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
@@ -16,10 +17,11 @@ import {
   contarFiltrosAtivosProduto,
   filtrarProdutos,
 } from "../../../crud/produtos/filtrarProdutos";
-import type { FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtrarProdutos";
+import type { FiltroEstoque, FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtrarProdutos";
+import { situacaoEstoque } from "../../../crud/produtos/estoque";
 import { GerenciarCategorias } from "../../../crud/produtos/GerenciarCategorias/GerenciarCategorias";
 import { FormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
-import { mensagemDeErro } from "../../../api/cliente";
+import { ErroApi, mensagemDeErro } from "../../../api/cliente";
 import { useAvisos } from "../../../contexto/useAvisos";
 import type { DadosFormularioProduto } from "../../../crud/produtos/FormularioProduto/FormularioProduto";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
@@ -60,7 +62,12 @@ export function PaginaAdminProdutos() {
     atualizarCategoria,
     excluirCategoria,
   } = useCategorias();
-  const [filtros, setFiltros] = useState<FiltrosProduto>(FILTROS_PRODUTO_INICIAIS);
+  // "/admin/produtos?estoque=baixo" (link da home do painel) já abre filtrado
+  const [parametros] = useSearchParams();
+  const [filtros, setFiltros] = useState<FiltrosProduto>(() => ({
+    ...FILTROS_PRODUTO_INICIAIS,
+    estoque: estoqueDaUrl(parametros.get("estoque")),
+  }));
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-produtos");
   // modal do formulário: null = fechado; "novo" = cadastro; senão, o id do produto em edição
@@ -128,6 +135,28 @@ export function PaginaAdminProdutos() {
     try {
       await excluirProduto(product.id);
       avisar({ tipo: "sucesso", mensagem: "Produto excluído." });
+    } catch (falha) {
+      // 409 = o produto já está em pedidos ou OS: não dá pra excluir, mas dá pra tirar da loja
+      const ligadoAOutrosDados = falha instanceof ErroApi && falha.status === 409 && product.ativo;
+      if (
+        ligadoAOutrosDados &&
+        window.confirm(
+          `"${product.nome}" já aparece em pedidos ou ordens de serviço e não pode ser excluído. Desativar o produto? Ele sai da loja, mas continua no histórico.`
+        )
+      ) {
+        await desativar(product);
+        return;
+      }
+      setErroAcao(mensagemDeErro(falha));
+    }
+  }
+
+  async function desativar(product: Produto) {
+    // DadosProduto é o produto sem o id
+    const { id, ...dados } = product;
+    try {
+      await atualizarProduto(id, { ...dados, ativo: false });
+      avisar({ tipo: "sucesso", mensagem: "Produto desativado. Ele não aparece mais na loja." });
     } catch (falha) {
       setErroAcao(mensagemDeErro(falha));
     }
@@ -197,6 +226,17 @@ export function PaginaAdminProdutos() {
                 <option value="">Qualquer</option>
                 <option value="ativo">Ativos</option>
                 <option value="inativo">Inativos</option>
+              </select>
+            </label>
+            <label>
+              Estoque
+              <select
+                value={filtros.estoque}
+                onChange={(e) => atualizarFiltro("estoque", e.target.value as FiltroEstoque)}
+              >
+                <option value="">Todos</option>
+                <option value="baixo">Estoque baixo</option>
+                <option value="esgotado">Esgotado</option>
               </select>
             </label>
             <label>
@@ -299,6 +339,7 @@ export function PaginaAdminProdutos() {
                     <span className="lista-admin__card-titulo">
                       {product.nome}
                       {!product.ativo && <SeloInativo />}
+                      <SeloEstoque estoque={product.estoque} />
                     </span>
                     <span className="lista-admin__card-detalhe">
                       {nomeDaCategoria(categorias, product.categoria_id) || "Sem categoria"}
@@ -345,6 +386,7 @@ export function PaginaAdminProdutos() {
                   <span title={product.nome}>
                     {product.nome}
                     {!product.ativo && <SeloInativo />}
+                    <SeloEstoque estoque={product.estoque} />
                   </span>
                   <span className="lista-admin__so-largo">
                     {nomeDaCategoria(categorias, product.categoria_id) || "—"}
@@ -434,6 +476,19 @@ function MiniaturaProduto({ produto, grande = false }: { produto: Produto; grand
 
 function SeloInativo() {
   return <span className="lista-admin__selo lista-admin__selo--aviso">inativo</span>;
+}
+
+/** "esgotado" (vermelho) ou "estoque baixo" (amarelo); estoque ok não mostra nada. */
+function SeloEstoque({ estoque }: { estoque: number }) {
+  const situacao = situacaoEstoque(estoque);
+  if (situacao === "esgotado") return <span className="lista-admin__selo lista-admin__selo--perigo">esgotado</span>;
+  if (situacao === "baixo") return <span className="lista-admin__selo lista-admin__selo--aviso">estoque baixo</span>;
+  return null;
+}
+
+// só aceita os valores que o filtro conhece; qualquer outra coisa na URL é ignorada
+function estoqueDaUrl(valor: string | null): FiltroEstoque {
+  return valor === "baixo" || valor === "esgotado" ? valor : "";
 }
 
 export default PaginaAdminProdutos;
