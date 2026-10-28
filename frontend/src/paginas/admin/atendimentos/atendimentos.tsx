@@ -36,12 +36,13 @@ import "./atendimentos.css";
 
 // texto de cada chip, na ordem em que aparecem
 const ROTULOS_STATUS: Record<FiltroStatus, string> = {
+  todos: "Todos",
   aguardando: "Aguardando",
   agendado: "Agendados",
   "em-andamento": "Em andamento",
   concluido: "Concluídos",
   encerrados: "Recusados e cancelados",
-  todos: "Todos",
+
 };
 
 // quantos itens aparecem de cada vez (a lista compacta cabe mais na tela)

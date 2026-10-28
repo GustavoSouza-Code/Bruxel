@@ -27,10 +27,10 @@ import "./pagamentos.css";
 
 // texto de cada chip, na ordem em que aparecem
 const ROTULOS: Record<FiltroSituacao, string> = {
+  todos: "Todos",
   "a-receber": "A receber",
   atrasadas: "Atrasadas",
   recebido: "Recebidos",
-  todos: "Todos",
 };
 
 // "/admin/pagamentos?situacao=atrasadas" (link da home) já abre no chip certo

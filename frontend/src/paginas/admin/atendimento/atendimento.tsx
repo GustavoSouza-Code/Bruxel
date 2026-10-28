@@ -12,8 +12,8 @@ import {
   maoDeObraParaTexto,
   paraValorEmReais,
   perguntaPagamento,
-  totalOs,
   validarMaoDeObra,
+  totalOs,
 } from "../../../crud/atendimentos/valorOs";
 import { linkWhatsApp, textoMensagemCliente } from "../../../crud/atendimentos/whatsapp";
 import type { Atendimento, ProdutoUsado } from "../../../tipos/atendimento";
