@@ -298,6 +298,22 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
               </section>
             )}
 
+            {/* a cobrança aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
+            {atendimento.status === "concluido" && !atendimento.pagoEm && (
+              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
+                <h2>
+                  {estaAtrasada(atendimento, new Date()) ? (
+                    <>
+                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                    </>
+                  ) : (
+                    "Cobrar pagamento"
+                  )}
+                </h2>
+                <CaixaCobranca atendimento={atendimento} mostrarTitulo={false} />
+              </section>
+            )}
+
             {editavel && (
               <div className="pagina-admin-atendimento__salvar-os">
                 <button
@@ -312,22 +328,6 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
                   {temAlteracoes ? "Observações ou mão de obra ainda não salvas." : "Tudo salvo."}
                 </span>
               </div>
-            )}
-
-            {/* por último: a cobrança aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
-            {atendimento.status === "concluido" && !atendimento.pagoEm && (
-              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
-                <h2>
-                  {estaAtrasada(atendimento, new Date()) ? (
-                    <>
-                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
-                    </>
-                  ) : (
-                    "Cobrar pagamento"
-                  )}
-                </h2>
-                <CaixaCobranca atendimento={atendimento} mostrarTitulo={false} />
-              </section>
             )}
           </div>
 
