@@ -22,7 +22,14 @@ function diaMes(iso: string) {
  * no WhatsApp dele; o site só monta o link. "Cobrado em" fica guardado neste
  * navegador (useCobrancasLocais).
  */
-export function CaixaCobranca({ atendimento }: { atendimento: Atendimento }) {
+export function CaixaCobranca({
+  atendimento,
+  mostrarTitulo = true,
+}: {
+  atendimento: Atendimento;
+  /** false quando o bloco em volta já tem título (tela da OS): o texto ganha só um aria-label */
+  mostrarTitulo?: boolean;
+}) {
   const { avisar } = useAvisos();
   const { cobradoEm, registrar } = useCobrancasLocais();
   // o texto padrão é recalculado a cada render: se a OS mudar (ex.: mão de obra salva na
@@ -43,11 +50,14 @@ export function CaixaCobranca({ atendimento }: { atendimento: Atendimento }) {
 
   return (
     <div className="caixa-cobranca">
-      <label htmlFor={idTexto} className="caixa-cobranca__titulo">
-        Cobrar pelo WhatsApp
-      </label>
+      {mostrarTitulo && (
+        <label htmlFor={idTexto} className="caixa-cobranca__titulo">
+          Cobrar pelo WhatsApp
+        </label>
+      )}
       <textarea
         id={idTexto}
+        aria-label={mostrarTitulo ? undefined : "Mensagem de cobrança pelo WhatsApp"}
         className="caixa-cobranca__texto"
         rows={6}
         value={texto}

@@ -326,7 +326,7 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
                     "Cobrar pagamento"
                   )}
                 </h2>
-                <CaixaCobranca atendimento={atendimento} />
+                <CaixaCobranca atendimento={atendimento} mostrarTitulo={false} />
               </section>
             )}
           </div>
