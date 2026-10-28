@@ -30,6 +30,7 @@ export function atendimentoDeTeste(campos: Partial<Atendimento> = {}): Atendimen
     observacoesTecnico: "",
     produtosUsados: [],
     valorMaoDeObra: null,
+    valorTotal: null,
     pagoEm: null,
     ...campos,
   };

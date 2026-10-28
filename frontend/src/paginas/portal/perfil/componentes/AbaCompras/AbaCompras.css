@@ -10,6 +10,38 @@
   overflow-wrap: anywhere;
 }
 
+/* detalhes do pedido ficam recolhidos para não mudar o resumo do card */
+.aba-compras__detalhes {
+  margin-top: 0.35rem;
+  font-size: var(--font-size-small);
+}
+
+.aba-compras__detalhes summary {
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aba-compras__detalhes-lista {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.aba-compras__detalhes-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.aba-compras__detalhes-item > span:last-child {
+  color: var(--color-text-muted);
+}
+
 /* aviso verde que aparece depois de fechar uma compra */
 .aba-compras__aviso {
   margin: 0 0 1rem;

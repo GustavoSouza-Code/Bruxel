@@ -74,6 +74,24 @@ export function AbaCompras({ mensagem }: AbaComprasProps) {
                   <span className="aba-compras__produtos">
                     {pedido.itens.map((item) => `${item.quantidade}× ${item.nome}`).join(", ")}
                   </span>
+                  {pedido.itens.length > 0 && (
+                    <details className="aba-compras__detalhes">
+                      <summary>Ver produtos e preços</summary>
+                      <ul className="aba-compras__detalhes-lista">
+                        {pedido.itens.map((item) => (
+                          <li key={item.produtoId} className="aba-compras__detalhes-item">
+                            <span>
+                              {item.quantidade}× {item.nome}
+                            </span>
+                            <span>
+                              {formatarReais(item.precoUnitario)} cada · Subtotal:{" "}
+                              <strong>{formatarReais(item.precoUnitario * item.quantidade)}</strong>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
                 </div>
                 <span className={`pagina-perfil__status pagina-perfil__status--${pedido.status.toLowerCase()}`}>
                   {STATUS_LABELS[pedido.status]}

@@ -81,7 +81,13 @@ describe("paraAtendimento", () => {
     const atendimento = paraAtendimento(resposta as AtendimentoApi);
     expect(atendimento.observacoesTecnico).toBe("");
     expect(atendimento.valorMaoDeObra).toBeNull();
+    expect(atendimento.valorTotal).toBeNull();
     expect(atendimento.pagoEm).toBeNull();
+  });
+
+  it("converte o total que o backend manda para o cliente", () => {
+    const atendimento = paraAtendimento({ ...bruto, valor_total: "193.00" });
+    expect(atendimento.valorTotal).toBe(193);
   });
 
   it("usa o nome_cliente quando o pedido não tem conta", () => {

@@ -24,7 +24,7 @@ export type TipoServicoApi = "LIMPEZA" | "BOMBA_FILTRO" | "VAZAMENTO" | "INSTALA
 /**
  * Atendimento como o backend devolve: nomes do banco, decimais em string e o
  * cliente, o técnico e os itens já juntados. Pra conta de cliente, a resposta
- * vem sem observacoes_tecnico, valor_mao_de_obra e pago_em.
+ * vem sem observacoes_tecnico, valor_mao_de_obra e pago_em, mas com valor_total.
  */
 export interface AtendimentoApi {
   id: string;
@@ -47,6 +47,7 @@ export interface AtendimentoApi {
   mensagem_cliente: string | null;
   observacoes_tecnico?: string | null;
   valor_mao_de_obra?: string | number | null;
+  valor_total?: string | number | null;
   pago_em?: string | null;
   criado_em: string;
   atualizado_em: string;
@@ -131,6 +132,8 @@ export function paraAtendimento(bruto: AtendimentoApi): Atendimento {
       quantidade: item.quantidade,
     })),
     valorMaoDeObra: valor === null || valor === undefined ? null : Number(valor),
+    valorTotal:
+      bruto.valor_total === null || bruto.valor_total === undefined ? null : Number(bruto.valor_total),
     pagoEm: bruto.pago_em ?? null,
   };
 }
