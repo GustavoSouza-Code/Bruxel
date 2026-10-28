@@ -225,23 +225,6 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
           <div role="alert">{erroAcao && <p className="pagina-admin-atendimento__erro-acao">{erroAcao}</p>}</div>
 
           <div className="pagina-admin-atendimento__blocos">
-            {/* concluída sem pagamento há 7 dias ou mais: a cobrança vem antes de tudo */}
-            {/* a cobrança já aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
-            {atendimento.status === "concluido" && !atendimento.pagoEm && (
-              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
-                <h2>
-                  {estaAtrasada(atendimento, new Date()) ? (
-                    <>
-                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
-                    </>
-                  ) : (
-                    "Cobrar pagamento"
-                  )}
-                </h2>
-                <CaixaCobranca atendimento={atendimento} />
-              </section>
-            )}
-
             <CartaoClienteOs atendimento={atendimento} />
 
             <section className="pagina-admin-atendimento__bloco">
@@ -329,6 +312,22 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
                   {temAlteracoes ? "Observações ou mão de obra ainda não salvas." : "Tudo salvo."}
                 </span>
               </div>
+            )}
+
+            {/* por último: a cobrança aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
+            {atendimento.status === "concluido" && !atendimento.pagoEm && (
+              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
+                <h2>
+                  {estaAtrasada(atendimento, new Date()) ? (
+                    <>
+                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                    </>
+                  ) : (
+                    "Cobrar pagamento"
+                  )}
+                </h2>
+                <CaixaCobranca atendimento={atendimento} />
+              </section>
             )}
           </div>
 
