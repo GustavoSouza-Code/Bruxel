@@ -16,6 +16,7 @@ import {
   FILTROS_PRODUTO_INICIAIS,
   contarFiltrosAtivosProduto,
   filtrarProdutos,
+  filtrosProdutoDaUrl,
 } from "../../../crud/produtos/filtrarProdutos";
 import type { FiltroEstoque, FiltrosProduto, OrdemProduto } from "../../../crud/produtos/filtrarProdutos";
 import { situacaoEstoque } from "../../../crud/produtos/estoque";
@@ -62,12 +63,9 @@ export function PaginaAdminProdutos() {
     atualizarCategoria,
     excluirCategoria,
   } = useCategorias();
-  // "/admin/produtos?estoque=baixo" (link da home do painel) já abre filtrado
+  // "/admin/produtos?estoque=baixo&status=ativo" (link da home do painel) já abre filtrado
   const [parametros] = useSearchParams();
-  const [filtros, setFiltros] = useState<FiltrosProduto>(() => ({
-    ...FILTROS_PRODUTO_INICIAIS,
-    estoque: estoqueDaUrl(parametros.get("estoque")),
-  }));
+  const [filtros, setFiltros] = useState<FiltrosProduto>(() => filtrosProdutoDaUrl(parametros));
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [modo, setModo] = useModoVisualizacao("admin-produtos");
   // modal do formulário: null = fechado; "novo" = cadastro; senão, o id do produto em edição
@@ -484,11 +482,6 @@ function SeloEstoque({ estoque }: { estoque: number }) {
   if (situacao === "esgotado") return <span className="lista-admin__selo lista-admin__selo--perigo">esgotado</span>;
   if (situacao === "baixo") return <span className="lista-admin__selo lista-admin__selo--aviso">estoque baixo</span>;
   return null;
-}
-
-// só aceita os valores que o filtro conhece; qualquer outra coisa na URL é ignorada
-function estoqueDaUrl(valor: string | null): FiltroEstoque {
-  return valor === "baixo" || valor === "esgotado" ? valor : "";
 }
 
 export default PaginaAdminProdutos;

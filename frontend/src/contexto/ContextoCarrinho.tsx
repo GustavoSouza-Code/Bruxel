@@ -53,13 +53,17 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
     setItems((current) => current.filter((item) => item.produto.id !== produtoId));
   }
 
-  function atualizarQuantidade(produtoId: string, quantidade: number) {
+  function atualizarQuantidade(produtoId: string, quantidade: number, produto?: Produto) {
     // abaixo de 1 o item sai; acima do estoque fica no estoque
-    setItems((current) => definirQuantidade(current, produtoId, quantidade));
+    setItems((current) => definirQuantidade(current, produtoId, quantidade, produto));
   }
 
   function limparCarrinho() {
     setItems([]);
+  }
+
+  function substituirItens(novos: LinhaCarrinho[]) {
+    setItems(novos);
   }
 
   // totais derivados dos itens; o useMemo só recalcula quando `itens` muda, não a cada renderização
@@ -79,7 +83,16 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
 
   return (
     <ContextoCarrinho.Provider
-      value={{ itens, quantidadeItens, total, adicionarItem, removerItem, atualizarQuantidade, limparCarrinho }}
+      value={{
+        itens,
+        quantidadeItens,
+        total,
+        adicionarItem,
+        removerItem,
+        atualizarQuantidade,
+        limparCarrinho,
+        substituirItens,
+      }}
     >
       {children}
     </ContextoCarrinho.Provider>

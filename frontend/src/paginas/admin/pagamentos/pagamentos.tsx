@@ -157,7 +157,14 @@ export function PaginaAdminPagamentos() {
                   <span className="lista-admin__so-largo">{lancamento.origem === "os" ? "OS" : "Pedido"}</span>
                   <span className="lista-admin__so-largo">#{lancamento.codigo}</span>
                   <span className="pagina-admin-pagamentos__cliente" title={lancamento.cliente}>
-                    {lancamento.cliente}
+                    {/* linha de OS leva à OS (dá pra conferir mão de obra e produtos antes de marcar como pago) */}
+                    {lancamento.origem === "os" ? (
+                      <Link to={`/admin/atendimentos/${lancamento.id}`} className="pagina-admin-pagamentos__link-os">
+                        {lancamento.cliente}
+                      </Link>
+                    ) : (
+                      lancamento.cliente
+                    )}
                   </span>
                   <span className="pagina-admin-pagamentos__data">
                     {diaMes(lancamento.data)}

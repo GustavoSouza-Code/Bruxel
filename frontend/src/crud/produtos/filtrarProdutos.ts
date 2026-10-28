@@ -32,6 +32,20 @@ export const FILTROS_PRODUTO_INICIAIS: FiltrosProduto = {
   ordem: "nome",
 };
 
+/**
+ * Filtros iniciais a partir da URL, pra links como "/admin/produtos?estoque=baixo&status=ativo"
+ * (a home do painel) já abrirem filtrados. Valor que o filtro não conhece é ignorado.
+ */
+export function filtrosProdutoDaUrl(parametros: URLSearchParams): FiltrosProduto {
+  const estoque = parametros.get("estoque");
+  const status = parametros.get("status");
+  return {
+    ...FILTROS_PRODUTO_INICIAIS,
+    estoque: estoque === "baixo" || estoque === "esgotado" ? estoque : "",
+    status: status === "ativo" || status === "inativo" ? status : "",
+  };
+}
+
 // texto do input → número; vazio ou inválido = sem limite (null)
 function paraNumero(texto: string) {
   if (!texto.trim()) return null;

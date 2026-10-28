@@ -7,7 +7,8 @@
  * já no estado final; só cor e opacidade mudam.
  */
 
-/* os hovers que já existem (cor, fundo, borda, opacidade) passam a ser suaves em vez de instantâneos */
+/* os hovers que já existem (cor, fundo, borda, opacidade) passam a ser suaves em vez de
+   instantâneos; o transform é o "afundar" do clique, logo abaixo */
 a,
 button {
   transition:
@@ -15,29 +16,30 @@ button {
     background-color var(--t-hover) ease,
     border-color var(--t-hover) ease,
     opacity var(--t-hover) ease,
-    text-decoration-color var(--t-hover) ease;
+    text-decoration-color var(--t-hover) ease,
+    transform var(--t-press) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* botões (e links com cara de botão) "afundam" de leve ao clicar */
-  button,
-  .cabecalho__botao-entrar,
-  .cabecalho__botao-atendimento,
-  .secao-produtos__botao-loja,
-  .lista-admin__botao {
-    transition:
-      transform var(--t-press) var(--ease-out),
-      color var(--t-hover) ease,
-      background-color var(--t-hover) ease,
-      border-color var(--t-hover) ease,
-      opacity var(--t-hover) ease;
-  }
-
-  button:not(:disabled):active,
-  .cabecalho__botao-entrar:active,
-  .cabecalho__botao-atendimento:active,
-  .secao-produtos__botao-loja:active,
-  .lista-admin__botao:active {
+  /* botões (e links com cara de botão) "afundam" de leve ao clicar. Ficam de fora, de propósito,
+     as ações repetidas do painel: chips de filtro, alternar cards/lista, linhas e cards de lista e
+     o "Carregar mais". O :where deixa a especificidade em zero, pra o CSS de cada componente mandar */
+  :where(
+      button,
+      .cabecalho__botao-entrar,
+      .cabecalho__botao-atendimento,
+      .secao-produtos__botao-loja,
+      .lista-admin__botao
+    ):not(
+      :where(
+        :disabled,
+        .chips-filtro__chip,
+        .alternar-visualizacao__botao,
+        .lista-admin__linha,
+        .lista-admin__card,
+        .lista-admin__carregar-mais *
+      )
+    ):active {
     transform: scale(0.97);
   }
 

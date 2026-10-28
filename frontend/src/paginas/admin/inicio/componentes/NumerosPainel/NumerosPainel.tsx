@@ -74,7 +74,8 @@ export function NumerosPainel() {
       rotulo: "Estoque baixo",
       valor: prod.carregando ? null : String(estoque.baixo),
       detalhe: prod.carregando ? "" : plural(estoque.esgotados, "esgotado", "esgotados"),
-      para: "/admin/produtos?estoque=baixo",
+      // só ativos, igual à conta do contarEstoque: o número e a lista batem
+      para: "/admin/produtos?estoque=baixo&status=ativo",
     });
   }
 

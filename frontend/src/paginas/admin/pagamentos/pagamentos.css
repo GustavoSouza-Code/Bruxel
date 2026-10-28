@@ -29,6 +29,20 @@
   font-weight: 600;
 }
 
+/* nome do cliente na linha de OS: link pra OS, discreto até passar o mouse */
+.pagina-admin-pagamentos__link-os {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+}
+
+.pagina-admin-pagamentos__link-os:hover,
+.pagina-admin-pagamentos__link-os:focus-visible {
+  color: var(--color-primary);
+  text-decoration-color: currentColor;
+}
+
 .pagina-admin-pagamentos__acao .lista-admin__botao {
   width: 100%;
 }
