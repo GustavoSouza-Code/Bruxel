@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import type { Produto } from "../../../tipos/produto";
 import { useCarrinho } from "../../../contexto/useCarrinho";
 import { useAvisos } from "../../../contexto/useAvisos";
+import { quantidadeNoCarrinho } from "../../../crud/carrinho/regrasCarrinho";
+import { quantidadeDisponivel } from "../../../crud/produtos/selecaoProdutos";
 import "./CardProduto.css";
 
 interface CardProdutoProps {
@@ -16,11 +18,16 @@ interface CardProdutoProps {
  * carrinho. É usado na Home, na Loja e no resultado do Piscinator.
  */
 export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
-  const { adicionarItem } = useCarrinho();
+  const { itens, adicionarItem } = useCarrinho();
   const { avisar } = useAvisos();
+  // sem estoque sobrando (esgotado, ou tudo que existe já está no carrinho) o botão desativa
+  const disponivel = quantidadeDisponivel(produto.estoque, quantidadeNoCarrinho(itens, produto.id));
+  const textoBotao =
+    produto.estoque <= 0 ? "Esgotado" : disponivel === 0 ? "Máximo no carrinho" : "Adicionar ao carrinho";
 
   function adicionar() {
-    adicionarItem(produto);
+    // o aviso só sai se o produto entrou de verdade
+    if (!adicionarItem(produto)) return;
     avisar({
       tipo: "sucesso",
       mensagem: `${produto.nome} no carrinho.`,
@@ -72,8 +79,9 @@ export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
       <button
         className="card-produto__botao-adicionar"
         onClick={adicionar}
+        disabled={disponivel === 0}
       >
-        Adicionar ao carrinho
+        {textoBotao}
       </button>
     </article>
   );

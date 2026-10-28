@@ -35,7 +35,7 @@ export function quantidadeDisponivel(estoque: number, noCarrinho: number) {
 }
 
 /**
- * Recomendados do carrinho: os primeiros da categoria "Tratamento da água".
+ * Os primeiros da categoria "Tratamento da água" (a reserva das recomendações do Piscinator).
  * Se a categoria não existir (ou estiver vazia), cai nos primeiros produtos.
  */
 export function produtosRecomendados(produtos: Produto[], categorias: Categoria[]) {

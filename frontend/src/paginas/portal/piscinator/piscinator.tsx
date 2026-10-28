@@ -5,7 +5,7 @@ import { PiscinatorQuestionario } from "./componentes/PiscinatorQuestionario/Pis
 import { PiscinatorResultado } from "./componentes/PiscinatorResultado/PiscinatorResultado";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { useCatalogo } from "../../../crud/produtos/useCatalogo";
-import { produtosRecomendados } from "../../../crud/produtos/selecaoProdutos";
+import { recomendarPorDiagnostico } from "../../../crud/produtos/recomendacaoPiscinator";
 
 /** Etapa atual do fluxo: apresentação → perguntas → diagnóstico. */
 type Step = "intro" | "quiz" | "result";
@@ -21,8 +21,8 @@ export function PaginaPiscinator() {
   const [answers, setAnswers] = useState<boolean[]>([]);
 
   const { produtos, categorias, erro } = useCatalogo();
-  // TODO: recomendar produtos conforme o diagnóstico; hoje a lista é fixa (tratamento da água)
-  const recommendedProducts = erro ? [] : produtosRecomendados(produtos, categorias);
+  // produtos conforme as respostas (água verde, turva, sem manutenção); ver recomendacaoPiscinator
+  const recommendedProducts = erro ? [] : recomendarPorDiagnostico(answers, produtos, categorias);
 
   return (
     <>

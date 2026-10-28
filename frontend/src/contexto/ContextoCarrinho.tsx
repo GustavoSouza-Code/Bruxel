@@ -1,55 +1,61 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { Produto } from "../tipos/produto";
 import { ContextoCarrinho } from "./useCarrinho";
 import type { LinhaCarrinho } from "./useCarrinho";
+import {
+  CHAVE_CARRINHO,
+  adicionarUnidade,
+  definirQuantidade,
+  lerCarrinhoSalvo,
+  quantidadeNoCarrinho,
+} from "../crud/carrinho/regrasCarrinho";
+
+// lê o carrinho salvo; sem localStorage (navegação privada, bloqueado) começa vazio
+function lerDoNavegador() {
+  try {
+    return lerCarrinhoSalvo(localStorage.getItem(CHAVE_CARRINHO));
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Guarda o carrinho e o disponibiliza pra árvore inteira (páginas, Cabecalho,
  * CardProduto). Precisa envolver o app — ver App.tsx.
  *
- * O estado vive só na memória: recarregar a página esvazia o carrinho
- * (ainda não é salvo em localStorage nem no backend).
+ * O carrinho fica salvo no localStorage do navegador: recarregar a página não
+ * esvazia. As quantidades nunca passam do estoque do produto (regras em
+ * crud/carrinho/regrasCarrinho.ts); o backend confere de novo ao fechar a compra.
  */
 export function ProvedorCarrinho({ children }: { children: ReactNode }) {
-  const [itens, setItems] = useState<LinhaCarrinho[]>([]);
+  // a função no useState faz a leitura do localStorage só uma vez, ao montar
+  const [itens, setItems] = useState<LinhaCarrinho[]>(lerDoNavegador);
+
+  // a cada mudança, salva; se o navegador bloquear, o carrinho segue só na memória
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAVE_CARRINHO, JSON.stringify(itens));
+    } catch {
+      // sem localStorage não há onde salvar
+    }
+  }, [itens]);
 
   function adicionarItem(produto: Produto) {
+    // a resposta sai da lista atual, antes de atualizar: false = esgotado ou no limite do estoque
+    const cabe = quantidadeNoCarrinho(itens, produto.id) < produto.estoque;
     // a forma com função (current) garante partir sempre do valor mais recente do estado
-    setItems((current) => {
-      const existing = current.find(
-        (item) => item.produto.id === produto.id
-      );
-      // já está no carrinho: só soma 1 na quantidade
-      if (existing) {
-        return current.map((item) =>
-          item.produto.id === produto.id
-            ? { ...item, quantidade: item.quantidade + 1 }
-            : item
-        );
-      }
-      // primeira vez: entra no fim da lista com quantidade 1
-      return [...current, { produto, quantidade: 1 }];
-    });
+    setItems((current) => adicionarUnidade(current, produto));
+    return cabe;
   }
 
   function removerItem(produtoId: string) {
-    setItems((current) =>
-      current.filter((item) => item.produto.id !== produtoId)
-    );
+    setItems((current) => current.filter((item) => item.produto.id !== produtoId));
   }
 
   function atualizarQuantidade(produtoId: string, quantidade: number) {
-    // clicar em "−" com quantidade 1 remove o item em vez de deixar quantidade 0
-    if (quantidade < 1) {
-      removerItem(produtoId);
-      return;
-    }
-    setItems((current) =>
-      current.map((item) =>
-        item.produto.id === produtoId ? { ...item, quantidade } : item
-      )
-    );
+    // abaixo de 1 o item sai; acima do estoque fica no estoque
+    setItems((current) => definirQuantidade(current, produtoId, quantidade));
   }
 
   function limparCarrinho() {

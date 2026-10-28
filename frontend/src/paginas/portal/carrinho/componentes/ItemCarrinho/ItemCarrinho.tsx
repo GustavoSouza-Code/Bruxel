@@ -42,9 +42,11 @@ export function ItemCarrinho({ item, onRemover, onMudarQuantidade }: ItemCarrinh
               −
             </button>
             <span>{quantidade}</span>
+            {/* no estoque máximo o "+" desativa (o carrinho também não deixa passar) */}
             <button
               onClick={() => onMudarQuantidade(produto.id, quantidade + 1)}
               aria-label="Aumentar quantidade"
+              disabled={quantidade >= produto.estoque}
             >
               +
             </button>

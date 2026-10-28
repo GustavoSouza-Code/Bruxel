@@ -1,23 +1,12 @@
 import { Link } from "react-router-dom";
 import { usePedidos } from "../../../../../crud/pedidos/usePedidos";
 import { formatarReais } from "../../../../../crud/atendimentos/valorOs";
-import type { FormaPagamento, StatusPedido } from "../../../../../tipos/pedido";
+import {
+  FORMA_PAGAMENTO_LABELS,
+  STATUS_PEDIDO_LABELS as STATUS_LABELS,
+  codigoPedido,
+} from "../../../../../crud/pedidos/opcoesPedido";
 import "./AbaCompras.css";
-
-// texto de cada status do banco, mostrado na etiqueta do pedido
-const STATUS_LABELS: Record<StatusPedido, string> = {
-  PENDENTE: "Aguardando pagamento",
-  PAGO: "Pago",
-  ENVIADO: "A caminho",
-  ENTREGUE: "Entregue",
-  CANCELADO: "Cancelado",
-};
-
-const FORMA_PAGAMENTO_LABELS: Record<FormaPagamento, string> = {
-  PIX: "Pix",
-  CARTAO_CREDITO: "Cartão de crédito",
-  BOLETO: "Boleto",
-};
 
 interface AbaComprasProps {
   /** aviso de sucesso que o carrinho manda pelo state do navigate; null = sem aviso */
@@ -66,7 +55,7 @@ export function AbaCompras({ mensagem }: AbaComprasProps) {
               <li key={pedido.id} className="pagina-perfil__card pagina-perfil__pedido">
                 <div className="pagina-perfil__pedido-principal">
                   {/* o id é um UUID; os 8 primeiros caracteres bastam pra identificar na tela */}
-                  <strong>Pedido #{pedido.id.slice(0, 8).toUpperCase()}</strong>
+                  <strong>Pedido #{codigoPedido(pedido.id)}</strong>
                   <span>
                     {new Date(pedido.criadoEm).toLocaleDateString("pt-BR")} · {unidades}{" "}
                     {unidades === 1 ? "item" : "itens"} · {FORMA_PAGAMENTO_LABELS[pedido.formaPagamento]}

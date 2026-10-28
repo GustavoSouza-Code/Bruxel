@@ -63,11 +63,10 @@ export function FinalizarCompra() {
     setEnviando(true);
     setErro(null);
     try {
-      await criarPedido(token, paraCorpoPedido(itens, formaPagamento, endereco));
+      const pedido = await criarPedido(token, paraCorpoPedido(itens, formaPagamento, endereco));
       limparCarrinho();
-      navigate("/perfil", {
-        state: { aba: "compras", mensagem: "Compra feita! Ela já aparece aqui nas suas compras." },
-      });
+      // a confirmação recebe o pedido pronto; se a página for recarregada, ela busca de novo na API
+      navigate(`/pedido/${pedido.id}`, { state: { pedido } });
     } catch (falha) {
       // estoque insuficiente (409) e afins: a mensagem do back diz qual produto
       setErro(mensagemDeErro(falha));
