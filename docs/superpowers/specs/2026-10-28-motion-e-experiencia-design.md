@@ -87,7 +87,7 @@ ganham só a transição da propriedade que já muda (borda/fundo), sem levantar
 | Onde | O que acontece | Duração |
 |---|---|---|
 | `MenuUsuario` | Abre a partir do botão (`transform-origin` no canto do botão), de `opacity: 0; scale(.97) translateY(-4px)`; fecha mais rápido | 180ms / 120ms |
-| `Modal` (`<dialog>`) | Entra com fade e `scale(.97)`; o fundo (`::backdrop`) escurece junto; ao fechar, o componente anima a saída e só então chama `dialog.close()` | 240ms / 160ms |
+| `Modal` (`<dialog>`) | Entra com fade e `scale(.97)`; o fundo (`::backdrop`) escurece junto; ao fechar pelo ✕, pelo fundo ou pelo Esc, o componente anima a saída e só então chama `onFechar` (quando a página fecha o modal sozinha, ex. depois de salvar, ele some na hora) | 240ms / 160ms |
 | FAQ do Início | Resposta abre com altura suave (`grid-template-rows: 0fr → 1fr`); a seta (SVG no lugar do ︿﹀) gira | 220ms |
 | `PainelFiltros` | Mesmo accordion do FAQ, no lugar do atributo `hidden` | 220ms |
 | `<details>` do perfil (Compras e Atendimentos) | Abertura suave com `::details-content` + `interpolate-size`, onde o navegador suporta; nos outros abre como hoje | 220ms |
@@ -122,8 +122,9 @@ Sem animação de propósito: alternar cards/lista no admin, linhas de listas, c
   `role="alert"`.
 - O provedor fica dentro do `BrowserRouter` (a ação do aviso é um `Link`).
 - **Onde avisa** (só onde hoje não há retorno nenhum):
-  - portal: adicionar ao carrinho, no card e na página do produto ("{produto} no carrinho", com
-    "Ver carrinho"); salvar perfil; trocar senha;
+  - portal: adicionar ao carrinho pelo card ("{produto} no carrinho.", com "Ver carrinho"; a
+    página do produto já tem a mensagem "✓ … adicionadas" e fica como está); salvar perfil;
+    trocar senha;
   - admin: salvar e excluir produto, usuário e categoria; desativar produto; marcar OS como paga
     pela tela de pagamentos.
 - As mensagens inline que já funcionam (OS, checkout, formulários) ficam como estão.
@@ -189,9 +190,10 @@ Sem animação de propósito: alternar cards/lista no admin, linhas de listas, c
 ### Gestão de pagamentos (`/admin/pagamentos`)
 
 - Funções puras em **`crud/pagamentos/lancamentos.ts`**:
-  - `lancamentosDePagamento(atendimentos, pedidos, nomesPorUsuario)` → lista única de
+  - `lancamentosDePagamento(atendimentos, pedidosComCliente)` (os pedidos já com o nome do
+    cliente, do `usePedidosAdmin`) → lista única de
     lançamentos `{ id, origem: "os" | "pedido", codigo, cliente, data, valor, situacao:
-    "a-receber" | "recebido", formaPagamento, rota }`:
+    "a-receber" | "recebido", formaPagamento }` (a tela monta o link de cada linha):
     - OS `concluido` sem `pagoEm` → a receber (valor = `totalOs`, data = dia da visita);
     - OS `concluido` com `pagoEm` → recebido (data = `pagoEm`);
     - pedido `PAGO`, `ENVIADO` ou `ENTREGUE` → recebido (data = `criadoEm`);
