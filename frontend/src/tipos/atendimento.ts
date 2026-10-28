@@ -82,6 +82,8 @@ export interface Atendimento {
   produtosUsados: ProdutoUsado[];
   /** valor do serviço em reais, sem os produtos; null = ainda não informado (ou conta de cliente) */
   valorMaoDeObra: number | null;
+  /** total da OS calculado pelo backend para o cliente; null quando a API não envia esse campo */
+  valorTotal: number | null;
   /** data e hora do pagamento, em ISO; null = a pagar (ou conta de cliente) */
   pagoEm: string | null;
 }

@@ -1,4 +1,4 @@
-import { forma_pagamento } from "../generated/prisma/enums";
+import { forma_pagamento, status_pedido } from "../generated/prisma/enums";
 
 // contratos usados no fluxo de compra
 
@@ -24,6 +24,7 @@ export interface ItemPedidoComPreco {
 
 // dados que o repository grava na tabela orders
 export interface DadosPedido {
+    status: status_pedido;
     forma_pagamento: forma_pagamento;
     endereco_entrega: string;
 }

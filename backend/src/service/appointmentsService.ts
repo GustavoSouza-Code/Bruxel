@@ -27,7 +27,9 @@ const TRANSICOES: Partial<Record<status_agendamento, status_agendamento[]>> = {
 
 // o cliente não recebe os campos internos preenchidos pela gestão
 type AtendimentoCompleto = NonNullable<Awaited<ReturnType<AppointmentsRepository["getById"]>>>;
-type AtendimentoPublico = Omit<AtendimentoCompleto, "observacoes_tecnico" | "valor_mao_de_obra" | "pago_em">;
+type AtendimentoPublico = Omit<AtendimentoCompleto, "observacoes_tecnico" | "valor_mao_de_obra" | "pago_em"> & {
+    valor_total: string;
+};
 
 const DESCRICAO_MIN = 10;
 const DESCRICAO_MAX = 1000;
@@ -117,7 +119,18 @@ export class AppointmentsService {
     // remove observações, mão de obra e pagamento antes de devolver a OS ao cliente
     private respostaDoCliente(atendimento: AtendimentoCompleto): AtendimentoPublico {
         const { observacoes_tecnico, valor_mao_de_obra, pago_em, ...publico } = atendimento;
-        return publico;
+
+        // o cliente recebe o total pronto, mas não a mão de obra separada
+        const centavosDosItens = publico.itens.reduce(
+            (soma, item) => soma + Math.round(Number(item.preco_unitario) * 100) * item.quantidade,
+            0
+        );
+        const totalEmCentavos = Math.round(Number(valor_mao_de_obra ?? 0) * 100) + centavosDosItens;
+
+        return {
+            ...publico,
+            valor_total: (totalEmCentavos / 100).toFixed(2),
+        };
     }
 
     // confirma, inicia, recusa, cancela ou conclui o atendimento

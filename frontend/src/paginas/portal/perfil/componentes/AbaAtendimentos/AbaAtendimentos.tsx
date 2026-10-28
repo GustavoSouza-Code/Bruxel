@@ -6,6 +6,7 @@ import {
   codigoAtendimento,
 } from "../../../../../crud/atendimentos/opcoesAtendimento";
 import { formatarAgendamento } from "../../../../../crud/atendimentos/agenda";
+import { formatarReais } from "../../../../../crud/atendimentos/valorOs";
 import { IconeFerramenta } from "../../../../../componentes/ui/Icones/Icones";
 import "./AbaAtendimentos.css";
 
@@ -17,8 +18,7 @@ interface AbaAtendimentosProps {
 /**
  * Aba "Atendimentos" do /perfil: os atendimentos que o cliente pediu, do mais
  * novo pro mais antigo (GET /appointments), com o status de cada um, e o atalho
- * pro formulário. O valor da OS não aparece: o backend não manda a mão de obra
- * pro cliente, então um total aqui sairia errado.
+ * pro formulário. O total vem pronto do backend, sem separar a mão de obra.
  * Usa as classes de card do perfil.css, porque só aparece dentro do /perfil.
  */
 export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
@@ -79,6 +79,37 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                       Mensagem da Bruxel: {atendimento.mensagemCliente}
                     </span>
                   )}
+
+                  <details className="aba-atendimentos__detalhes">
+                    <summary>Ver detalhes da OS</summary>
+                    <div className="aba-atendimentos__detalhes-conteudo">
+                      {atendimento.descricao && (
+                        <p>
+                          <strong>Descrição do atendimento:</strong> {atendimento.descricao}
+                        </p>
+                      )}
+
+                      {atendimento.produtosUsados.length > 0 && (
+                        <div>
+                          <strong>Materiais utilizados</strong>
+                          <ul className="aba-atendimentos__materiais">
+                            {atendimento.produtosUsados.map((produto) => (
+                              <li key={produto.produtoId}>
+                                {produto.quantidade}× {produto.nome}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {atendimento.valorTotal !== null &&
+                        (atendimento.status === "em-andamento" || atendimento.status === "concluido") && (
+                          <p>
+                            <strong>Total da OS:</strong> {formatarReais(atendimento.valorTotal)}
+                          </p>
+                        )}
+                    </div>
+                  </details>
                 </div>
                 {/* o sufixo da classe é o próprio status (ver AbaAtendimentos.css) */}
                 <span

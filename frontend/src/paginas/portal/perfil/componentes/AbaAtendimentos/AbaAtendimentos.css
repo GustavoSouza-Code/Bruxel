@@ -63,6 +63,37 @@
   overflow-wrap: anywhere;
 }
 
+/* detalhes ficam recolhidos para não mudar o resumo do card */
+.aba-atendimentos__detalhes {
+  margin-top: 0.35rem;
+  font-size: var(--font-size-small);
+}
+
+.aba-atendimentos__detalhes summary {
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aba-atendimentos__detalhes-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.aba-atendimentos__detalhes-conteudo p {
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.aba-atendimentos__materiais {
+  margin: 0.25rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-text);
+}
+
 .aba-atendimentos__status {
   border-radius: 999px;
   padding: 0.2rem 0.75rem;
