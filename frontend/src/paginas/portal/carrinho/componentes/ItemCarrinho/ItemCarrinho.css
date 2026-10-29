@@ -74,6 +74,13 @@
   cursor: pointer;
 }
 
+/* "+" no limite do estoque: apagado e sem cursor de clique */
+.item-carrinho__seletor button:disabled {
+  background-color: var(--color-border-soft);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
 .item-carrinho__preco {
   font-weight: 600;
   font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);

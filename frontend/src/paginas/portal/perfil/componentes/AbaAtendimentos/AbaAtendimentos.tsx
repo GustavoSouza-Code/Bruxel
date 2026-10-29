@@ -4,6 +4,7 @@ import {
   STATUS_LABELS,
   TIPO_SERVICO_LABELS,
   codigoAtendimento,
+  totalVisivelParaCliente,
 } from "../../../../../crud/atendimentos/opcoesAtendimento";
 import { formatarAgendamento } from "../../../../../crud/atendimentos/agenda";
 import { formatarReais } from "../../../../../crud/atendimentos/valorOs";
@@ -102,14 +103,17 @@ export function AbaAtendimentos({ mensagem }: AbaAtendimentosProps) {
                         </div>
                       )}
 
-                      {atendimento.valorTotal !== null &&
-                        (atendimento.status === "em-andamento" || atendimento.status === "concluido") && (
+                      {totalVisivelParaCliente(atendimento) && atendimento.valorTotal !== null && (
                           <p>
                             <strong>Total da OS:</strong> {formatarReais(atendimento.valorTotal)}
                           </p>
                         )}
                     </div>
                   </details>
+                  {/* a mesma página que vai no link da cobrança pelo WhatsApp */}
+                  <Link to={`/minha-conta/atendimentos/${atendimento.id}`} className="aba-atendimentos__ver-os">
+                    Ver OS
+                  </Link>
                 </div>
                 {/* o sufixo da classe é o próprio status (ver AbaAtendimentos.css) */}
                 <span

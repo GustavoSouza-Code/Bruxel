@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
+import { ProvedorAvisos } from "./contexto/ContextoAvisos";
 import { RotaAdmin } from "./componentes/layout/RotaAdmin/RotaAdmin";
 import { RotaLogado } from "./componentes/layout/RotaLogado/RotaLogado";
 import { PaginaInicio } from "./paginas/portal/inicio/inicio";
@@ -14,11 +15,15 @@ import { PaginaEntrar } from "./paginas/portal/entrar/entrar";
 import { PaginaCriarConta } from "./paginas/portal/criar-conta/criar-conta";
 import { PaginaPerfil } from "./paginas/portal/perfil/perfil";
 import { PaginaSolicitarAtendimento } from "./paginas/portal/solicitar-atendimento/solicitar-atendimento";
+import { PaginaPedido } from "./paginas/portal/pedido/pedido";
+import { PaginaMinhaOs } from "./paginas/portal/minha-os/minha-os";
 import { PaginaAdminInicio } from "./paginas/admin/inicio/inicio";
 import { PaginaAdminUsuarios } from "./paginas/admin/usuarios/usuarios";
 import { PaginaAdminProdutos } from "./paginas/admin/produtos/produtos";
 import { PaginaAdminAtendimentos } from "./paginas/admin/atendimentos/atendimentos";
 import { PaginaAdminAtendimento } from "./paginas/admin/atendimento/atendimento";
+import { PaginaAdminPedidos } from "./paginas/admin/pedidos/pedidos";
+import { PaginaAdminPagamentos } from "./paginas/admin/pagamentos/pagamentos";
 import { PaginaNaoEncontrada } from "./paginas/portal/nao-encontrada/nao-encontrada";
 import { LimiteDeErro } from "./componentes/ui/LimiteDeErro/LimiteDeErro";
 
@@ -44,6 +49,8 @@ function RotasDoSite() {
         <Route element={<RotaLogado />}>
           <Route path="/perfil" element={<PaginaPerfil />} />
           <Route path="/solicitar-atendimento" element={<PaginaSolicitarAtendimento />} />
+          <Route path="/pedido/:id" element={<PaginaPedido />} />
+          <Route path="/minha-conta/atendimentos/:id" element={<PaginaMinhaOs />} />
         </Route>
         {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
             o RotaAdmin só deixa passar quem está logado como administrador */}
@@ -53,6 +60,8 @@ function RotasDoSite() {
           <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
           <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
           <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
+          <Route path="/admin/pedidos" element={<PaginaAdminPedidos />} />
+          <Route path="/admin/pagamentos" element={<PaginaAdminPagamentos />} />
         </Route>
         {/* qualquer endereço que nenhuma rota acima reconhece */}
         <Route path="*" element={<PaginaNaoEncontrada />} />
@@ -69,13 +78,17 @@ function RotasDoSite() {
  * páginas e pelo Cabecalho. Os atendimentos vêm da API em cada tela
  * (crud/atendimentos/useAtendimentos).
  * Como ficam acima das rotas, não se perdem ao navegar entre elas.
+ * Os avisos (ProvedorAvisos) ficam dentro do BrowserRouter porque o link
+ * de um aviso ("Ver carrinho") é um Link do router.
  */
 function App() {
   return (
     <ProvedorAutenticacao>
       <ProvedorCarrinho>
         <BrowserRouter>
-          <RotasDoSite />
+          <ProvedorAvisos>
+            <RotasDoSite />
+          </ProvedorAvisos>
         </BrowserRouter>
       </ProvedorCarrinho>
     </ProvedorAutenticacao>

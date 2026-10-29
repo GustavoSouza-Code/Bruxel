@@ -42,6 +42,22 @@ export function Cabecalho() {
   const activeLinkRef = useRef<HTMLAnchorElement>(null);
   // diz se há links escondidos à esquerda/direita da faixa (liga os fades do CSS)
   const { canScrollLeft, canScrollRight } = useBordasRolagem(navRef);
+  // selo com a quantidade do carrinho e o último número mostrado nele
+  const seloRef = useRef<HTMLSpanElement>(null);
+  const quantidadeAnterior = useRef<number | null>(null);
+
+  // o selo dá um pulo pequeno quando a quantidade muda (confirma que o produto entrou).
+  // Ao trocar de página o Cabecalho nasce de novo com anterior = null, então não pula
+  useEffect(() => {
+    const anterior = quantidadeAnterior.current;
+    quantidadeAnterior.current = quantidadeItens;
+    if (anterior === null || anterior === quantidadeItens) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    seloRef.current?.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(1.18)" }, { transform: "scale(1)" }],
+      { duration: 260, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+    );
+  }, [quantidadeItens]);
 
   // no celular os links rolam na horizontal: garante que o da página
   // atual fique visível (ex.: "Loja virtual", que fica no fim da faixa)
@@ -157,7 +173,9 @@ export function Cabecalho() {
               </svg>
               {/* badge só aparece com o carrinho não vazio */}
               {quantidadeItens > 0 && (
-                <span className="cabecalho__selo-carrinho">{quantidadeItens}</span>
+                <span ref={seloRef} className="cabecalho__selo-carrinho">
+                  {quantidadeItens}
+                </span>
               )}
             </Link>
             {/* logado: menu com o nome; deslogado: o botão Entrar */}

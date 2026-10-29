@@ -15,14 +15,22 @@ export interface ValorContextoCarrinho {
   quantidadeItens: number;
   /** valor total em reais (preço × quantidade de cada item) */
   total: number;
-  /** adiciona 1 unidade; se o produto já está no carrinho, só aumenta a quantidade */
-  adicionarItem: (produto: Produto) => void;
+  /**
+   * adiciona 1 unidade; se o produto já está no carrinho, só aumenta a quantidade.
+   * Devolve false (e não adiciona) quando o produto está esgotado ou já está todo no carrinho
+   */
+  adicionarItem: (produto: Produto) => boolean;
   /** tira o produto do carrinho, qualquer que seja a quantidade */
   removerItem: (produtoId: string) => void;
-  /** define a quantidade exata; abaixo de 1 o item é removido */
-  atualizarQuantidade: (produtoId: string, quantidade: number) => void;
+  /**
+   * define a quantidade exata, sem passar do estoque; abaixo de 1 o item é removido.
+   * Com `produto` (o da loja agora), o estoque e o preço guardados no carrinho são atualizados
+   */
+  atualizarQuantidade: (produtoId: string, quantidade: number, produto?: Produto) => void;
   /** esvazia o carrinho (depois que a compra é fechada) */
   limparCarrinho: () => void;
+  /** troca todas as linhas de uma vez (o carrinho conferido com a loja, ver reconciliarComCatalogo) */
+  substituirItens: (itens: LinhaCarrinho[]) => void;
 }
 
 // começa como null pra useCarrinho() conseguir detectar o uso fora do ProvedorCarrinho.

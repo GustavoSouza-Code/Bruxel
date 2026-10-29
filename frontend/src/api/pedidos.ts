@@ -33,6 +33,7 @@ export interface CorpoPedido {
 export function paraPedido(bruto: PedidoApi): Pedido {
   return {
     id: bruto.id,
+    usuarioId: bruto.usuario_id,
     status: bruto.status,
     formaPagamento: bruto.forma_pagamento,
     enderecoEntrega: bruto.endereco_entrega,

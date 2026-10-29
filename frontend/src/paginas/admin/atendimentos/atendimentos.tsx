@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
@@ -24,18 +24,25 @@ import { formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { useCarregarMais } from "../../../hooks/useCarregarMais";
 import { useModoVisualizacao } from "../../../hooks/useModoVisualizacao";
 import type { Atendimento } from "../../../tipos/atendimento";
-import { SeloPagamento, SeloStatusAtendimento } from "./componentes/SeloStatusAtendimento/SeloStatusAtendimento";
+import { diasDesdeVisita, estaAtrasada } from "../../../crud/pagamentos/atraso";
+import { ModalCobrancaOs } from "../atendimento/componentes/ModalCobrancaOs/ModalCobrancaOs";
+import {
+  SeloAtraso,
+  SeloPagamento,
+  SeloStatusAtendimento,
+} from "./componentes/SeloStatusAtendimento/SeloStatusAtendimento";
 import "../lista-admin.css";
 import "./atendimentos.css";
 
 // texto de cada chip, na ordem em que aparecem
 const ROTULOS_STATUS: Record<FiltroStatus, string> = {
+  todos: "Todos",
   aguardando: "Aguardando",
   agendado: "Agendados",
   "em-andamento": "Em andamento",
   concluido: "Concluídos",
   encerrados: "Recusados e cancelados",
-  todos: "Todos",
+
 };
 
 // quantos itens aparecem de cada vez (a lista compacta cabe mais na tela)
@@ -57,8 +64,18 @@ function quandoEQuem(atendimento: Atendimento) {
 export function PaginaAdminAtendimentos() {
   const { atendimentos: todosAtendimentos, carregando, erro, recarregar } = useAtendimentos();
   const prontos = !carregando && !erro;
-  const [filtros, setFiltros] = useState<FiltrosAtendimento>(FILTROS_ATENDIMENTO_INICIAIS);
-  const [filtrosAbertos, setFiltrosAbertos] = useState(false);
+  // "?pagamento=atrasado" já abre nos concluídos atrasados, com o painel de filtros aberto
+  const [parametros] = useSearchParams();
+  const veioDosAtrasados = parametros.get("pagamento") === "atrasado";
+  const [filtros, setFiltros] = useState<FiltrosAtendimento>(() =>
+    veioDosAtrasados
+      ? { ...FILTROS_ATENDIMENTO_INICIAIS, status: "concluido", pagamento: "atrasado" }
+      : FILTROS_ATENDIMENTO_INICIAIS
+  );
+  const [filtrosAbertos, setFiltrosAbertos] = useState(veioDosAtrasados);
+  // OS aberta no modal de cobrança; null = fechado
+  const [osCobranca, setOsCobranca] = useState<string | null>(null);
+  const cobrando = todosAtendimentos.find((atendimento) => atendimento.id === osCobranca) ?? null;
   const [modo, setModo] = useModoVisualizacao("admin-atendimentos");
 
   const filtrados = useMemo(() => filtrarAtendimentos(todosAtendimentos, filtros), [todosAtendimentos, filtros]);
@@ -124,6 +141,7 @@ export function PaginaAdminAtendimentos() {
               >
                 <option value="">Qualquer</option>
                 <option value="a-pagar">A pagar</option>
+                <option value="atrasado">Atrasados (7 dias ou mais)</option>
                 <option value="pago">Pago</option>
               </select>
             </label>
@@ -186,10 +204,9 @@ export function PaginaAdminAtendimentos() {
             <ul className="lista-admin__grade">
               {visiveis.map((atendimento) => (
                 <li key={atendimento.id}>
-                  <Link
-                    to={`/admin/atendimentos/${atendimento.id}`}
-                    className="lista-admin__card pagina-admin-atendimentos__card"
-                  >
+                  {/* div com link esticado (e não o card inteiro como link): assim o "Cobrar" é um botão de verdade por cima */}
+                  <div className="lista-admin__card pagina-admin-atendimentos__card">
+                    <LinkDaOs atendimento={atendimento} />
                     <span className="lista-admin__card-titulo">
                       #{codigoAtendimento(atendimento.id)} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                     </span>
@@ -200,8 +217,8 @@ export function PaginaAdminAtendimentos() {
                       </span>
                       <span className="lista-admin__card-detalhe">{quandoEQuem(atendimento)}</span>
                     </span>
-                    <SelosDoAtendimento atendimento={atendimento} />
-                  </Link>
+                    <SelosDoAtendimento atendimento={atendimento} onCobrar={() => setOsCobranca(atendimento.id)} />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -218,10 +235,8 @@ export function PaginaAdminAtendimentos() {
               </li>
               {visiveis.map((atendimento) => (
                 <li key={atendimento.id}>
-                  <Link
-                    to={`/admin/atendimentos/${atendimento.id}`}
-                    className="lista-admin__linha pagina-admin-atendimentos__linha"
-                  >
+                  <div className="lista-admin__linha pagina-admin-atendimentos__linha">
+                    <LinkDaOs atendimento={atendimento} />
                     <span title={atendimento.cliente.nome}>
                       {atendimento.cliente.nome}
                       {atendimento.abertoNaLoja && <SeloLoja />}
@@ -230,8 +245,8 @@ export function PaginaAdminAtendimentos() {
                       #{codigoAtendimento(atendimento.id)} · {TIPO_SERVICO_LABELS[atendimento.tipo]}
                     </span>
                     <span className="lista-admin__so-largo">{quandoEQuem(atendimento)}</span>
-                    <SelosDoAtendimento atendimento={atendimento} />
-                  </Link>
+                    <SelosDoAtendimento atendimento={atendimento} onCobrar={() => setOsCobranca(atendimento.id)} />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -250,16 +265,46 @@ export function PaginaAdminAtendimentos() {
           )}
         </Container>
       </section>
+
+      {/* sem onMarcarPago: daqui o modal só cobra; o pagamento se registra na OS ou em Pagamentos */}
+      {cobrando && <ModalCobrancaOs atendimento={cobrando} onFechar={() => setOsCobranca(null)} />}
     </>
   );
 }
 
+/** Link invisível que cobre o card ou a linha inteira e leva à OS (o "Cobrar" fica por cima dele). */
+function LinkDaOs({ atendimento }: { atendimento: Atendimento }) {
+  return (
+    <Link
+      to={`/admin/atendimentos/${atendimento.id}`}
+      className="pagina-admin-atendimentos__link"
+      aria-label={`Abrir OS #${codigoAtendimento(atendimento.id)} de ${atendimento.cliente.nome}`}
+    />
+  );
+}
+
 // <div> e não <span>: no celular, o CSS da lista compacta mexe no display de todo <span> filho da linha
-function SelosDoAtendimento({ atendimento }: { atendimento: Atendimento }) {
+function SelosDoAtendimento({ atendimento, onCobrar }: { atendimento: Atendimento; onCobrar: () => void }) {
+  const hoje = new Date();
+  const atrasada = estaAtrasada(atendimento, hoje);
   return (
     <div className="pagina-admin-atendimentos__selos">
       <SeloStatusAtendimento status={atendimento.status} />
-      {atendimento.status === "concluido" && <SeloPagamento pagoEm={atendimento.pagoEm} />}
+      {atendimento.status === "concluido" &&
+        (atrasada ? (
+          <SeloAtraso dias={diasDesdeVisita(atendimento, hoje)} />
+        ) : (
+          <SeloPagamento pagoEm={atendimento.pagoEm} />
+        ))}
+      {atrasada && (
+        <button
+          type="button"
+          className="lista-admin__botao lista-admin__botao--contorno pagina-admin-atendimentos__cobrar"
+          onClick={onCobrar}
+        >
+          Cobrar
+        </button>
+      )}
     </div>
   );
 }

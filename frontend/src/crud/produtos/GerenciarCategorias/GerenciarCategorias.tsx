@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import type { Categoria } from "../../../tipos/produto";
 import { mensagemDeErro } from "../../../api/cliente";
+import { useAvisos } from "../../../contexto/useAvisos";
 import { IconeEditar, IconeLixeira } from "../../../componentes/ui/Icones/Icones";
 import { TAMANHO_MAXIMO_NOME_CATEGORIA, validarNomeCategoria } from "../nomeCategoria";
 import "./GerenciarCategorias.css";
@@ -24,13 +25,15 @@ export function GerenciarCategorias({ categorias, onCriar, onRenomear, onExcluir
   const [editando, setEditando] = useState<{ id: string; nome: string } | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const { avisar } = useAvisos();
 
-  // roda uma ação, mostra o erro da API se houver e devolve se deu certo
-  async function executar(acao: () => Promise<void>) {
+  // roda uma ação, mostra o erro da API se houver (ou o aviso de sucesso) e devolve se deu certo
+  async function executar(acao: () => Promise<void>, mensagemSucesso: string) {
     setErro(null);
     setOcupado(true);
     try {
       await acao();
+      avisar({ tipo: "sucesso", mensagem: mensagemSucesso });
       return true;
     } catch (falha) {
       setErro(mensagemDeErro(falha));
@@ -44,7 +47,7 @@ export function GerenciarCategorias({ categorias, onCriar, onRenomear, onExcluir
     event.preventDefault();
     const problema = validarNomeCategoria(novoNome);
     if (problema) return setErro(problema);
-    if (await executar(() => onCriar(novoNome.trim()))) setNovoNome("");
+    if (await executar(() => onCriar(novoNome.trim()), "Categoria criada.")) setNovoNome("");
   }
 
   async function salvarEdicao(event: FormEvent) {
@@ -52,12 +55,14 @@ export function GerenciarCategorias({ categorias, onCriar, onRenomear, onExcluir
     if (!editando) return;
     const problema = validarNomeCategoria(editando.nome);
     if (problema) return setErro(problema);
-    if (await executar(() => onRenomear(editando.id, editando.nome.trim()))) setEditando(null);
+    if (await executar(() => onRenomear(editando.id, editando.nome.trim()), "Categoria renomeada.")) {
+      setEditando(null);
+    }
   }
 
   async function excluir(categoria: Categoria) {
     if (!window.confirm(`Excluir a categoria "${categoria.nome}"?`)) return;
-    await executar(() => onExcluir(categoria.id));
+    await executar(() => onExcluir(categoria.id), "Categoria excluída.");
   }
 
   return (

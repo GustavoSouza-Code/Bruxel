@@ -124,6 +124,12 @@
   color: #8a5a00;
 }
 
+/* "esgotado": o mesmo vermelho dos avisos de erro do projeto */
+.lista-admin__selo--perigo {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
 .lista-admin__selo--destaque {
   background-color: #dcdcff;
   color: var(--color-primary);

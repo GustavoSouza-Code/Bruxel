@@ -47,3 +47,58 @@
 .modal__fechar:hover {
   color: var(--color-primary);
 }
+
+/* o ícone (svg) não tem altura de linha: alinha o botão pelo centro */
+.modal__fechar {
+  display: flex;
+}
+
+/* fechando (ver Modal.tsx): some em 160ms, mais rápido do que entra */
+.modal--fechando,
+.modal--fechando::backdrop {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .modal[open] {
+    animation: modal-entrar var(--t-modal) var(--ease-out);
+  }
+
+  .modal[open]::backdrop {
+    animation: modal-fundo var(--t-modal) var(--ease-out);
+  }
+
+  .modal--fechando[open] {
+    animation: modal-sair 160ms var(--ease-saida) forwards;
+  }
+
+  .modal--fechando[open]::backdrop {
+    animation: modal-fundo-sair 160ms var(--ease-saida) forwards;
+  }
+}
+
+@keyframes modal-entrar {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes modal-fundo {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-sair {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes modal-fundo-sair {
+  to {
+    opacity: 0;
+  }
+}

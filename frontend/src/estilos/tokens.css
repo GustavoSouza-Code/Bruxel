@@ -36,4 +36,13 @@
 
   /* espaço vertical (padding) entre seções da página */
   --space-section: clamp(2.5rem, 2rem + 2vw, 4.5rem);
+
+  /* movimento (ver estilos/movimento.css): curvas e durações das animações */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* entradas e hovers que movem algo */
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1); /* algo que viaja visível (barra do Piscinator) */
+  --ease-saida: cubic-bezier(0.55, 0.055, 0.675, 0.19); /* algo que sai de vez; sempre curto */
+  --t-press: 140ms; /* botão "afundando" ao clicar */
+  --t-hover: 180ms; /* troca de cor/borda ao passar o mouse */
+  --t-ui: 220ms; /* menu, painel que abre e fecha, aviso */
+  --t-modal: 240ms; /* entrada do modal */
 }

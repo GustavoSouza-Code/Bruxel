@@ -67,6 +67,12 @@
   cursor: pointer;
 }
 
+/* esgotado ou no limite do estoque: cinza e sem cursor de clique */
+.card-produto__botao-adicionar:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
 /* link invisível que cobre o card todo, deixando imagem, nome e preço clicáveis */
 .card-produto__link {
   position: absolute;
@@ -77,6 +83,10 @@
 .card-produto__link:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+.card-produto {
+  transition: border-color var(--t-hover) ease;
 }
 
 .card-produto:hover {

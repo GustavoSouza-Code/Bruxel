@@ -1,0 +1,111 @@
+/* a pilha fica presa no canto de baixo; só os avisos recebem clique, o espaço entre eles não */
+.avisos {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 300; /* acima do header (100) e do menu do usuário (200) */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.aviso {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem 0.85rem 1.1rem;
+  border-radius: 14px;
+  /* sombra só aqui e no menu: são as únicas coisas que flutuam sobre a página */
+  box-shadow: 0 12px 32px rgba(10, 13, 77, 0.25);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.aviso--sucesso {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.aviso--erro {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+.aviso--info {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-soft);
+}
+
+.aviso__texto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.aviso__acao {
+  align-self: flex-start;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* no azul-marinho, o link usa o azul-claro do sublinhado do header */
+.aviso--sucesso .aviso__acao {
+  color: #8ddcff;
+}
+
+.aviso__fechar {
+  display: flex;
+  padding: 0.15rem;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.aviso__fechar:hover {
+  opacity: 1;
+}
+
+/* saindo (ver usePresenca): some em 150ms */
+.aviso--saindo {
+  opacity: 0;
+}
+
+/* celular: embaixo, na largura toda (com a margem da página) */
+@media (max-width: 640px) {
+  .avisos {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .aviso {
+    animation: aviso-entrar var(--t-ui) var(--ease-out);
+    transition:
+      opacity 150ms var(--ease-saida),
+      transform 150ms var(--ease-saida);
+  }
+
+  .aviso--saindo {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes aviso-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

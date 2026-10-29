@@ -4,6 +4,7 @@ import {
   FILTROS_PRODUTO_INICIAIS,
   contarFiltrosAtivosProduto,
   filtrarProdutos,
+  filtrosProdutoDaUrl,
 } from "./filtrarProdutos";
 import type { FiltrosProduto } from "./filtrarProdutos";
 
@@ -86,5 +87,28 @@ describe("contarFiltrosAtivosProduto", () => {
         filtros({ status: "ativo", precoMin: "1", precoMax: "9", ordem: "preco-asc" })
       )
     ).toBe(4);
+  });
+});
+
+describe("filtro de estoque", () => {
+  it("estoque baixo inclui os esgotados", () => {
+    expect(ids(filtrarProdutos(PRODUTOS, filtros({ estoque: "baixo" })))).toEqual(["3", "1"]);
+  });
+
+  it("esgotado mostra só estoque 0", () => {
+    expect(ids(filtrarProdutos(PRODUTOS, filtros({ estoque: "esgotado" })))).toEqual(["3"]);
+  });
+
+  it("estoque conta como filtro ativo", () => {
+    expect(contarFiltrosAtivosProduto(filtros({ estoque: "baixo" }))).toBe(1);
+  });
+});
+
+describe("filtrosProdutoDaUrl", () => {
+  it("lê estoque e status da URL e ignora valores desconhecidos", () => {
+    expect(filtrosProdutoDaUrl(new URLSearchParams("estoque=baixo&status=ativo"))).toEqual(
+      filtros({ estoque: "baixo", status: "ativo" })
+    );
+    expect(filtrosProdutoDaUrl(new URLSearchParams("estoque=muito&status=talvez"))).toEqual(FILTROS_PRODUTO_INICIAIS);
   });
 });

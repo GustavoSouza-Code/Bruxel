@@ -21,9 +21,8 @@ export function listarUsuarios(token: string) {
 }
 
 /**
- * Busca um usuário pelo id. Hoje a rota é só de administrador; o perfil
- * (/perfil) usa ela com o id de quem está logado, e o backend ainda precisa
- * liberar o acesso pro próprio usuário.
+ * Busca um usuário pelo id. O administrador busca qualquer um; o cliente, só a
+ * própria conta (é o que o /perfil faz, com o id de quem está logado).
  */
 export function buscarUsuario(token: string, id: string) {
   return requisicao<Usuario>(`/users/${id}`, { token });
@@ -35,11 +34,19 @@ export function criarUsuario(dados: DadosNovoUsuario) {
 }
 
 /**
- * Altera só os campos enviados e devolve o usuário atualizado. Hoje é só de
- * administrador; o perfil também usa, à espera de o backend liberar pro próprio usuário.
+ * Altera só os campos enviados e devolve o usuário atualizado. O administrador
+ * altera qualquer conta; o cliente, só a própria (o /perfil).
  */
 export function atualizarUsuario(token: string, id: string, campos: CamposAtualizacaoUsuario) {
   return requisicao<Usuario>(`/users/${id}`, { metodo: "PUT", corpo: campos, token });
+}
+
+/**
+ * Troca a senha da própria conta (PUT /users/:id). O backend confere a senha
+ * atual e responde 400 "Senha atual incorreta." se ela não bater.
+ */
+export function alterarSenha(token: string, id: string, senhaAtual: string, senha: string) {
+  return requisicao<Usuario>(`/users/${id}`, { metodo: "PUT", corpo: { senha, senhaAtual }, token });
 }
 
 /** Apaga o usuário e devolve os dados dele (só administrador). */

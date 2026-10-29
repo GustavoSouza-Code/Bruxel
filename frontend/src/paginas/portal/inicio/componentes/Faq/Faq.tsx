@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import { Recolhivel } from "../../../../../componentes/ui/Recolhivel/Recolhivel";
+import { IconeSeta } from "../../../../../componentes/ui/Icones/Icones";
 import "./Faq.css";
 
 /** Uma pergunta do FAQ; o id identifica qual item está aberto. */
@@ -54,17 +56,24 @@ export function Faq() {
         <ul className="faq__lista">
           {FAQ_ITEMS.map((item) => {
             const isOpen = openId === item.id;
+            const idResposta = `faq-${item.id}`;
             return (
               <li key={item.id} className="faq__item">
                 <button
                   className="faq__pergunta"
                   onClick={() => toggle(item.id)}
                   aria-expanded={isOpen}
+                  aria-controls={idResposta}
                 >
                   {item.question}
-                  <span className="faq__seta">{isOpen ? "︿" : "﹀"}</span>
+                  <span className={`faq__seta${isOpen ? " faq__seta--aberta" : ""}`}>
+                    <IconeSeta />
+                  </span>
                 </button>
-                {isOpen && <p className="faq__resposta">{item.answer}</p>}
+                {/* a resposta fica sempre no DOM; o Recolhivel abre e fecha com a altura suave */}
+                <Recolhivel id={idResposta} aberto={isOpen}>
+                  <p className="faq__resposta">{item.answer}</p>
+                </Recolhivel>
               </li>
             );
           })}

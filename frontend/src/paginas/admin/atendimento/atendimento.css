@@ -208,3 +208,11 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* cobrança da OS atrasada: o título leva o selo de atraso ao lado */
+.pagina-admin-atendimento__bloco--cobranca h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}

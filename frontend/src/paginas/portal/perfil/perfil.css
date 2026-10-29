@@ -215,6 +215,16 @@
   font-weight: 600;
 }
 
+/* erro de um campo, embaixo dele (aba Senha) */
+.pagina-perfil__erro-campo {
+  color: #c0392b;
+  font-weight: 500;
+}
+
+.pagina-perfil__formulario input[aria-invalid="true"] {
+  border-color: #c0392b;
+}
+
 .pagina-perfil__falha {
   display: flex;
   flex-direction: column;

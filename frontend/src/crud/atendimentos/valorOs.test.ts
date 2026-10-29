@@ -3,6 +3,7 @@ import type { ProdutoUsado } from "../../tipos/atendimento";
 import {
   adicionarProduto,
   formatarReais,
+  perguntaPagamento,
   maoDeObraParaTexto,
   paraValorEmReais,
   quantidadeNaOs,
@@ -99,5 +100,17 @@ describe("formatarReais", () => {
   it("usa o formato brasileiro com espaço comum depois do R$", () => {
     expect(formatarReais(1234.5)).toBe("R$ 1.234,50");
     expect(formatarReais(0)).toBe("R$ 0,00");
+  });
+});
+
+describe("perguntaPagamento", () => {
+  it("avisa quando o total é zero", () => {
+    expect(perguntaPagamento(0)).toBe(
+      "Esta OS está com total de R$ 0,00 (sem mão de obra e sem produtos). Registrar o pagamento assim mesmo? Depois disso a OS não pode mais mudar."
+    );
+  });
+
+  it("mostra o valor", () => {
+    expect(perguntaPagamento(150)).toBe("Registrar o pagamento de R$ 150,00? Depois disso a OS não pode mais mudar.");
   });
 });

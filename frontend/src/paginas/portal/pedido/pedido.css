@@ -1,0 +1,136 @@
+.pagina-pedido {
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
+}
+
+/* uma coluna só, na largura de leitura do resumo */
+.pagina-pedido__interno {
+  max-width: 720px;
+}
+
+.pagina-pedido__titulo {
+  font-weight: 600;
+  font-size: var(--font-size-hero-title);
+  color: var(--color-primary);
+  margin: 0 0 0.35rem;
+}
+
+.pagina-pedido__meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin: 0 0 1rem;
+}
+
+.pagina-pedido__pagamento {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  margin: 0 0 clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
+}
+
+/* o mesmo verde do selo "Pago" do perfil */
+.pagina-pedido__pagamento--confirmado {
+  color: #1e7a3c;
+}
+
+/* mesmo cartão cinza do resumo do carrinho */
+.pagina-pedido__resumo {
+  background-color: #f7f7fa;
+  border-radius: 12px;
+  padding: 1.75rem;
+}
+
+.pagina-pedido__resumo h2 {
+  font-weight: 600;
+  font-size: var(--font-size-body);
+  margin: 0 0 0.75rem;
+}
+
+.pagina-pedido__itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagina-pedido__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  font-size: var(--font-size-small);
+}
+
+.pagina-pedido__item small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: inherit;
+}
+
+.pagina-pedido__item strong,
+.pagina-pedido__total span:last-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pagina-pedido__total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  border-top: 1px solid var(--color-border-soft);
+  margin: 0.5rem 0 1.75rem;
+  padding-top: 1rem;
+}
+
+.pagina-pedido__endereco {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  white-space: pre-line;
+}
+
+.pagina-pedido__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* pílulas iguais às do 404 (MensagemPagina): cheia e de contorno */
+.pagina-pedido__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-primary);
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 0.7rem 1.4rem;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pagina-pedido__botao:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.pagina-pedido__botao--contorno {
+  background-color: transparent;
+  color: var(--color-primary);
+}
+
+.pagina-pedido__botao--contorno:hover {
+  background-color: var(--color-store-button);
+  border-color: var(--color-primary);
+}
+
+.pagina-pedido__estado {
+  color: var(--color-text-muted);
+}
+
+.pagina-pedido__estado button {
+  margin-top: 1rem;
+}

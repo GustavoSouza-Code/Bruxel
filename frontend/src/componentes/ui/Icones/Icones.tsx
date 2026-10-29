@@ -133,7 +133,25 @@ export function IconeMais() {
   );
 }
 
-/** X: remover foto. */
+/** Seta pra baixo (chevron): abrir/fechar uma resposta do FAQ; gira 180° quando aberta. */
+export function IconeSeta() {
+  return (
+    <Icone>
+      <path d="m6 9 6 6 6-6" />
+    </Icone>
+  );
+}
+
+/** Visto: pagamento confirmado na tela do pedido. */
+export function IconeCheck() {
+  return (
+    <Icone>
+      <path d="M20 6 9 17l-5-5" />
+    </Icone>
+  );
+}
+
+/** X: remover foto, fechar modal e aviso. */
 export function IconeFechar() {
   return (
     <Icone>

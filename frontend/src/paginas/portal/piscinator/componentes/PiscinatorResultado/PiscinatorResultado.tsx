@@ -74,7 +74,7 @@ export function PiscinatorResultado({
         {/* sem produtos recomendados, a seção inteira some */}
         {produtos.length > 0 && (
           <div className="piscinator-resultado__produtos">
-            <h2>Produtos recomendados</h2>
+            <h2>Recomendados para o seu diagnóstico</h2>
             <div className="piscinator-resultado__grade">
               {produtos.map((produto) => (
                 <CardProduto key={produto.id} produto={produto} />

@@ -18,7 +18,8 @@ export function useAtendimento(id: string | undefined) {
   const [atendimento, setAtendimento] = useState<Atendimento | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  // 404 = o id não existe; a tela mostra "não encontrado" em vez do erro genérico
+  // 404 = o id não existe; 403 = a OS é de outra conta (a página do cliente). Nos dois,
+  // a tela mostra "não encontrado" em vez do erro genérico
   const [naoEncontrado, setNaoEncontrado] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [tentativa, setTentativa] = useState(0);
@@ -34,7 +35,7 @@ export function useAtendimento(id: string | undefined) {
       })
       .catch((falha: unknown) => {
         if (cancelado) return;
-        if (falha instanceof ErroApi && falha.status === 404) setNaoEncontrado(true);
+        if (falha instanceof ErroApi && (falha.status === 404 || falha.status === 403)) setNaoEncontrado(true);
         else setErro(mensagemDeErro(falha));
       })
       .finally(() => {

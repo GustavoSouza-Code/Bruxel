@@ -48,14 +48,18 @@ export function PiscinatorQuestionario({ onConcluir }: PiscinatorQuestionarioPro
               <div
                 className="piscinator-questionario__preenchimento-progresso"
                 style={{
-                  // largura da barra = pergunta atual ÷ total de perguntas (ex.: 2 de 3 = 66%)
-                  width: `${((step + 1) / QUESTIONS.length) * 100}%`,
+                  // a barra tem a largura toda e encolhe na horizontal: pergunta atual ÷ total
+                  // (ex.: 2 de 3 = 0.66). Animar transform é mais leve que animar width
+                  transform: `scaleX(${(step + 1) / QUESTIONS.length})`,
                 }}
               />
             </div>
           </div>
 
-          <h2 className="piscinator-questionario__pergunta">{QUESTIONS[step]}</h2>
+          {/* a key nova a cada pergunta faz o título nascer de novo e rodar a animação de entrada */}
+          <h2 key={step} className="piscinator-questionario__pergunta">
+            {QUESTIONS[step]}
+          </h2>
 
           <div className="piscinator-questionario__acoes">
             <button

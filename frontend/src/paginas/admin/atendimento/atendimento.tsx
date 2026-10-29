@@ -9,16 +9,22 @@ import { TIPO_SERVICO_LABELS, codigoAtendimento } from "../../../crud/atendiment
 import { formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { formatarDataHora } from "../../../crud/atendimentos/datasAtendimento";
 import {
-  formatarReais,
   maoDeObraParaTexto,
   paraValorEmReais,
-  totalOs,
+  perguntaPagamento,
   validarMaoDeObra,
+  totalOs,
 } from "../../../crud/atendimentos/valorOs";
 import { linkWhatsApp, textoMensagemCliente } from "../../../crud/atendimentos/whatsapp";
 import type { Atendimento, ProdutoUsado } from "../../../tipos/atendimento";
-import { SeloPagamento, SeloStatusAtendimento } from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
+import {
+  SeloAtraso,
+  SeloPagamento,
+  SeloStatusAtendimento,
+} from "../atendimentos/componentes/SeloStatusAtendimento/SeloStatusAtendimento";
 import { CartaoClienteOs } from "./componentes/CartaoClienteOs/CartaoClienteOs";
+import { CaixaCobranca } from "./componentes/CaixaCobranca/CaixaCobranca";
+import { diasDesdeVisita, estaAtrasada } from "../../../crud/pagamentos/atraso";
 import { GaleriaFotosOs } from "./componentes/GaleriaFotosOs/GaleriaFotosOs";
 import { ModalMensagemCliente } from "./componentes/ModalMensagemCliente/ModalMensagemCliente";
 import { ProdutosDaOs } from "./componentes/ProdutosDaOs/ProdutosDaOs";
@@ -174,13 +180,8 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
   }
 
   function registrarPagamento() {
-    const valor = totalOs(atendimento);
-    // OS sem mão de obra e sem produto: pode ser cortesia, mas o mais comum é ter esquecido de lançar
-    const pergunta =
-      valor === 0
-        ? "Esta OS está com total de R$ 0,00 (sem mão de obra e sem produtos). Registrar o pagamento assim mesmo? Depois disso a OS não pode mais mudar."
-        : `Registrar o pagamento de ${formatarReais(valor)}? Depois disso a OS não pode mais mudar.`;
-    if (!window.confirm(pergunta)) return;
+    // total zero ganha um alerta (ver perguntaPagamento); a tela de pagamentos usa a mesma pergunta
+    if (!window.confirm(perguntaPagamento(totalOs(atendimento)))) return;
     executar(marcarPago, "Pagamento registrado. A OS está fechada.");
   }
 
@@ -294,6 +295,22 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
                   onSalvarProdutos={salvarProdutos}
                   salvando={salvando}
                 />
+              </section>
+            )}
+
+            {/* a cobrança aparece assim que a OS é concluída sem pagamento; com 7 dias ou mais, vira "atrasado" */}
+            {atendimento.status === "concluido" && !atendimento.pagoEm && (
+              <section className="pagina-admin-atendimento__bloco pagina-admin-atendimento__bloco--cobranca">
+                <h2>
+                  {estaAtrasada(atendimento, new Date()) ? (
+                    <>
+                      Pagamento atrasado <SeloAtraso dias={diasDesdeVisita(atendimento, new Date())} />
+                    </>
+                  ) : (
+                    "Cobrar pagamento"
+                  )}
+                </h2>
+                <CaixaCobranca atendimento={atendimento} mostrarTitulo={false} />
               </section>
             )}
 

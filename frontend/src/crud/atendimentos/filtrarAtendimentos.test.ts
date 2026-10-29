@@ -68,3 +68,21 @@ describe("contarFiltrosAtivosAtendimento", () => {
     expect(contarFiltrosAtivosAtendimento(filtros({ pagamento: "pago", ordem: "visita-desc" }))).toBe(2);
   });
 });
+
+describe("pagamento atrasado", () => {
+  const HOJE = new Date(2026, 9, 28);
+  const recente = atendimentoDeTeste({ id: "aaaa0007-0000-4000-8000-000000000000", status: "concluido", pagoEm: null, data: "2026-10-25" });
+
+  it("traz só concluídas não pagas com 7 dias ou mais", () => {
+    expect(ids(filtrarAtendimentos([...LISTA, recente], filtros({ status: "todos", pagamento: "atrasado" }), HOJE))).toEqual([
+      "aaaa0003-0000-4000-8000-000000000000",
+    ]);
+  });
+
+  it("a-pagar continua trazendo todas as não pagas", () => {
+    expect(ids(filtrarAtendimentos([...LISTA, recente], filtros({ status: "todos", pagamento: "a-pagar" }), HOJE))).toEqual([
+      "aaaa0003-0000-4000-8000-000000000000",
+      "aaaa0007-0000-4000-8000-000000000000",
+    ]);
+  });
+});

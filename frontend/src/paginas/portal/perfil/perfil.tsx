@@ -6,20 +6,23 @@ import { Container } from "../../../componentes/layout/Container/Container";
 import type { Usuario } from "../../../tipos/usuario";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { useAvisos } from "../../../contexto/useAvisos";
 import { CAMPOS_ENDERECO, formatarEndereco, validarEndereco } from "../../../crud/usuarios/camposUsuario";
 import type { CampoEditavelUsuario } from "../../../crud/usuarios/camposUsuario";
 import { usePerfil } from "./usePerfil";
 import { AbaAtendimentos } from "./componentes/AbaAtendimentos/AbaAtendimentos";
 import { AbaCompras } from "./componentes/AbaCompras/AbaCompras";
+import { AbaSenha } from "./componentes/AbaSenha/AbaSenha";
 import "./perfil.css";
 
 /** Abas do menu lateral da conta. */
-type ProfileSection = "perfil" | "enderecos" | "compras" | "atendimentos";
+type ProfileSection = "perfil" | "enderecos" | "senha" | "compras" | "atendimentos";
 
 // itens do menu lateral, na ordem em que aparecem
 const SECTIONS: { id: ProfileSection; label: string }[] = [
   { id: "perfil", label: "Informações do perfil" },
   { id: "enderecos", label: "Endereços" },
+  { id: "senha", label: "Senha" },
   { id: "compras", label: "Compras" },
   { id: "atendimentos", label: "Atendimentos" },
 ];
@@ -43,11 +46,12 @@ const PROFILE_FIELDS: {
 
 /**
  * Área "Minha conta" (rota "/perfil", só pra quem está logado): menu lateral
- * com quatro abas — dados do perfil e endereços (os dois vindos do banco e
- * editáveis), histórico de compras e os atendimentos pedidos.
+ * com cinco abas — dados do perfil e endereços (os dois vindos do banco e
+ * editáveis), troca de senha, histórico de compras e os atendimentos pedidos.
  */
 export function PaginaPerfil() {
   const { usuario: usuarioSessao, sair } = useAutenticacao();
+  const { avisar } = useAvisos();
   const navigate = useNavigate();
   // dados do banco (null enquanto carrega ou se a busca falhou)
   const { dados, carregando, erro, recarregar, salvar } = usePerfil();
@@ -99,6 +103,10 @@ export function PaginaPerfil() {
     try {
       await salvar(draft);
       setDraft(null);
+      avisar({
+        tipo: "sucesso",
+        mensagem: activeSection === "enderecos" ? "Endereço salvo." : "Perfil salvo.",
+      });
     } catch (falha) {
       // o formulário continua aberto, com o que a pessoa digitou, pra ela corrigir
       setErroSalvar(mensagemDeErro(falha));
@@ -291,6 +299,8 @@ export function PaginaPerfil() {
                     ))}
                 </>
               )}
+
+              {activeSection === "senha" && <AbaSenha />}
 
               {activeSection === "compras" && <AbaCompras mensagem={mensagemRecado} />}
 
