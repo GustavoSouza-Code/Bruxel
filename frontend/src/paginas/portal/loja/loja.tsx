@@ -3,21 +3,26 @@ import { useLocation } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { BannerLoja } from "./componentes/BannerLoja/BannerLoja";
-import { NavCategorias } from "./componentes/NavCategorias/NavCategorias";
+import { FiltrosLoja } from "./componentes/FiltrosLoja/FiltrosLoja";
 import { SecaoProdutos } from "../../../componentes/produto/SecaoProdutos/SecaoProdutos";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
+import { contemTexto } from "../../../crud/busca";
 import { useCatalogo } from "../../../crud/produtos/useCatalogo";
+import { FILTROS_PRODUTO_INICIAIS, filtrarProdutos } from "../../../crud/produtos/filtrarProdutos";
+import type { FiltrosProduto } from "../../../crud/produtos/filtrarProdutos";
+import { filtrosAtivosLoja, limparFiltrosLoja, temFiltroLoja } from "../../../crud/produtos/filtrosLoja";
 import { produtosEmDestaque } from "../../../crud/produtos/selecaoProdutos";
 import "./loja.css";
 
 /**
- * Loja virtual (rota "/loja"): busca por nome no topo, atalhos de categoria
- * e uma seção de produtos por categoria, tudo vindo da API.
+ * Loja virtual (rota "/loja"): busca por nome no topo, botão de filtros
+ * (categoria, preço e ordenação) e os produtos, tudo vindo da API. Sem filtro
+ * do painel, aparece uma seção por categoria; com filtro, uma lista só.
  */
 export function PaginaLoja() {
   const { produtos, categorias, carregando, erro, recarregar } = useCatalogo();
-  // texto digitado no campo de busca do BannerLoja
-  const [searchTerm, setSearchTerm] = useState("");
+  // busca do BannerLoja + filtros do painel (categoria, preço e ordem), tudo num estado só
+  const [filtros, setFiltros] = useState<FiltrosProduto>(FILTROS_PRODUTO_INICIAIS);
   const { hash } = useLocation();
 
   // vindo de "/loja#<id da categoria>" (ex.: trilha da página do produto), rola
@@ -28,14 +33,16 @@ export function PaginaLoja() {
     }
   }, [carregando, hash]);
 
-  // busca por nome, sem diferenciar maiúsculas de minúsculas; campo vazio mostra tudo
-  const filteredProducts = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return produtos;
-    return produtos.filter((product) =>
-      product.nome.toLowerCase().includes(term)
-    );
-  }, [produtos, searchTerm]);
+  const comFiltro = temFiltroLoja(filtros);
+  // sem filtro do painel só a busca vale e a ordem da API continua (a vitrine "mais vendidos" depende dela);
+  // com filtro, aplica categoria, preço e ordenação também
+  const filteredProducts = useMemo(
+    () =>
+      comFiltro
+        ? filtrarProdutos(produtos, filtros)
+        : produtos.filter((p) => contemTexto(p.nome, filtros.busca) || contemTexto(p.codigo, filtros.busca)),
+    [produtos, filtros, comFiltro]
+  );
 
   function conteudo() {
     if (carregando) {
@@ -68,12 +75,23 @@ export function PaginaLoja() {
       return (
         <Container className="pagina-loja__estado">
           <p>Nenhum produto encontrado.</p>
+          {comFiltro && (
+            <button type="button" className="pagina-loja__tentar" onClick={() => setFiltros(limparFiltrosLoja(filtros))}>
+              Limpar filtros
+            </button>
+          )}
         </Container>
       );
     }
-    // sem categorias (ex.: só a API de categorias falhou) mostra tudo numa seção só
-    if (categorias.length === 0) {
-      return <SecaoProdutos titulo="Produtos" produtos={filteredProducts} />;
+    // com filtro do painel (ou sem categorias, ex.: só a API de categorias falhou) vai uma lista só
+    if (comFiltro || categorias.length === 0) {
+      const etiquetaCategoria = filtrosAtivosLoja(filtros, categorias).find((f) => f.chave === "categoria");
+      return (
+        <SecaoProdutos
+          titulo={etiquetaCategoria?.rotulo ?? (comFiltro ? "Resultados" : "Produtos")}
+          produtos={filteredProducts}
+        />
+      );
     }
     return (
       <>
@@ -106,8 +124,13 @@ export function PaginaLoja() {
   return (
     <>
       <Cabecalho />
-      <BannerLoja termoBusca={searchTerm} onMudarBusca={setSearchTerm} />
-      <NavCategorias categorias={categorias} />
+      <BannerLoja termoBusca={filtros.busca} onMudarBusca={(busca) => setFiltros({ ...filtros, busca })} />
+      <FiltrosLoja
+        categorias={categorias}
+        filtros={filtros}
+        onMudar={setFiltros}
+        totalResultados={filteredProducts.length}
+      />
       {conteudo()}
       <Rodape />
     </>
