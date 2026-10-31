@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Produto } from "../../../tipos/produto";
 import { useCarrinho } from "../../../contexto/useCarrinho";
+import { quantidadeDisponivel } from "../../../crud/produtos/selecaoProdutos";
 import "./CardProduto.css";
 
 interface CardProdutoProps {
@@ -15,7 +16,11 @@ interface CardProdutoProps {
  * carrinho. É usado na Home, na Loja e no resultado do Piscinator.
  */
 export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
-  const { adicionarItem } = useCarrinho();
+  const { itens, adicionarItem } = useCarrinho();
+  // sem estoque, ou com tudo que existe já no carrinho, o botão trava
+  const noCarrinho = itens.find((item) => item.produto.id === produto.id)?.quantidade ?? 0;
+  const esgotado = produto.estoque < 1;
+  const semMais = !esgotado && quantidadeDisponivel(produto.estoque, noCarrinho) === 0;
   // URL cuja imagem falhou; o placeholder vale só pra ela (se a URL mudar, tenta de novo)
   const [urlComErro, setUrlComErro] = useState<string | null>(null);
   const mostrarImagem = Boolean(produto.url_imagem) && produto.url_imagem !== urlComErro;
@@ -61,8 +66,9 @@ export function CardProduto({ produto, onFavoritar }: CardProdutoProps) {
       <button
         className="card-produto__botao-adicionar"
         onClick={() => adicionarItem(produto)}
+        disabled={esgotado || semMais}
       >
-        Adicionar ao carrinho
+        {esgotado ? "Esgotado" : semMais ? "Máximo no carrinho" : "Adicionar ao carrinho"}
       </button>
     </article>
   );

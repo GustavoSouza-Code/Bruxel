@@ -16,6 +16,8 @@ interface ItemCarrinhoProps {
  */
 export function ItemCarrinho({ item, onRemover, onMudarQuantidade }: ItemCarrinhoProps) {
   const { produto, quantidade } = item;
+  // no máximo o estoque do produto; no limite o "+" trava e aparece o aviso
+  const noLimite = quantidade >= produto.estoque;
 
   return (
     <div className="item-carrinho">
@@ -44,12 +46,18 @@ export function ItemCarrinho({ item, onRemover, onMudarQuantidade }: ItemCarrinh
             <span>{quantidade}</span>
             <button
               onClick={() => onMudarQuantidade(produto.id, quantidade + 1)}
+              disabled={noLimite}
               aria-label="Aumentar quantidade"
             >
               +
             </button>
           </div>
         </div>
+        {noLimite && (
+          <p className="item-carrinho__aviso" role="status">
+            {produto.estoque === 1 ? "Só tem 1 unidade em estoque." : `Máximo em estoque: ${produto.estoque} unidades.`}
+          </p>
+        )}
       </div>
 
       {/* subtotal deste item (preço × quantidade) */}

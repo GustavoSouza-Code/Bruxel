@@ -35,6 +35,15 @@ export function quantidadeDisponivel(estoque: number, noCarrinho: number) {
 }
 
 /**
+ * Corta a quantidade pedida no estoque do produto: nunca passa do que existe
+ * e nunca fica negativa. É a regra que o carrinho aplica em toda alteração
+ * (o backend confere de novo na hora de fechar a compra).
+ */
+export function limitarAoEstoque(quantidade: number, estoque: number) {
+  return Math.max(0, Math.min(quantidade, estoque));
+}
+
+/**
  * Recomendados do carrinho: os primeiros da categoria "Tratamento da água".
  * Se a categoria não existir (ou estiver vazia), cai nos primeiros produtos.
  */

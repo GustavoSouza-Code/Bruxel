@@ -67,6 +67,11 @@
   cursor: pointer;
 }
 
+.card-produto__botao-adicionar:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
 /* link invisível que cobre o card todo, deixando imagem, nome e preço clicáveis */
 .card-produto__link {
   position: absolute;

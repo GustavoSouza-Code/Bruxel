@@ -5,6 +5,7 @@ import {
   produtosEmDestaque,
   produtosRecomendados,
   produtosRelacionados,
+  limitarAoEstoque,
   quantidadeDisponivel,
 } from "./selecaoProdutos";
 
@@ -83,5 +84,21 @@ describe("quantidadeDisponivel", () => {
 
   it("nunca fica negativa", () => {
     expect(quantidadeDisponivel(2, 5)).toBe(0);
+  });
+});
+
+describe("limitarAoEstoque", () => {
+  it("mantém a quantidade quando cabe no estoque", () => {
+    expect(limitarAoEstoque(3, 10)).toBe(3);
+    expect(limitarAoEstoque(10, 10)).toBe(10);
+  });
+
+  it("corta no estoque quando a pessoa pede demais", () => {
+    expect(limitarAoEstoque(25, 10)).toBe(10);
+  });
+
+  it("nunca devolve negativo, nem com estoque zerado", () => {
+    expect(limitarAoEstoque(-2, 10)).toBe(0);
+    expect(limitarAoEstoque(1, 0)).toBe(0);
   });
 });

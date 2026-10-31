@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { Produto } from "../tipos/produto";
 import { ContextoCarrinho } from "./useCarrinho";
 import type { LinhaCarrinho } from "./useCarrinho";
+import { limitarAoEstoque } from "../crud/produtos/selecaoProdutos";
 
 /**
  * Guarda o carrinho e o disponibiliza pra árvore inteira (páginas, Cabecalho,
@@ -17,14 +18,18 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
   function adicionarItem(produto: Produto) {
     // a forma com função (current) garante partir sempre do valor mais recente do estado
     setItems((current) => {
+      // sem estoque não entra (nem soma) no carrinho
+      if (produto.estoque < 1) return current;
       const existing = current.find(
         (item) => item.produto.id === produto.id
       );
-      // já está no carrinho: só soma 1 na quantidade
+      // já está no carrinho: soma 1, mas sem passar do estoque
       if (existing) {
+        const nova = limitarAoEstoque(existing.quantidade + 1, produto.estoque);
+        if (nova === existing.quantidade) return current;
         return current.map((item) =>
           item.produto.id === produto.id
-            ? { ...item, quantidade: item.quantidade + 1 }
+            ? { ...item, produto, quantidade: nova }
             : item
         );
       }
@@ -45,10 +50,16 @@ export function ProvedorCarrinho({ children }: { children: ReactNode }) {
       removerItem(produtoId);
       return;
     }
+    // a quantidade nunca passa do estoque que o produto tinha quando entrou no carrinho
     setItems((current) =>
-      current.map((item) =>
-        item.produto.id === produtoId ? { ...item, quantidade } : item
-      )
+      current
+        .map((item) =>
+          item.produto.id === produtoId
+            ? { ...item, quantidade: limitarAoEstoque(quantidade, item.produto.estoque) }
+            : item
+        )
+        // se o estoque zerou, o item sai em vez de ficar com quantidade 0
+        .filter((item) => item.quantidade >= 1)
     );
   }
 
