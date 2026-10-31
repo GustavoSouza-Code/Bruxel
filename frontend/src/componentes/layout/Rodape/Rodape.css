@@ -4,53 +4,172 @@
   color: var(--color-white);
 }
 
+/* duas áreas: informações à esquerda e o mapa grande à direita */
 .rodape__interno {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: clamp(1.5rem, 1rem + 4vw, 8rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: clamp(1.75rem, 1rem + 3vw, 4rem);
+  align-items: stretch;
   padding-top: clamp(2.25rem, 1.75rem + 1.5vw, 4rem);
   padding-bottom: clamp(2.25rem, 1.75rem + 1.5vw, 4rem);
 }
 
-/* Colunas de informação */
-.rodape__coluna h3 {
-  color: var(--color-white);
-  font-weight: 600;
-  margin: 0 0 0.85rem;
-  font-size: var(--font-size-body);
+.rodape__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
 }
 
-.rodape__coluna p {
-  margin: 0 0 0.6rem;
-  max-width: 280px;
-  color: #d8d9f5;
-  font-weight: 500;
-  font-size: var(--font-size-small);
-  line-height: 1.6;
-}
-
-/* logo no canto inferior direito (align-self: flex-end) */
+/* logo no topo da coluna de informações */
 .rodape__logo {
   display: flex;
   flex-direction: column;
-  align-self: flex-end;
   font-weight: 700;
   line-height: 1.1;
 }
 
 .rodape__logo-principal {
-  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.85rem);
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
 }
 
 .rodape__logo-secundario {
-  font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.95rem);
+  font-size: clamp(0.8rem, 0.75rem + 0.2vw, 1rem);
   opacity: 0.85;
 }
 
-/* Celular: colunas empilhadas, então a logo passa pra esquerda */
-@media (max-width: 640px) {
-  .rodape__logo {
-    align-self: flex-start;
+.rodape__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ícone à esquerda e texto à direita */
+.rodape__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.rodape__icone {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: var(--color-accent-light);
+}
+
+.rodape__item h3,
+.rodape__redes h3 {
+  color: var(--color-white);
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  font-size: var(--font-size-body);
+}
+
+.rodape__item p,
+.rodape__item address {
+  margin: 0;
+  color: #d8d9f5;
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+}
+
+.rodape__link,
+.rodape__link-mapa {
+  color: var(--color-accent-light);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.rodape__link-mapa {
+  display: inline-block;
+  margin-top: 0.35rem;
+}
+
+.rodape__link:hover,
+.rodape__link-mapa:hover {
+  text-decoration: underline;
+}
+
+/* botões de redes sociais */
+.rodape__botoes-redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rodape__rede {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.rodape__rede .rodape__icone {
+  margin-top: 0;
+  color: inherit;
+}
+
+.rodape__rede:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-white);
+}
+
+.rodape__rede:focus-visible,
+.rodape__link:focus-visible,
+.rodape__link-mapa:focus-visible {
+  outline: 2px solid var(--color-accent-light);
+  outline-offset: 3px;
+}
+
+/* mapa grande: ocupa a altura da coluna, com um mínimo pra ficar útil */
+.rodape__mapa {
+  min-height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--color-primary-dark);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rodape__mapa iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border: 0;
+}
+
+/* faixa de direitos no pé */
+.rodape__base {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 1rem 0;
+}
+
+.rodape__base p {
+  margin: 0;
+  color: #d8d9f5;
+  font-size: 0.8rem;
+}
+
+/* Tablet e celular: informações em cima e mapa embaixo, em largura total */
+@media (max-width: 900px) {
+  .rodape__interno {
+    grid-template-columns: 1fr;
+  }
+
+  .rodape__mapa,
+  .rodape__mapa iframe {
+    min-height: 320px;
   }
 }
