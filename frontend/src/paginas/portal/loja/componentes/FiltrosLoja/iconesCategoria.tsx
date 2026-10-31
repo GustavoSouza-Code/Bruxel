@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
-import { Container } from "../../../../../componentes/layout/Container/Container";
 import { normalizar } from "../../../../../crud/produtos/selecaoProdutos";
-import type { Categoria } from "../../../../../tipos/produto";
-import "./NavCategorias.css";
 
-// cada ícone é um SVG inline que usa currentColor, então herda a cor do texto do botão;
+// ícone de cada categoria no painel de filtros; cada um é um SVG inline que usa currentColor, então herda a cor do texto do botão;
 // a chave é o nome da categoria normalizado (sem acento, minúsculo)
 const ICONES: Record<string, ReactNode> = {
   "tratamento da agua": (
@@ -41,39 +38,7 @@ const ICONE_PADRAO = (
   </svg>
 );
 
-interface NavCategoriasProps {
-  categorias: Categoria[];
+/** Ícone da categoria pelo nome (sem ligar pra acento ou maiúsculas); nome desconhecido ganha o ícone padrão. */
+export function iconeDaCategoria(nome: string): ReactNode {
+  return ICONES[normalizar(nome)] ?? ICONE_PADRAO;
 }
-
-/** Barra de atalhos da Loja: cada botão rola suavemente até a seção da categoria. */
-export function NavCategorias({ categorias }: NavCategoriasProps) {
-  function handleClick(id: string) {
-    // o id é o mesmo da <section> renderizada pelo SecaoProdutos (o scroll-margin-top
-    // dela evita que o header fixo cubra o título)
-    document
-      .getElementById(id)
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  // sem categorias não há o que atalhar
-  if (categorias.length === 0) return null;
-
-  return (
-    <nav className="nav-categorias">
-      <Container className="nav-categorias__interno">
-        {categorias.map((categoria) => (
-          <button
-            key={categoria.id}
-            className="nav-categorias__item"
-            onClick={() => handleClick(categoria.id)}
-          >
-            {ICONES[normalizar(categoria.nome)] ?? ICONE_PADRAO}
-            {categoria.nome}
-          </button>
-        ))}
-      </Container>
-    </nav>
-  );
-}
-
-export default NavCategorias;

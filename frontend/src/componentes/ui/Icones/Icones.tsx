@@ -41,6 +41,15 @@ export function IconeFiltros() {
   );
 }
 
+/** Três risquinhos: botão de menu (filtros da Loja). */
+export function IconeMenu() {
+  return (
+    <Icone>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </Icone>
+  );
+}
+
 export function IconeGrade() {
   return (
     <Icone>

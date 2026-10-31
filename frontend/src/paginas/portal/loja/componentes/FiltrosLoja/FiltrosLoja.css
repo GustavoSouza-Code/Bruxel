@@ -1,0 +1,315 @@
+.filtros-loja {
+  border-bottom: 1px solid var(--color-border-soft);
+  padding: 1rem 0;
+}
+
+/* botão, etiquetas dos filtros em uso e total de produtos na mesma linha */
+.filtros-loja__interno {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+/* o painel abre colado no botão (position: relative serve de referência pra ele) */
+.filtros-loja__ancora {
+  position: relative;
+}
+
+.filtros-loja__botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.filtros-loja__botao:hover,
+.filtros-loja__botao--aberto {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.filtros-loja__botao:focus-visible,
+.filtros-loja__fechar:focus-visible,
+.filtros-loja__categoria:focus-visible,
+.filtros-loja__aplicar:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* bolinha com quantos grupos de filtro estão em uso */
+.filtros-loja__contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* etiquetas dos filtros em uso */
+.filtros-loja__ativos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filtros-loja__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.85rem;
+  border-radius: 999px;
+  background-color: var(--color-store-button);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-size: var(--font-size-small);
+}
+
+.filtros-loja__etiqueta button {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.filtros-loja__etiqueta button:hover {
+  background-color: rgba(36, 40, 100, 0.15);
+}
+
+.filtros-loja__total {
+  margin: 0 0 0 auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* Painel: no computador, uma caixa logo abaixo do botão */
+.filtros-loja__painel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 0;
+  z-index: 50;
+  width: min(440px, calc(100vw - 2 * var(--gutter)));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  background-color: var(--color-white);
+  box-shadow: 0 12px 32px rgba(10, 13, 77, 0.16);
+  outline: none;
+}
+
+/* no computador o fundo é invisível: só serve pra fechar ao clicar fora */
+.filtros-loja__fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: transparent;
+}
+
+.filtros-loja__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filtros-loja__topo h2 {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.filtros-loja__fechar {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background-color: #f2f2f7;
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.filtros-loja__grupo {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.filtros-loja__grupo legend,
+.filtros-loja__legenda {
+  padding: 0;
+  margin-bottom: 0.55rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+/* categorias: botões que quebram linha, com ícone */
+.filtros-loja__categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filtros-loja__categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+.filtros-loja__categoria:hover {
+  border-color: var(--color-primary);
+}
+
+.filtros-loja__categoria--marcada {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+.filtros-loja__preco {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.filtros-loja__preco label,
+.filtros-loja__ordem {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.filtros-loja__preco input,
+.filtros-loja__ordem select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-family: inherit;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  background-color: var(--color-white);
+  min-width: 0;
+}
+
+.filtros-loja__preco input:focus,
+.filtros-loja__ordem select:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.filtros-loja__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.25rem;
+}
+
+.filtros-loja__limpar {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.filtros-loja__limpar:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.filtros-loja__limpar:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+.filtros-loja__aplicar {
+  padding: 0.7rem 1.4rem;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
+
+/* Celular: o painel sobe do pé da tela e o fundo escurece */
+@media (max-width: 700px) {
+  .filtros-loja__total {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .filtros-loja__fundo {
+    z-index: 300;
+    background-color: rgba(10, 13, 77, 0.45);
+  }
+
+  .filtros-loja__painel {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 310; /* acima do header (100) e do menu do usuário (200) */
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: none;
+    border-radius: 20px 20px 0 0;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  }
+
+  /* o painel ocupa a tela: a página atrás não rola */
+  body.filtros-loja-aberto {
+    overflow: hidden;
+  }
+}

@@ -27,7 +27,7 @@ export const FILTROS_PRODUTO_INICIAIS: FiltrosProduto = {
 };
 
 // texto do input → número; vazio ou inválido = sem limite (null)
-function paraNumero(texto: string) {
+export function paraNumero(texto: string) {
   if (!texto.trim()) return null;
   const numero = Number(texto.replace(",", "."));
   return Number.isFinite(numero) ? numero : null;
