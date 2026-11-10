@@ -11,6 +11,11 @@ const incluirItensDoPedido = {
     },
 } as const;
 
+// o admin precisa identificar o cliente sem buscar a lista inteira de usuários
+const incluirClienteDoPedido = {
+    users: { select: { nome: true, email: true } },
+} as const;
+
 const ordenarPorCriacao = { criado_em: "desc" } as const;
 
 // interação com orders/order_items e com o estoque dos produtos
@@ -91,7 +96,10 @@ export class OrdersRepository {
         try {
             return await prisma.orders.findMany({
                 orderBy: ordenarPorCriacao,
-                include: incluirItensDoPedido,
+                include: {
+                    ...incluirItensDoPedido,
+                    ...incluirClienteDoPedido,
+                },
             });
         } catch (error) {
             console.error("Erro ao buscar pedidos:", error);

@@ -234,6 +234,14 @@ async function main() {
     true,
     Array.isArray(pedidosAdmin.corpo) && pedidosAdmin.corpo.some((p) => p.id === pedidoCliente.corpo?.id)
   );
+  const pedidoDoClienteNoAdmin = Array.isArray(pedidosAdmin.corpo)
+    ? pedidosAdmin.corpo.find((p) => p.id === pedidoCliente.corpo?.id)
+    : undefined;
+  anotarValor(
+    "admin recebe o nome do cliente no pedido",
+    "Smoke Pedido Cliente",
+    pedidoDoClienteNoAdmin?.users?.nome
+  );
 
   // ------------------------------------------------------- recusas
   anotar("POST /orders acima do estoque", 409, await comprar(tokenCliente, corpoPedido([
