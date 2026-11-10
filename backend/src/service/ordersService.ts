@@ -1,4 +1,4 @@
-import { CreateOrderDTO, DadosPedido, ItemPedidoComPreco, ItemPedidoDTO } from "../models/order";
+import { CreateOrderDTO, DadosPedido, ItemPedidoComPreco, ItemPedidoDTO, STATUS_CANCELAVEIS } from "../models/order";
 import { OrdersRepository } from "../repository/ordersRepository";
 import { ProductsRepository } from "../repository/productsRepository";
 import { AppError } from "../errors/AppError";
@@ -10,6 +10,9 @@ const MAXIMO_DE_ITENS = 100;
 
 // simulação acadêmica: a compra já nasce paga, sem etapa separada de confirmação
 const STATUS_INICIAL_PEDIDO: status_pedido = "PAGO";
+
+const STATUS_ALTERAVEIS = ["ENVIADO", "ENTREGUE", "CANCELADO"] as const;
+type StatusAlteravel = typeof STATUS_ALTERAVEIS[number];
 
 // limite da coluna NUMERIC(10,2) usada em valor_total
 const TOTAL_MAXIMO_CENTAVOS = 9999999999;
@@ -83,6 +86,27 @@ export class OrdersService {
             : this.ordersRepository.getAllByUsuario(usuarioId);
     }
 
+    async updateStatus(id: string, dados: unknown) {
+        const novoStatus = this.validarNovoStatus(dados);
+        const pedido = await this.buscarPorId(id);
+
+        if (novoStatus === "CANCELADO") {
+            if (!STATUS_CANCELAVEIS.includes(pedido.status)) {
+                throw new AppError(409, "Este pedido não pode mais ser cancelado.");
+            }
+            return this.ordersRepository.cancel(pedido.id);
+        }
+
+        if (novoStatus === "ENVIADO" && pedido.status !== "PAGO") {
+            throw new AppError(409, "Só é possível marcar como enviado um pedido pago.");
+        }
+        if (novoStatus === "ENTREGUE" && pedido.status !== "ENVIADO") {
+            throw new AppError(409, "Só é possível marcar como entregue um pedido enviado.");
+        }
+
+        return this.ordersRepository.updateStatus(pedido.id, pedido.status, novoStatus);
+    }
+
     // validações dos dados recebidos no corpo da compra
     private validarItens(itens: unknown): ItemPedidoDTO[] {
         if (!Array.isArray(itens) || itens.length === 0) {
@@ -134,5 +158,26 @@ export class OrdersService {
             throw new AppError(400, "O endereço de entrega deve ter no máximo 500 caracteres.");
         }
         return endereco;
+    }
+
+    private validarNovoStatus(dados: unknown): status_pedido {
+        const status = (dados as { status?: unknown } | null)?.status;
+
+        if (typeof status !== "string" || !STATUS_ALTERAVEIS.includes(status as StatusAlteravel)) {
+            throw new AppError(400, "Status inválido. Use ENVIADO, ENTREGUE ou CANCELADO.");
+        }
+        return status as status_pedido;
+    }
+
+    private async buscarPorId(id: string) {
+        if (!ehUuid(id)) {
+            throw new AppError(404, "Pedido não encontrado.");
+        }
+
+        const pedido = await this.ordersRepository.getById(id);
+        if (!pedido) {
+            throw new AppError(404, "Pedido não encontrado.");
+        }
+        return pedido;
     }
 }
