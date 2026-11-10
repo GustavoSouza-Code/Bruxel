@@ -18,15 +18,37 @@
 .depoimentos__card {
   border: 1px solid var(--color-border-soft);
   border-radius: 12px;
-  padding: 1.1rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .depoimentos__cabecalho-card {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.6rem;
-  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  gap: 0.75rem;
+}
+
+/* círculo com as iniciais da pessoa */
+.depoimentos__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--color-store-button);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.depoimentos__quem {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .depoimentos__cabecalho-card strong {
@@ -35,10 +57,18 @@
 }
 
 .depoimentos__estrelas {
-  color: #ccc;
+  margin: 0 0 0.6rem;
   letter-spacing: 2px;
-  font-size: 0.9rem;
-  flex-shrink: 0;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.depoimentos__estrelas-cheias {
+  color: #f5a623;
+}
+
+.depoimentos__estrelas-vazias {
+  color: #d9d9d9;
 }
 
 .depoimentos__comentario {

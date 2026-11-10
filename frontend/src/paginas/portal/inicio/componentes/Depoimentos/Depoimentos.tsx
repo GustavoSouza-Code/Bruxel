@@ -7,11 +7,11 @@ interface Testimonial {
   name: string;
   comment: string;
   timeAgo: string;
-  /** nota de 0 a 5 (ainda não usada: veja o TODO das estrelas, mais abaixo) */
+  /** nota de 1 a 5, mostrada em estrelas */
   rating: number;
 }
 
-// depoimentos escritos direto no código, não vêm de API
+// depoimentos escritos direto no código, não vêm de API (notas de 4 a 5)
 const TESTIMONIALS: Testimonial[] = [
   {
     id: "luciana",
@@ -32,9 +32,17 @@ const TESTIMONIALS: Testimonial[] = [
     name: "Eduardo Oliveira",
     comment: "Loja confiável e com produtos de qualidade.",
     timeAgo: "Há 1 dia",
-    rating: 0,
+    rating: 4,
   },
 ];
+
+/** Primeira letra do primeiro e do último nome: "Ana Paula Martins" → "AM". */
+function iniciais(nome: string) {
+  const partes = nome.trim().split(/\s+/);
+  const primeira = partes[0]?.[0] ?? "";
+  const ultima = partes.length > 1 ? (partes[partes.length - 1]?.[0] ?? "") : "";
+  return (primeira + ultima).toUpperCase();
+}
 
 /**
  * Seção "O que nossos clientes estão falando" da Home: grade de cards com os
@@ -50,14 +58,20 @@ export function Depoimentos() {
           {TESTIMONIALS.map((testimonial) => (
             <article key={testimonial.id} className="depoimentos__card">
               <div className="depoimentos__cabecalho-card">
-                <strong>{testimonial.name}</strong>
-                {/* TODO: mostrar só `rating` estrelas; por enquanto as 5 aparecem fixas, sem ler a nota */}
-                <span className="depoimentos__estrelas">★★★★★</span>
+                <span className="depoimentos__avatar" aria-hidden="true">
+                  {iniciais(testimonial.name)}
+                </span>
+                <div className="depoimentos__quem">
+                  <strong>{testimonial.name}</strong>
+                  <span className="depoimentos__tempo">{testimonial.timeAgo}</span>
+                </div>
               </div>
+              {/* as estrelas cheias seguem a nota; as vazias completam até 5 */}
+              <p className="depoimentos__estrelas" role="img" aria-label={`Nota ${testimonial.rating} de 5`}>
+                <span className="depoimentos__estrelas-cheias">{"★".repeat(testimonial.rating)}</span>
+                <span className="depoimentos__estrelas-vazias">{"★".repeat(5 - testimonial.rating)}</span>
+              </p>
               <p className="depoimentos__comentario">{testimonial.comment}</p>
-              <span className="depoimentos__tempo">
-                {testimonial.timeAgo}
-              </span>
             </article>
           ))}
         </div>
