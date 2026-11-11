@@ -1,0 +1,6 @@
+# Mantém só a estrutura das pastas; as imagens enviadas ficam fora do git.
+*
+!.gitignore
+!produtos/
+produtos/*
+!produtos/.gitkeep
