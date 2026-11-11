@@ -1,9 +1,25 @@
 import { NextFunction, Request, Response } from "express";
 import { ProductsService } from "../service/productsService";
+import { AppError } from "../errors/AppError";
+import { urlDaImagem } from "../config/uploads";
 
 // controller de produtos, cuida da parte de requisições e respostas HTTP
 export class ProductsController {
     private productsService = new ProductsService();
+
+    // recebe a imagem do estoque e devolve a referência que será salva no produto
+    uploadImage = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) {
+                throw new AppError(400, "Envie uma imagem no campo \"imagem\".");
+            }
+
+            const origem = `${req.protocol}://${req.get("host")}`;
+            return res.status(201).json({ url_imagem: urlDaImagem(req.file.filename, origem) });
+        } catch (error) {
+            next(error);
+        }
+    };
 
     // cadastro de produto (rota protegida por admin)
     create = async (req: Request, res: Response, next: NextFunction) => {

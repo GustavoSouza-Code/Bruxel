@@ -188,6 +188,10 @@ async function main() {
     return chamar("POST", "/orders", { corpo, token });
   }
 
+  function mudarStatus(token, id, status) {
+    return chamar("PATCH", `/orders/${id}/status`, { corpo: { status }, token });
+  }
+
   // ------------------------------------------------------- autenticação
   anotar("POST /orders sem token", 401, await comprar(undefined, corpoPedido([
     { produto_id: p1.id, quantidade: 1 },
@@ -234,6 +238,69 @@ async function main() {
     true,
     Array.isArray(pedidosAdmin.corpo) && pedidosAdmin.corpo.some((p) => p.id === pedidoCliente.corpo?.id)
   );
+  const pedidoDoClienteNoAdmin = Array.isArray(pedidosAdmin.corpo)
+    ? pedidosAdmin.corpo.find((p) => p.id === pedidoCliente.corpo?.id)
+    : undefined;
+  anotarValor(
+    "admin recebe o nome do cliente no pedido",
+    "Smoke Pedido Cliente",
+    pedidoDoClienteNoAdmin?.users?.nome
+  );
+
+  // ------------------------------------------------- ciclo de vida do pedido
+  anotar(
+    "PATCH /orders/:id/status como cliente",
+    403,
+    await mudarStatus(tokenCliente, pedidoCliente.corpo.id, "ENVIADO")
+  );
+  anotar(
+    "PATCH /orders/:id/status com status fora do fluxo",
+    400,
+    await mudarStatus(tokenAdmin, pedidoCliente.corpo.id, "PAGO")
+  );
+  anotar(
+    "PATCH /orders PAGO para ENTREGUE",
+    409,
+    await mudarStatus(tokenAdmin, pedidoCliente.corpo.id, "ENTREGUE")
+  );
+
+  const pedidoEnviado = await mudarStatus(tokenAdmin, pedidoCliente.corpo.id, "ENVIADO");
+  anotar(
+    "PATCH /orders PAGO para ENVIADO",
+    200,
+    pedidoEnviado,
+    conferirPedido(pedidoEnviado.corpo, {
+      status: "ENVIADO",
+      total: 41,
+      quantidadeItens: 2,
+      usuarioId: idCliente,
+    })
+  );
+
+  const pedidoEntregue = await mudarStatus(tokenAdmin, pedidoCliente.corpo.id, "ENTREGUE");
+  anotar(
+    "PATCH /orders ENVIADO para ENTREGUE",
+    200,
+    pedidoEntregue,
+    conferirPedido(pedidoEntregue.corpo, {
+      status: "ENTREGUE",
+      total: 41,
+      quantidadeItens: 2,
+      usuarioId: idCliente,
+    })
+  );
+
+  anotar(
+    "PATCH /orders ENTREGUE para CANCELADO",
+    409,
+    await mudarStatus(tokenAdmin, pedidoCliente.corpo.id, "CANCELADO")
+  );
+
+  const pedidosDoClienteAtualizados = await chamar("GET", "/orders", { token: tokenCliente });
+  const pedidoAtualizadoDoCliente = Array.isArray(pedidosDoClienteAtualizados.corpo)
+    ? pedidosDoClienteAtualizados.corpo.find((p) => p.id === pedidoCliente.corpo?.id)
+    : undefined;
+  anotarValor("cliente vê o status atualizado", "ENTREGUE", pedidoAtualizadoDoCliente?.status);
 
   // ------------------------------------------------------- recusas
   anotar("POST /orders acima do estoque", 409, await comprar(tokenCliente, corpoPedido([
@@ -296,6 +363,27 @@ async function main() {
       pedidosClienteDepois.corpo.some((p) => p.id === pedidoAdmin.corpo?.id)
   );
 
+  // ---------------------------------------------- cancelamento e estoque
+  const pedidoCancelado = await mudarStatus(tokenAdmin, pedidoAdmin.corpo.id, "CANCELADO");
+  anotar(
+    "PATCH /orders PAGO para CANCELADO",
+    200,
+    pedidoCancelado,
+    conferirPedido(pedidoCancelado.corpo, {
+      status: "CANCELADO",
+      total: 20,
+      quantidadeItens: 1,
+      usuarioId: idAdmin,
+    })
+  );
+  anotarValor("estoque P2 devolvido ao cancelar", 1, await estoqueDe(p2.id));
+  anotar(
+    "PATCH /orders cancelar novamente",
+    409,
+    await mudarStatus(tokenAdmin, pedidoAdmin.corpo.id, "CANCELADO")
+  );
+  anotarValor("estoque P2 não muda no cancelamento duplicado", 1, await estoqueDe(p2.id));
+
   // ------------------------------------------------- concorrência
   const compraUnica = () => comprar(tokenCliente, corpoPedido([
     { produto_id: p3.id, quantidade: 1 },
@@ -317,9 +405,32 @@ async function main() {
   anotarValor("estoque P3 após concorrência", 0, estoqueFinalP3);
   anotarValor("estoque P3 não ficou negativo", true, estoqueFinalP3 >= 0);
 
+  const pedidoParaCancelar = await comprar(tokenCliente, corpoPedido([
+    { produto_id: p1.id, quantidade: 1 },
+  ]));
+  anotar("POST /orders para cancelamento simultâneo", 201, pedidoParaCancelar);
+  anotarValor("estoque P1 antes do cancelamento simultâneo", 2, await estoqueDe(p1.id));
+
+  const [cancelamento1, cancelamento2] = await Promise.all([
+    mudarStatus(tokenAdmin, pedidoParaCancelar.corpo.id, "CANCELADO"),
+    mudarStatus(tokenAdmin, pedidoParaCancelar.corpo.id, "CANCELADO"),
+  ]);
+  const statusCancelamentos = [cancelamento1.status, cancelamento2.status].sort((a, b) => a - b);
+  const cancelamentosOk = statusCancelamentos[0] === 200 && statusCancelamentos[1] === 409;
+  if (!cancelamentosOk) falhas++;
+  linhas.push({
+    "#": linhas.length + 1,
+    caso: "dois cancelamentos simultâneos do mesmo pedido",
+    esperado: "200 e 409",
+    obtido: statusCancelamentos.join(" e "),
+    ok: cancelamentosOk ? "OK" : "FALHOU",
+    nota: "",
+  });
+  anotarValor("estoque P1 após cancelamentos simultâneos", 3, await estoqueDe(p1.id));
+
   // ------------------------------------------------- estoque final
   anotarValor("estoque final P1", 3, await estoqueDe(p1.id));
-  anotarValor("estoque final P2", 0, await estoqueDe(p2.id));
+  anotarValor("estoque final P2", 1, await estoqueDe(p2.id));
   anotarValor("estoque final P4", 10, await estoqueDe(p4.id));
 
   // ---------------------------------------------------------------- relatório
