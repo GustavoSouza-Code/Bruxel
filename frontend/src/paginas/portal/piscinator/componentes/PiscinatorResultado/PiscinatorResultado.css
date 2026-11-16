@@ -82,3 +82,18 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* card + a linha "Indicado para..." abaixo dele */
+.piscinator-resultado__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.piscinator-resultado__motivo {
+  margin: 0;
+  font-size: var(--font-size-small);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}

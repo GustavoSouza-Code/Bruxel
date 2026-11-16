@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import { PERGUNTAS } from "../../../../../crud/produtos/recomendacaoPiscinator";
 import "./PiscinatorQuestionario.css";
 
-// perguntas do diagnóstico; "Sim" em qualquer uma indica um sinal de problema na piscina
-const QUESTIONS = [
-  "A água da piscina está verde?",
-  "A água está turva?",
-  "A piscina ficou vários dias sem manutenção?",
-];
+// perguntas do diagnóstico (em crud/produtos/recomendacaoPiscinator); "Sim" em qualquer uma indica um sinal de problema na piscina
+const QUESTIONS = PERGUNTAS.map((pergunta) => pergunta.texto);
 
 interface PiscinatorQuestionarioProps {
   /** chamada ao responder a última pergunta, com todas as respostas (true = "Sim") */
