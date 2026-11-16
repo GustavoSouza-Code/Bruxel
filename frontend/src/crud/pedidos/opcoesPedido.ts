@@ -1,4 +1,4 @@
-import type { FormaPagamento, StatusPedido } from "../../tipos/pedido";
+import type { FormaPagamento, StatusAlteravel, StatusPedido } from "../../tipos/pedido";
 
 /** Texto de cada status do pedido, igual no perfil, na confirmação e no painel. */
 export const STATUS_PEDIDO_LABELS: Record<StatusPedido, string> = {
@@ -24,4 +24,20 @@ export function codigoPedido(id: string) {
 /** O pagamento já entrou? (pago, a caminho ou entregue) */
 export function pedidoRecebido(status: StatusPedido) {
   return status === "PAGO" || status === "ENVIADO" || status === "ENTREGUE";
+}
+
+/** O botão principal do pedido: o status seguinte, o texto do botão e o aviso de sucesso. */
+export function proximoPasso(status: StatusPedido): { status: StatusAlteravel; rotulo: string; aviso: string } | null {
+  if (status === "PAGO") {
+    return { status: "ENVIADO", rotulo: "Marcar como enviado", aviso: "Pedido marcado como enviado." };
+  }
+  if (status === "ENVIADO") {
+    return { status: "ENTREGUE", rotulo: "Marcar como entregue", aviso: "Pedido marcado como entregue." };
+  }
+  return null;
+}
+
+/** Dá pra cancelar enquanto o pedido não foi entregue nem cancelado. */
+export function podeCancelar(status: StatusPedido) {
+  return status === "PENDENTE" || status === "PAGO" || status === "ENVIADO";
 }

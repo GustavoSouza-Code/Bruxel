@@ -2,14 +2,25 @@ import type { PedidoComCliente } from "../../../../../crud/pedidos/filtrarPedido
 import { FORMA_PAGAMENTO_LABELS } from "../../../../../crud/pedidos/opcoesPedido";
 import { formatarReais } from "../../../../../crud/atendimentos/valorOs";
 import { formatarDataHora } from "../../../../../crud/atendimentos/datasAtendimento";
+import type { StatusAlteravel } from "../../../../../tipos/pedido";
+import { AcoesPedido } from "../AcoesPedido/AcoesPedido";
 import { SeloStatusPedido } from "../SeloStatusPedido/SeloStatusPedido";
 import "./DetalhePedido.css";
 
 /**
  * O pedido inteiro, pra abrir num Modal: quem comprou, quando, como pagou, os
- * itens com o preço da hora da compra e o endereço de entrega. Só leitura.
+ * itens com o preço da hora da compra e o endereço de entrega. No rodapé ficam
+ * as ações de status (enviar, entregar, cancelar), só quando a tela passa os handlers.
  */
-export function DetalhePedido({ pedido }: { pedido: PedidoComCliente }) {
+export function DetalhePedido({
+  pedido,
+  onAlterar,
+  onRecarregar,
+}: {
+  pedido: PedidoComCliente;
+  onAlterar?: (status: StatusAlteravel) => Promise<unknown>;
+  onRecarregar?: () => void;
+}) {
   return (
     <div className="detalhe-pedido">
       <dl className="detalhe-pedido__dados">
@@ -70,6 +81,8 @@ export function DetalhePedido({ pedido }: { pedido: PedidoComCliente }) {
 
       <h3 className="detalhe-pedido__subtitulo">Entregar em</h3>
       <p className="detalhe-pedido__endereco">{pedido.enderecoEntrega}</p>
+
+      {onAlterar && onRecarregar && <AcoesPedido pedido={pedido} onAlterar={onAlterar} onRecarregar={onRecarregar} />}
     </div>
   );
 }
