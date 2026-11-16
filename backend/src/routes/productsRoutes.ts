@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ProductsController } from "../controller/productsController";
 import { verificaToken } from "../middleware/verificaToken";
 import { verificaAdmin } from "../middleware/verificaAdmin";
+import { receberImagemProduto } from "../middleware/uploadProductImage";
 
 // catálogo público; cadastro, edição e exclusão exigem admin
 const router = Router();
@@ -9,6 +10,7 @@ const productsController = new ProductsController();
 
 router.get("/products", productsController.getAll);
 router.get("/products/:id", productsController.getById);
+router.post("/products/images", verificaToken, verificaAdmin, receberImagemProduto, productsController.uploadImage);
 router.post("/products", verificaToken, verificaAdmin, productsController.create);
 router.put("/products/:id", verificaToken, verificaAdmin, productsController.update);
 router.delete("/products/:id", verificaToken, verificaAdmin, productsController.delete);

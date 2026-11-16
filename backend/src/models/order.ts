@@ -1,5 +1,7 @@
 import { forma_pagamento, status_pedido } from "../generated/prisma/enums";
 
+export const STATUS_CANCELAVEIS: status_pedido[] = ["PENDENTE", "PAGO", "ENVIADO"];
+
 // contratos usados no fluxo de compra
 
 // item enviado pelo cliente no corpo do pedido
