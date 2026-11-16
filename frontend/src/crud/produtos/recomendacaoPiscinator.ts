@@ -5,7 +5,7 @@ const QUANTIDADE_RECOMENDADOS = 4;
 
 /**
  * Uma pergunta do Piscinator: o texto que aparece no questionário, o rótulo
- * usado em "Indicado porque você respondeu Sim para: ..." e as palavras
+ * usado em "Indicado para ..." (só o do primeiro "Sim" que o produto casou) e as palavras
  * procuradas no nome e na descrição dos produtos. Os produtos são cadastrados
  * pelo admin, então o nome exato não é garantido; por isso a busca é por palavra.
  * A ordem da lista é a ordem das perguntas (e das respostas).
@@ -17,11 +17,11 @@ export interface PerguntaPiscinator {
 }
 
 export const PERGUNTAS: PerguntaPiscinator[] = [
-  { texto: "A água da piscina está verde?", rotulo: "água verde", termos: ["algicida", "choque", "cloro"] },
+  { texto: "A água da piscina está verde?", rotulo: "piscinas verdes", termos: ["algicida", "choque", "cloro"] },
   { texto: "A água está turva?", rotulo: "água turva", termos: ["clarificante", "floculante", "floc", "decantador"] },
   {
     texto: "A piscina ficou vários dias sem manutenção?",
-    rotulo: "vários dias sem manutenção",
+    rotulo: "piscinas paradas há vários dias",
     termos: ["escova", "peneira", "aspirador", "3 em 1"],
   },
   {
@@ -31,22 +31,22 @@ export const PERGUNTAS: PerguntaPiscinator[] = [
   },
   {
     texto: "Os olhos ou a pele ardem, ou o cheiro de cloro está muito forte?",
-    rotulo: "olhos ardendo ou cheiro forte de cloro",
+    rotulo: "equilibrar o pH da água",
     termos: ["ph", "redutor", "elevador", "equilibrio"],
   },
   {
     texto: "Tem folhas e sujeira no fundo ou boiando?",
-    rotulo: "folhas e sujeira",
+    rotulo: "retirar folhas e sujeira",
     termos: ["peneira", "aspirador", "escova", "3 em 1"],
   },
   {
     texto: "O filtro ou a bomba parecem fracos, com pouca circulação?",
-    rotulo: "filtro ou bomba fracos",
+    rotulo: "melhorar a filtragem",
     termos: ["filtro", "bomba", "areia", "cartucho", "refil"],
   },
   {
     texto: "Choveu muito ou a piscina teve muito uso nos últimos dias?",
-    rotulo: "chuva ou muito uso",
+    rotulo: "depois de chuva ou muito uso",
     termos: ["cloro", "choque", "algicida"],
   },
 ];

@@ -79,9 +79,9 @@ export function PiscinatorResultado({
               {recomendacoes.map(({ produto, motivos }) => (
                 <div key={produto.id} className="piscinator-resultado__item">
                   <CardProduto produto={produto} />
-                  {/* só aparece quando o produto pontuou; o de preenchimento fica sem a linha */}
+                  {/* só aparece quando o produto pontuou; mostra só o primeiro motivo, sem citar as perguntas */}
                   {motivos.length > 0 && (
-                    <p className="piscinator-resultado__motivo">Indicado porque você respondeu Sim para: {motivos.join(", ")}.</p>
+                    <p className="piscinator-resultado__motivo">Indicado para {motivos[0]}</p>
                   )}
                 </div>
               ))}

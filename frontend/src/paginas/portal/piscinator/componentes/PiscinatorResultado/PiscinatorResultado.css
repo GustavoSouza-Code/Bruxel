@@ -83,7 +83,7 @@
   }
 }
 
-/* card + a linha "Indicado porque..." abaixo dele */
+/* card + a linha "Indicado para..." abaixo dele */
 .piscinator-resultado__item {
   display: flex;
   flex-direction: column;

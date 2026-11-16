@@ -94,7 +94,7 @@ describe("recomendarComMotivos (pontuação)", () => {
     // verde (0) e chuva/uso (7) apontam os dois pro algicida; o floculante só casa com turva
     const lista = recomendarComMotivos(sim(0, 1, 7), CATALOGO_NOVO, CATEGORIAS);
     expect(lista[0].produto.id).toBe("alg");
-    expect(lista[0].motivos).toEqual(["água verde", "chuva ou muito uso"]);
+    expect(lista[0].motivos).toEqual(["piscinas verdes", "depois de chuva ou muito uso"]);
     expect(lista[1].produto.id).toBe("floc");
     expect(lista[1].motivos).toEqual(["água turva"]);
   });
