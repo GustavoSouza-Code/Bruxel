@@ -1,4 +1,4 @@
-import type { Produto } from "../../../../../tipos/produto";
+import type { Recomendacao } from "../../../../../crud/produtos/recomendacaoPiscinator";
 import { Container } from "../../../../../componentes/layout/Container/Container";
 import { CardProduto } from "../../../../../componentes/produto/CardProduto/CardProduto";
 import "./PiscinatorResultado.css";
@@ -6,15 +6,15 @@ import "./PiscinatorResultado.css";
 interface PiscinatorResultadoProps {
   /** respostas do quiz (true = "Sim"); cada "Sim" vale 1 ponto no diagnóstico */
   respostas: boolean[];
-  /** produtos recomendados, mostrados abaixo do diagnóstico */
-  produtos: Produto[];
+  /** produtos recomendados (com os motivos), mostrados abaixo do diagnóstico */
+  recomendacoes: Recomendacao[];
   /** chamada ao clicar em "Refazer diagnóstico" */
   onRecomecar: () => void;
 }
 
 /**
- * Converte a pontuação (nº de respostas "Sim", de 0 a 3) no texto do
- * diagnóstico: 0 = tudo certo, 1 = sinais leves, 2 = moderado, 3 = grave.
+ * Converte a pontuação (nº de respostas "Sim", de 0 a 8) no texto do
+ * diagnóstico: 0 = tudo certo, 1-2 = sinais leves, 3-4 = moderado, 5 ou mais = grave.
  */
 function getDiagnosis(score: number) {
   if (score === 0) {
@@ -25,7 +25,7 @@ function getDiagnosis(score: number) {
     };
   }
 
-  if (score <= 1) {
+  if (score <= 2) {
     return {
       title: "Sinais leves de desequilíbrio",
       description:
@@ -33,7 +33,7 @@ function getDiagnosis(score: number) {
     };
   }
 
-  if (score === 2) {
+  if (score <= 4) {
     return {
       title: "Desequilíbrio moderado identificado",
       description:
@@ -51,7 +51,7 @@ function getDiagnosis(score: number) {
 /** Etapa 3 do Piscinator: mostra o diagnóstico, o botão de refazer e os produtos recomendados. */
 export function PiscinatorResultado({
   respostas,
-  produtos,
+  recomendacoes,
   onRecomecar,
 }: PiscinatorResultadoProps) {
   // pontuação = quantas respostas foram "Sim" (true)
@@ -72,12 +72,18 @@ export function PiscinatorResultado({
         </button>
 
         {/* sem produtos recomendados, a seção inteira some */}
-        {produtos.length > 0 && (
+        {recomendacoes.length > 0 && (
           <div className="piscinator-resultado__produtos">
             <h2>Recomendados para o seu diagnóstico</h2>
             <div className="piscinator-resultado__grade">
-              {produtos.map((produto) => (
-                <CardProduto key={produto.id} produto={produto} />
+              {recomendacoes.map(({ produto, motivos }) => (
+                <div key={produto.id} className="piscinator-resultado__item">
+                  <CardProduto produto={produto} />
+                  {/* só aparece quando o produto pontuou; mostra só o primeiro motivo, sem citar as perguntas */}
+                  {motivos.length > 0 && (
+                    <p className="piscinator-resultado__motivo">Indicado para {motivos[0]}</p>
+                  )}
+                </div>
               ))}
             </div>
           </div>
