@@ -24,6 +24,11 @@
 }
 
 /* botão-link vermelho e discreto: cancelar não é a ação do dia a dia */
+.acoes-pedido__principal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .acoes-pedido__cancelar {
   background: none;
   border: none;

@@ -143,6 +143,10 @@
 }
 
 .campo-imagem-produto__vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
 }
@@ -153,10 +157,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
-  color: var(--color-white);
   font-weight: 600;
   font-size: var(--font-size-body);
+  pointer-events: none;
+}
+
+.campo-imagem-produto__enviando--ativo {
+  background-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  color: var(--color-white);
 }
 
 .campo-imagem-produto__acoes {

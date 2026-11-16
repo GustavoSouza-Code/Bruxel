@@ -231,6 +231,7 @@ export function PaginaAdminPedidos() {
             pedido={aberto}
             onAlterar={(status) => alterarStatus(aberto.id, status)}
             onRecarregar={recarregar}
+            carregando={carregando}
           />
         </Modal>
       )}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { ErroApi, mensagemDeErro } from "../../../api/cliente";
 import { enviarImagemProduto } from "../../../api/produtos";
+import { IconeGrade } from "../../../componentes/ui/Icones/Icones";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { TIPOS_IMAGEM_ACEITOS, prepararImagem, validarArquivoImagem } from "../reduzirImagem";
 
@@ -77,7 +78,10 @@ export function CampoImagemProduto({ url, onMudar, onEnviandoMudar }: CampoImage
     try {
       const pronto = await prepararImagem(arquivo);
       const urlNova = await enviarImagemProduto(token, pronto, pronto.name);
-      if (montado.current && numero === envioAtual.current) onMudar(urlNova);
+      if (montado.current && numero === envioAtual.current) {
+        setErro(null);
+        onMudar(urlNova);
+      }
     } catch (falha) {
       if (montado.current && numero === envioAtual.current) setErro(textoDoErro(falha));
     } finally {
@@ -106,13 +110,18 @@ export function CampoImagemProduto({ url, onMudar, onEnviandoMudar }: CampoImage
             onError={() => setUrlComErro(origem)}
           />
         ) : (
-          <span className="campo-imagem-produto__vazio">Nenhuma imagem</span>
+          <span className="campo-imagem-produto__vazio">
+            <IconeGrade />
+            Nenhuma imagem
+          </span>
         )}
-        {enviando && (
-          <div className="campo-imagem-produto__enviando" aria-live="polite">
-            Enviando imagem…
-          </div>
-        )}
+        {/* a região fica sempre na tela: leitor de tela só anuncia texto que muda dentro de uma região já existente */}
+        <div
+          className={`campo-imagem-produto__enviando${enviando ? " campo-imagem-produto__enviando--ativo" : ""}`}
+          aria-live="polite"
+        >
+          {enviando ? "Enviando imagem…" : ""}
+        </div>
       </div>
 
       <div className="campo-imagem-produto__acoes">
@@ -127,7 +136,10 @@ export function CampoImagemProduto({ url, onMudar, onEnviandoMudar }: CampoImage
           <button
             type="button"
             className="campo-imagem-produto__remover"
-            onClick={() => onMudar("")}
+            onClick={() => {
+              setErro(null);
+              onMudar("");
+            }}
           >
             Remover imagem
           </button>

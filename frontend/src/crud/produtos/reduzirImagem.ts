@@ -51,7 +51,7 @@ function toBlob(canvas: HTMLCanvasElement, tipo: string): Promise<Blob | null> {
 export async function prepararImagem(arquivo: File): Promise<File> {
   let bitmap: ImageBitmap;
   try {
-    bitmap = await createImageBitmap(arquivo);
+    bitmap = await createImageBitmap(arquivo, { imageOrientation: "from-image" });
   } catch {
     if (arquivo.size <= TAMANHO_MAXIMO_IMAGEM) return arquivo;
     throw new Error(MSG_TAMANHO);
@@ -64,7 +64,13 @@ export async function prepararImagem(arquivo: File): Promise<File> {
     const canvas = document.createElement("canvas");
     canvas.width = largura;
     canvas.height = altura;
-    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, largura, altura);
+    const contexto = canvas.getContext("2d");
+    if (!contexto) {
+      // sem canvas não dá pra reduzir: exportar agora mandaria uma imagem em branco
+      if (arquivo.size <= TAMANHO_MAXIMO_IMAGEM) return arquivo;
+      throw new Error(MSG_TAMANHO);
+    }
+    contexto.drawImage(bitmap, 0, 0, largura, altura);
 
     // o Safari devolve PNG quando pedimos WebP, então confere o tipo que veio de fato
     for (const tipo of formatosDeSaida(arquivo.type)) {

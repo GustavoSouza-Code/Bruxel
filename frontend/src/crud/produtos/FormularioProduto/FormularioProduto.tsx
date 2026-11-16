@@ -185,8 +185,12 @@ export function FormularioProduto({
         />
       </label>
 
-      <div className="formulario-produto__campo--inteiro formulario-produto__imagem">
-        <span className="formulario-produto__rotulo">Imagem</span>
+      <div
+        className="formulario-produto__campo--inteiro formulario-produto__imagem"
+        role="group"
+        aria-labelledby="formulario-produto-imagem-rotulo"
+      >
+        <span id="formulario-produto-imagem-rotulo" className="formulario-produto__rotulo">Imagem</span>
         <CampoImagemProduto
           url={formulario.url_imagem ?? ""}
           onMudar={(url) => atualizarCampo("url_imagem", url)}

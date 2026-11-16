@@ -11,19 +11,22 @@ interface Props {
   pedido: PedidoComCliente;
   onAlterar: (status: StatusAlteravel) => Promise<unknown>;
   onRecarregar: () => void;
+  /** true enquanto a lista recarrega: o status mostrado pode estar velho, então trava os botões */
+  carregando?: boolean;
 }
 
 /**
  * Rodapé do detalhe do pedido: o botão do próximo passo (enviar ou entregar) e o
  * "Cancelar pedido", que pede confirmação. Se o status mudou em outro lugar, o
- * backend responde 409 e aparece o "Atualizar pedidos". Some quando o pedido
- * já foi entregue ou cancelado.
+ * backend responde 409 e aparece o "Atualizar pedidos". Não renderiza nada quando
+ * o pedido já foi entregue ou cancelado.
  */
-export function AcoesPedido({ pedido, onAlterar, onRecarregar }: Props) {
+export function AcoesPedido({ pedido, onAlterar, onRecarregar, carregando = false }: Props) {
   const { avisar } = useAvisos();
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<{ mensagem: string; conflito: boolean } | null>(null);
-  // ao entregar ou cancelar o componente some: não dá pra mexer no estado depois disso
+  // ao entregar ou cancelar o componente passa a devolver null, mas continua montado;
+  // a ref evita mexer no estado depois que o modal fecha
   const montado = useRef(true);
   useEffect(() => {
     montado.current = true;
@@ -81,14 +84,14 @@ export function AcoesPedido({ pedido, onAlterar, onRecarregar }: Props) {
           <button
             type="button"
             className="lista-admin__botao acoes-pedido__principal"
-            disabled={salvando}
+            disabled={salvando || carregando}
             onClick={() => void executar(passo.status, passo.aviso)}
           >
             {salvando ? "Salvando…" : passo.rotulo}
           </button>
         )}
         {cancelavel && (
-          <button type="button" className="acoes-pedido__cancelar" disabled={salvando} onClick={cancelar}>
+          <button type="button" className="acoes-pedido__cancelar" disabled={salvando || carregando} onClick={cancelar}>
             Cancelar pedido
           </button>
         )}

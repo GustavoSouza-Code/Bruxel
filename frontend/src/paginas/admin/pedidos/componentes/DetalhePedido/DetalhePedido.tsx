@@ -16,10 +16,12 @@ export function DetalhePedido({
   pedido,
   onAlterar,
   onRecarregar,
+  carregando,
 }: {
   pedido: PedidoComCliente;
   onAlterar?: (status: StatusAlteravel) => Promise<unknown>;
   onRecarregar?: () => void;
+  carregando?: boolean;
 }) {
   return (
     <div className="detalhe-pedido">
@@ -82,7 +84,7 @@ export function DetalhePedido({
       <h3 className="detalhe-pedido__subtitulo">Entregar em</h3>
       <p className="detalhe-pedido__endereco">{pedido.enderecoEntrega}</p>
 
-      {onAlterar && onRecarregar && <AcoesPedido pedido={pedido} onAlterar={onAlterar} onRecarregar={onRecarregar} />}
+      {onAlterar && onRecarregar && <AcoesPedido pedido={pedido} onAlterar={onAlterar} onRecarregar={onRecarregar} carregando={carregando} />}
     </div>
   );
 }
