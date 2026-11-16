@@ -5,7 +5,7 @@ import { PiscinatorQuestionario } from "./componentes/PiscinatorQuestionario/Pis
 import { PiscinatorResultado } from "./componentes/PiscinatorResultado/PiscinatorResultado";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { useCatalogo } from "../../../crud/produtos/useCatalogo";
-import { recomendarPorDiagnostico } from "../../../crud/produtos/recomendacaoPiscinator";
+import { recomendarComMotivos } from "../../../crud/produtos/recomendacaoPiscinator";
 
 /** Etapa atual do fluxo: apresentação → perguntas → diagnóstico. */
 type Step = "intro" | "quiz" | "result";
@@ -21,8 +21,8 @@ export function PaginaPiscinator() {
   const [answers, setAnswers] = useState<boolean[]>([]);
 
   const { produtos, categorias, erro } = useCatalogo();
-  // produtos conforme as respostas (água verde, turva, sem manutenção); ver recomendacaoPiscinator
-  const recommendedProducts = erro ? [] : recomendarPorDiagnostico(answers, produtos, categorias);
+  // produtos conforme as respostas (8 perguntas; cada "Sim" pontua os produtos ligados a ele); ver recomendacaoPiscinator
+  const recomendacoes = erro ? [] : recomendarComMotivos(answers, produtos, categorias);
 
   return (
     <>
@@ -46,7 +46,7 @@ export function PaginaPiscinator() {
       {step === "result" && (
         <PiscinatorResultado
           respostas={answers}
-          produtos={recommendedProducts}
+          recomendacoes={recomendacoes}
           onRecomecar={() => {
             // refazer: apaga as respostas e volta pro começo
             setAnswers([]);
