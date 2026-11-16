@@ -37,6 +37,7 @@ export function AcoesPedido({ pedido, onAlterar, onRecarregar }: Props) {
   if (!passo && !cancelavel) return null;
 
   async function executar(status: StatusAlteravel, aviso: string) {
+    if (salvando) return;
     setSalvando(true);
     setErro(null);
     try {
@@ -51,6 +52,12 @@ export function AcoesPedido({ pedido, onAlterar, onRecarregar }: Props) {
     }
   }
 
+  // recarregar mantém o modal aberto: sem limpar aqui, o aviso de conflito ficaria na tela
+  function atualizar() {
+    setErro(null);
+    onRecarregar();
+  }
+
   function cancelar() {
     const codigo = codigoPedido(pedido.id);
     if (!window.confirm(`Cancelar o pedido #${codigo}? Os itens voltam para o estoque e não dá para desfazer.`)) return;
@@ -63,7 +70,7 @@ export function AcoesPedido({ pedido, onAlterar, onRecarregar }: Props) {
         <div className="acoes-pedido__erro" role="alert">
           <span>{erro.mensagem}</span>
           {erro.conflito && (
-            <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={onRecarregar}>
+            <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={atualizar}>
               Atualizar pedidos
             </button>
           )}

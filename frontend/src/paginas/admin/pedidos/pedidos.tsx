@@ -47,7 +47,7 @@ function resumoDosItens(pedido: PedidoComCliente) {
  * como enviado ou entregue e cancelar (PATCH /orders/:id/status).
  */
 export function PaginaAdminPedidos() {
-  const { pedidos, carregando, erro, recarregar, alterarStatus } =usePedidosAdmin();
+  const { pedidos, carregando, erro, recarregar, alterarStatus } = usePedidosAdmin();
   const prontos = !carregando && !erro;
   const [filtros, setFiltros] = useState<FiltrosPedido>(FILTROS_PEDIDO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
