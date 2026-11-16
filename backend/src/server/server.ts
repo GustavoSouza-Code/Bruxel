@@ -8,6 +8,8 @@ import categoriesRoutes from "../routes/categoriesRoutes";
 import ordersRoutes from "../routes/ordersRoutes";
 import appointmentsRoutes from "../routes/appointmentsRoutes";
 import authRoutes from "../routes/authRoutes";
+import dashboardRoutes from "../routes/dashboardRoutes";
+import reportsRoutes from "../routes/reportsRoutes";
 import { AppError } from "../errors/AppError";
 import { Prisma } from "../generated/prisma/client";
 import { UPLOAD_DIR, UPLOAD_PUBLIC_PATH } from "../config/uploads";
@@ -38,6 +40,8 @@ app.use("/api", categoriesRoutes);
 app.use("/api", ordersRoutes);
 app.use("/api", appointmentsRoutes);
 app.use("/api", authRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api", reportsRoutes);
 
 // converte erros de negócio e do Prisma em respostas HTTP
 app.use((erro: unknown, _req: Request, res: Response, next: NextFunction) => {
