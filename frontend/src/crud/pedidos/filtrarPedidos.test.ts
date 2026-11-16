@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import type { Pedido } from "../../tipos/pedido";
-import type { Usuario } from "../../tipos/usuario";
 import {
   FILTROS_PEDIDO_INICIAIS,
   comNomeDoCliente,
@@ -21,10 +20,6 @@ function pedido(dados: Partial<Pedido> & Pick<Pedido, "id">): Pedido {
     itens: [],
     ...dados,
   };
-}
-
-function usuario(id: string, nome: string): Usuario {
-  return { id, nome, email: `${id}@bruxel.test`, cpf: "00000000000", perfil: "CLIENTE" };
 }
 
 function filtros(mudancas: Partial<FiltrosPedido>): FiltrosPedido {
@@ -53,10 +48,7 @@ const ids = (lista: PedidoComCliente[]) => lista.map((p) => p.id);
 
 describe("comNomeDoCliente", () => {
   it('põe o nome do dono e "Cliente removido" quando não acha', () => {
-    const lista = comNomeDoCliente(
-      [pedido({ id: "1", usuarioId: "u1" }), pedido({ id: "2", usuarioId: "sumiu" })],
-      [usuario("u1", "Marina Kehl")]
-    );
+    const lista = comNomeDoCliente([pedido({ id: "1", nomeCliente: "Marina Kehl" }), pedido({ id: "2" })]);
     expect(lista.map((p) => p.cliente)).toEqual(["Marina Kehl", "Cliente removido"]);
   });
 });

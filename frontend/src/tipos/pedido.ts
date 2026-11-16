@@ -13,11 +13,16 @@ export interface ItemPedido {
   precoUnitario: number;
 }
 
+/** Status que o administrador pode aplicar a um pedido (o PAGO vem do pagamento, não de um botão). */
+export type StatusAlteravel = "ENVIADO" | "ENTREGUE" | "CANCELADO";
+
 /** Compra feita pelo carrinho (tabela `orders`). */
 export interface Pedido {
   id: string;
   /** id da conta que comprou (o painel usa pra mostrar o nome do cliente) */
   usuarioId: string;
+  /** nome de quem comprou; só vem na listagem do administrador (e some se a conta foi apagada) */
+  nomeCliente?: string;
   status: StatusPedido;
   formaPagamento: FormaPagamento;
   enderecoEntrega: string;
