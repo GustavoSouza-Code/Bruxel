@@ -4,6 +4,7 @@ import { mensagemDeErro } from "../../../api/cliente";
 import type { DadosProduto } from "../../../api/produtos";
 import type { Categoria, Produto } from "../../../tipos/produto";
 import { opcoesDeCategoria } from "../categorias";
+import { CampoImagemProduto } from "./CampoImagemProduto";
 import "./FormularioProduto.css";
 
 /** O que o formulário entrega ao ser enviado: o produto sem o id (quem decide o id é o CRUD). */
@@ -52,8 +53,9 @@ function paraDadosFormulario(produto: Produto): DadosFormularioProduto {
  * Formulário de produto do painel admin (aberto num modal), que serve tanto
  * pra cadastrar quanto pra editar. Os campos começam com os dados de
  * `produto` (ou em branco); pra trocar o produto em edição, a página muda a
- * `key` do componente, e o React cria um formulário novo. Se a API recusar,
- * mostra a mensagem e mantém o que foi digitado.
+ * `key` do componente, e o React cria um formulário novo. A imagem entra só
+ * por upload (`CampoImagemProduto`). Se a API recusar, mostra a mensagem e
+ * mantém o que foi digitado.
  */
 export function FormularioProduto({
   produto,
@@ -69,9 +71,8 @@ export function FormularioProduto({
   const [erro, setErro] = useState<string | null>(null);
   // true enquanto a API não responde (desabilita os botões)
   const [salvando, setSalvando] = useState(false);
-  // URL cuja imagem falhou ao carregar; o preview some até a URL mudar
-  const [urlComErro, setUrlComErro] = useState<string | null>(null);
-  const urlImagem = (formulario.url_imagem ?? "").trim();
+  // true enquanto a foto do produto está sendo enviada (trava o "Salvar")
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   // genérico pra o TypeScript garantir que o valor combina com o campo (ex.: "preco" só aceita number)
   function atualizarCampo<K extends keyof DadosFormularioProduto>(
@@ -83,6 +84,7 @@ export function FormularioProduto({
 
   async function enviar(event: FormEvent) {
     event.preventDefault();
+    if (enviandoImagem) return;
     if (!formulario.nome.trim() || !formulario.codigo.trim()) {
       setErro("Preencha o nome e o código.");
       return;
@@ -183,23 +185,14 @@ export function FormularioProduto({
         />
       </label>
 
-      <label className="formulario-produto__campo--inteiro">
-        URL da imagem
-        <input
-          type="text"
-          placeholder="https://..."
-          value={formulario.url_imagem}
-          onChange={(e) => atualizarCampo("url_imagem", e.target.value)}
+      <div className="formulario-produto__campo--inteiro formulario-produto__imagem">
+        <span className="formulario-produto__rotulo">Imagem</span>
+        <CampoImagemProduto
+          url={formulario.url_imagem ?? ""}
+          onMudar={(url) => atualizarCampo("url_imagem", url)}
+          onEnviandoMudar={setEnviandoImagem}
         />
-        {urlImagem && urlImagem !== urlComErro && (
-          <img
-            className="formulario-produto__preview"
-            src={urlImagem}
-            alt="Pré-visualização da imagem"
-            onError={() => setUrlComErro(urlImagem)}
-          />
-        )}
-      </label>
+      </div>
 
       {erro && (
         <p className="formulario-produto__erro formulario-produto__campo--inteiro" role="alert">
@@ -208,7 +201,7 @@ export function FormularioProduto({
       )}
 
       <div className="formulario-produto__acoes">
-        <button type="submit" className="formulario-produto__enviar" disabled={salvando}>
+        <button type="submit" className="formulario-produto__enviar" disabled={salvando || enviandoImagem}>
           {salvando ? "Salvando…" : editando ? "Salvar alterações" : "Adicionar produto"}
         </button>
         <button

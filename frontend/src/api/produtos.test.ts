@@ -60,6 +60,12 @@ describe("paraCorpoProduto", () => {
     expect(corpo.url_imagem).toBeNull();
   });
 
+  it("remover imagem manda null e manter a imagem manda a url de antes", () => {
+    expect(paraCorpoProduto({ ...dados, url_imagem: "" }).url_imagem).toBeNull();
+    const url = "http://h/api/uploads/produtos/a.webp";
+    expect(paraCorpoProduto({ ...dados, url_imagem: url }).url_imagem).toBe(url);
+  });
+
   it("não manda o estoque quando ele não mudou", () => {
     expect("estoque" in paraCorpoProduto(dados, 5)).toBe(false);
   });
