@@ -10,6 +10,8 @@
  *   npm run test:smoke:atendimentos (em outro)
  */
 import "dotenv/config";
+import fs from "node:fs";
+import path from "node:path";
 import pg from "pg";
 
 const BASE = process.env.API_URL ?? "http://localhost:3000/api";
@@ -31,8 +33,18 @@ const DATA_HORA_3 = new Date(Date.now() + 9 * DIAS).toISOString();
 
 const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
 const linhas = [];
+const fotosEnviadas = [];
+const PASTA_ATENDIMENTOS = path.resolve(
+  process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads"),
+  "atendimentos"
+);
 let falhas = 0;
 let conectado = false;
+
+const PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64"
+);
 
 function anotar(caso, esperado, resposta, nota = "") {
   const ok =
@@ -97,6 +109,44 @@ async function chamar(metodo, caminho, { corpo, token } = {}) {
     json = texto;
   }
   return { status: resposta.status, corpo: json };
+}
+
+async function enviarImagem(token, { conteudo = PNG, nome = "os.png", tipo = "image/png" } = {}) {
+  const formulario = new FormData();
+  formulario.append("imagem", new Blob([conteudo], { type: tipo }), nome);
+  const resposta = await fetch(`${BASE}/appointments/images`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formulario,
+  });
+  const texto = await resposta.text();
+  let corpo;
+  try {
+    corpo = JSON.parse(texto);
+  } catch {
+    corpo = texto;
+  }
+  if (corpo?.foto_url) fotosEnviadas.push(corpo.foto_url);
+  return { status: resposta.status, corpo };
+}
+
+async function trocarImagem(token, id, { conteudo = PNG, nome = "nova.png", tipo = "image/png" } = {}) {
+  const formulario = new FormData();
+  formulario.append("imagem", new Blob([conteudo], { type: tipo }), nome);
+  const resposta = await fetch(`${BASE}/appointments/${id}/imagem`, {
+    method: "PUT",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formulario,
+  });
+  const texto = await resposta.text();
+  let corpo;
+  try {
+    corpo = JSON.parse(texto);
+  } catch {
+    corpo = texto;
+  }
+  if (corpo?.foto_url) fotosEnviadas.push(corpo.foto_url);
+  return { status: resposta.status, corpo };
 }
 
 async function criarUsuario(nome, email, cpf) {
@@ -223,6 +273,24 @@ async function main() {
   const mudarStatus = (token, id, corpo) =>
     chamar("PATCH", `/appointments/${id}/status`, { corpo, token });
 
+  // ------------------------------------------------------------- upload da foto
+  anotar("POST /appointments/images sem token", 401, await enviarImagem(undefined));
+
+  const uploadCliente = await enviarImagem(tokenCliente);
+  anotar("POST /appointments/images como cliente", 201, uploadCliente);
+  const fotoCliente = uploadCliente.corpo?.foto_url;
+
+  anotar("GET da foto enviada pelo cliente", 200, {
+    status: fotoCliente ? (await fetch(fotoCliente)).status : 0,
+    corpo: fotoCliente ? "foto do cliente" : "upload não devolveu foto_url",
+  });
+
+  anotar(
+    "POST /appointments/images com arquivo que não é imagem",
+    400,
+    await enviarImagem(tokenCliente, { conteudo: Buffer.from("texto"), nome: "arquivo.txt", tipo: "text/plain" })
+  );
+
   // ------------------------------------------------------------- criação
   anotar("POST /appointments sem token", 401, await solicitar(undefined, pedido()));
 
@@ -240,9 +308,15 @@ async function main() {
     await solicitar(tokenCliente, pedido({ data_hora: "não é data" }))
   );
 
+  anotar(
+    "POST /appointments com link de foto externo",
+    400,
+    await solicitar(tokenCliente, pedido({ foto_url: "https://exemplo.com/foto.jpg" }))
+  );
+
   const osCliente = await solicitar(
     tokenCliente,
-    pedido({ tecnico_id: idAdmin, data_hora: DATA_HORA_1, foto_url: "https://exemplo.com/foto.jpg" })
+    pedido({ tecnico_id: idAdmin, data_hora: DATA_HORA_1, foto_url: fotoCliente })
   );
   anotar(
     "POST /appointments como cliente",
@@ -254,6 +328,7 @@ async function main() {
       tecnicoId: idAdmin,
     })
   );
+  anotarValor("OS guarda a foto enviada pelo cliente", fotoCliente, osCliente.corpo?.foto_url);
 
   anotar(
     "POST /appointments no mesmo horário do técnico",
@@ -272,9 +347,13 @@ async function main() {
     conferirAtendimento(osOutro.corpo, { status: "AGUARDANDO", usuarioId: idOutro })
   );
 
+  const uploadAdmin = await enviarImagem(tokenAdmin);
+  anotar("POST /appointments/images como administrador", 201, uploadAdmin);
+  const fotoAdmin = uploadAdmin.corpo?.foto_url;
+
   const osAdmin = await solicitar(
     tokenAdmin,
-    pedido({ usuario_id: idCliente, data_hora: DATA_HORA_3 })
+    pedido({ usuario_id: idCliente, data_hora: DATA_HORA_3, foto_url: fotoAdmin })
   );
   anotar(
     "POST /appointments admin para cliente existente",
@@ -286,6 +365,7 @@ async function main() {
       abertoNaLoja: true,
     })
   );
+  anotarValor("OS guarda a foto enviada pelo administrador", fotoAdmin, osAdmin.corpo?.foto_url);
 
   anotar(
     "POST /appointments admin com cliente inexistente",
@@ -308,6 +388,33 @@ async function main() {
   const idOs = osCliente.corpo.id;
   const idOsOutro = osOutro.corpo.id;
   const idOsAdmin = osAdmin.corpo.id;
+
+  // ------------------------------------------------------------- troca da foto
+  const trocaCliente = await trocarImagem(tokenCliente, idOs);
+  anotar("PUT /appointments/:id/imagem como cliente", 200, trocaCliente);
+  const fotoTrocaCliente = trocaCliente.corpo?.foto_url;
+  const osComTrocaCliente = await chamar("GET", `/appointments/${idOs}`, { token: tokenCliente });
+  anotarValor("cliente substitui a foto da própria OS", fotoTrocaCliente, osComTrocaCliente.corpo?.foto_url);
+  anotar("foto antiga é removida depois da troca", 404, {
+    status: fotoCliente ? (await fetch(fotoCliente)).status : 0,
+    corpo: "GET da foto anterior",
+  });
+
+  const trocaAdmin = await trocarImagem(tokenAdmin, idOs);
+  anotar("PUT /appointments/:id/imagem como administrador", 200, trocaAdmin);
+  const fotoTrocaAdmin = trocaAdmin.corpo?.foto_url;
+  const osComTrocaAdmin = await chamar("GET", `/appointments/${idOs}`, { token: tokenAdmin });
+  anotarValor("administrador substitui a foto da OS", fotoTrocaAdmin, osComTrocaAdmin.corpo?.foto_url);
+  anotar("foto substituída pelo admin também é removida", 404, {
+    status: fotoTrocaCliente ? (await fetch(fotoTrocaCliente)).status : 0,
+    corpo: "GET da foto anterior",
+  });
+
+  anotar(
+    "outro cliente não troca a foto",
+    403,
+    await trocarImagem(tokenOutro, idOs)
+  );
 
   // ------------------------------------------------------------- consultas
   const listaCliente = await chamar("GET", "/appointments", { token: tokenCliente });
@@ -663,6 +770,12 @@ try {
     }
   } catch (erro) {
     console.error("Falha na limpeza:", erro.message);
+  }
+  for (const foto of fotosEnviadas) {
+    try {
+      const nome = path.basename(new URL(foto, BASE).pathname);
+      fs.rmSync(path.join(PASTA_ATENDIMENTOS, nome), { force: true });
+    } catch {}
   }
   await db.end().catch(() => {});
 }

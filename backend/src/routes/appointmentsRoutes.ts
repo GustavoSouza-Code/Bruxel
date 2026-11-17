@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AppointmentsController } from "../controller/appointmentsController";
+import { receberImagemAtendimento } from "../middleware/uploadAppointmentImage";
 import { verificaAdmin } from "../middleware/verificaAdmin";
 import { verificaToken } from "../middleware/verificaToken";
 
@@ -9,6 +10,8 @@ const router = Router();
 const appointmentsController = new AppointmentsController();
 
 router.post("/appointments", verificaToken, appointmentsController.create);
+router.post("/appointments/images", verificaToken, receberImagemAtendimento, appointmentsController.uploadImage);
+router.put("/appointments/:id/imagem", verificaToken, receberImagemAtendimento, appointmentsController.replaceImage);
 router.get("/appointments", verificaToken, appointmentsController.getAll);
 router.get("/appointments/:id", verificaToken, appointmentsController.getById);
 router.patch("/appointments/:id/status", verificaToken, verificaAdmin, appointmentsController.updateStatus);
