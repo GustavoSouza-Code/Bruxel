@@ -47,16 +47,16 @@ describe("AuthService.execute", () => {
 
             const tentativa = service.execute({email: "gabriel@teste.com", senha: "senha456"});
 
-            await expect(tentativa).rejects.toMatchObject({statusCode: 400, message: "E-mail ou senha incorretos."});
+            await expect(tentativa).rejects.toMatchObject({statusCode: 401, message: "E-mail ou senha incorretos."});
         });
 
         // teste de recusa e-mail não cadastrado, com código e mensagem de erro
-        it("recusa e-mail não cadastrado com 400", async () => {
+        it("recusa e-mail não cadastrado com 401", async () => {
             const { service } = montaUsuarioService(null);
 
             const tentativa = service.execute({email: 'teste@gmail.com', senha: 'senha789'});
 
-            await expect(tentativa).rejects.toMatchObject({statusCode: 400, message: "E-mail ou senha incorretos."});
+            await expect(tentativa).rejects.toMatchObject({statusCode: 401, message: "E-mail ou senha incorretos."});
         });
 
         // recusa algum campo vazio, sem precisar consultar o repositório
