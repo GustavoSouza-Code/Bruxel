@@ -19,7 +19,7 @@ import { usePerfil } from "../perfil/usePerfil";
 import { SeletorCliente } from "./componentes/SeletorCliente/SeletorCliente";
 import { SeletorTipoServico } from "./componentes/SeletorTipoServico/SeletorTipoServico";
 import { SeletorDiaHorario } from "./componentes/SeletorDiaHorario/SeletorDiaHorario";
-import { CampoFotoLink } from "./componentes/CampoFotoLink/CampoFotoLink";
+import { CampoImagemAtendimento } from "./componentes/CampoImagemAtendimento/CampoImagemAtendimento";
 import "./solicitar-atendimento.css";
 
 /** O rascunho sem o contato: o contato é calculado à parte (do perfil do cliente, ou da conta escolhida pelo admin). */
@@ -73,6 +73,8 @@ export function PaginaSolicitarAtendimento() {
   const enviandoRef = useRef(false);
   // true enquanto o POST está em andamento (o botão mostra "Enviando…")
   const [enviando, setEnviando] = useState(false);
+  // trava o envio do formulário enquanto a foto escolhida ainda está subindo
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
   // erro geral do envio (sem conexão, recusa do backend); os por campo vão pro `erros`
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   // quando foi o último envio pela loja: o formulário volta limpo na hora, então o 2º clique de um
@@ -159,7 +161,7 @@ export function PaginaSolicitarAtendimento() {
 
   async function enviar(evento: FormEvent) {
     evento.preventDefault();
-    if (enviandoRef.current || !token) return;
+    if (enviandoRef.current || enviandoImagem || !token) return;
     // resto de um duplo clique logo depois de um envio pela loja: ignora
     if (ehAdmin && Date.now() - ultimoEnvioLojaRef.current < INTERVALO_DUPLO_CLIQUE_MS) return;
 
@@ -324,9 +326,10 @@ export function PaginaSolicitarAtendimento() {
               <legend className="pagina-atendimento__titulo-bloco">
                 Foto do problema <span className="pagina-atendimento__opcional">(opcional)</span>
               </legend>
-              <CampoFotoLink
-                valor={rascunho.fotoUrl}
-                onChange={(valor) => atualizarCampo("fotoUrl", valor)}
+              <CampoImagemAtendimento
+                url={rascunho.fotoUrl}
+                onMudar={(url) => atualizarCampo("fotoUrl", url)}
+                onEnviandoMudar={setEnviandoImagem}
                 erro={erros.fotoUrl}
               />
             </fieldset>
@@ -438,10 +441,10 @@ export function PaginaSolicitarAtendimento() {
               <button
                 type="submit"
                 className="pagina-atendimento__enviar"
-                disabled={esperandoPerfil || enviando}
-                aria-busy={esperandoPerfil || enviando}
+                disabled={esperandoPerfil || enviando || enviandoImagem}
+                aria-busy={esperandoPerfil || enviando || enviandoImagem}
               >
-                {enviando ? "Enviando…" : "Enviar solicitação"}
+                {enviandoImagem ? "Enviando imagem…" : enviando ? "Enviando…" : "Enviar solicitação"}
               </button>
               <Link to="/" className="pagina-atendimento__cancelar">
                 Cancelar

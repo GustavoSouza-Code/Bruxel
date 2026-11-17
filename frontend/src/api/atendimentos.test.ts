@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
-import { paraAtendimento, paraCorpoAtendimento, type AtendimentoApi } from "./atendimentos";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  enviarImagemAtendimento,
+  paraAtendimento,
+  paraCorpoAtendimento,
+  type AtendimentoApi,
+} from "./atendimentos";
 import type { DadosSolicitacao } from "../tipos/atendimento";
 
 // datas montadas no fuso de quem roda o teste, igual à tela
@@ -146,5 +151,29 @@ describe("paraCorpoAtendimento", () => {
     const comExtras = paraCorpoAtendimento({ ...dados, clienteId: "u9", fotoUrl: " https://x/y.jpg " });
     expect(comExtras.usuario_id).toBe("u9");
     expect(comExtras.foto_url).toBe("https://x/y.jpg");
+  });
+});
+
+describe("enviarImagemAtendimento", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("faz POST /appointments/images com o campo imagem e devolve a url", async () => {
+    const url = "http://h/api/uploads/atendimentos/11111111-1111-4111-8111-111111111111.png";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, status: 201, json: () => Promise.resolve({ foto_url: url }) }),
+    );
+
+    const resultado = await enviarImagemAtendimento("t", new Blob(["x"]), "problema.png");
+
+    expect(resultado).toBe(url);
+    const [endereco, init] = vi.mocked(fetch).mock.calls[0];
+    expect(String(endereco).endsWith("/appointments/images")).toBe(true);
+    expect(init?.method).toBe("POST");
+    const arquivo = (init?.body as FormData).get("imagem") as File;
+    expect(arquivo).toBeInstanceOf(File);
+    expect(arquivo.name).toBe("problema.png");
   });
 });

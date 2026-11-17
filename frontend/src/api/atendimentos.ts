@@ -191,6 +191,18 @@ export async function criarAtendimento(token: string, dados: DadosSolicitacao): 
   return paraAtendimento(criado);
 }
 
+/** Envia a foto do problema (multipart, campo "imagem") e devolve a URL gerada. */
+export async function enviarImagemAtendimento(token: string, arquivo: Blob, nomeArquivo: string): Promise<string> {
+  const formulario = new FormData();
+  formulario.append("imagem", arquivo, nomeArquivo);
+  const resposta = await requisicao<{ foto_url: string }>("/appointments/images", {
+    metodo: "POST",
+    corpo: formulario,
+    token,
+  });
+  return resposta.foto_url;
+}
+
 /**
  * Muda o andamento (confirmar, recusar, iniciar, cancelar, concluir). Recusar e
  * cancelar exigem a mensagem pro cliente; concluir dá baixa no estoque dos produtos da OS.
