@@ -3,10 +3,25 @@ import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { NumerosPainel } from "./componentes/NumerosPainel/NumerosPainel";
+import { GraficosPainel } from "./componentes/GraficosPainel/GraficosPainel";
 import "./inicio.css";
 
 // áreas do painel; pra uma funcionalidade nova aparecer aqui, é só adicionar um item
 const AREAS_ADMIN = [
+  {
+    id: "relatorios",
+    titulo: "Relatórios",
+    descricao: "Gráficos e exportação",
+    rota: "/admin/relatorios",
+    icone: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 3v18h18" />
+        <path d="M8 17v-5" />
+        <path d="M13 17V8" />
+        <path d="M18 17v-9" />
+      </svg>
+    ),
+  },
   {
     id: "produtos",
     titulo: "Gestão de produtos",
@@ -107,6 +122,8 @@ export function PaginaAdminInicio() {
           <p className="pagina-admin-inicio__subtitulo">O que você quer gerenciar hoje?</p>
 
           <NumerosPainel />
+
+          <GraficosPainel />
 
           <div className="pagina-admin-inicio__areas">
             {AREAS_ADMIN.map((area) => (

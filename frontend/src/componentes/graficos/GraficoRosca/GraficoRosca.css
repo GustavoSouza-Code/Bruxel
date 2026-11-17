@@ -1,0 +1,81 @@
+/* cheio: rosca centralizada com a legenda embaixo */
+.grafico-rosca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  font-family: "Montserrat", sans-serif;
+}
+
+.grafico-rosca__svg {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.grafico-rosca__total {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--color-text);
+}
+
+.grafico-rosca__legenda {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.grafico-rosca__cor {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+}
+
+/* compacto: legenda à direita da rosca */
+.grafico-rosca--compacto {
+  flex-direction: row;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.grafico-rosca--compacto .grafico-rosca__svg {
+  width: 120px;
+  max-width: 120px;
+  flex-shrink: 0;
+}
+
+.grafico-rosca--compacto .grafico-rosca__total {
+  font-size: 10px;
+}
+
+.grafico-rosca--compacto .grafico-rosca__legenda {
+  font-size: 0.78rem;
+}
+
+.grafico-rosca__vazio {
+  margin: 0;
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grafico-rosca__svg {
+    animation: grafico-rosca-aparecer var(--t-ui, 300ms) var(--ease-out) both;
+  }
+
+  @keyframes grafico-rosca-aparecer {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+}
