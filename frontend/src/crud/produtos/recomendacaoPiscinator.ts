@@ -5,77 +5,125 @@ const QUANTIDADE_RECOMENDADOS = 4;
 
 /**
  * Uma pergunta do Piscinator: o texto que aparece no questionário, o rótulo
- * usado em "Indicado para ..." (só o do primeiro "Sim" que o produto casou) e as palavras
- * procuradas no nome e na descrição dos produtos. Os produtos são cadastrados
- * pelo admin, então o nome exato não é garantido; por isso a busca é por palavra.
+ * usado em "Indicado para ..." (o da pergunta que mais pontuou no produto), as
+ * palavras procuradas no nome/descrição do produto e no nome da categoria dele,
+ * e as categorias gerais ligadas à pergunta (pontuam menos que a palavra). Os
+ * produtos e as categorias são cadastrados pelo admin, então o nome exato não é
+ * garantido; por isso a busca é por palavra.
  * A ordem da lista é a ordem das perguntas (e das respostas).
  */
 export interface PerguntaPiscinator {
   texto: string;
   rotulo: string;
   termos: string[];
+  categorias: string[];
 }
 
+const TRATAMENTO = "Tratamento da água";
+const LIMPEZA = "Limpeza da Piscina";
+const FILTRACAO = "Filtração e circulação";
+
 export const PERGUNTAS: PerguntaPiscinator[] = [
-  { texto: "A água da piscina está verde?", rotulo: "piscinas verdes", termos: ["algicida", "choque", "cloro"] },
-  { texto: "A água está turva?", rotulo: "água turva", termos: ["clarificante", "floculante", "floc", "decantador"] },
+  {
+    texto: "A água da piscina está verde?",
+    rotulo: "piscinas verdes",
+    termos: ["algicida", "choque", "cloro"],
+    categorias: [TRATAMENTO],
+  },
+  {
+    texto: "A água está turva?",
+    rotulo: "água turva",
+    termos: ["clarificante", "floculante", "floc", "decantador"],
+    categorias: [TRATAMENTO],
+  },
   {
     texto: "A piscina ficou vários dias sem manutenção?",
     rotulo: "piscinas paradas há vários dias",
     termos: ["escova", "peneira", "aspirador", "3 em 1"],
+    categorias: [LIMPEZA],
   },
   {
     texto: "As paredes ou o fundo estão escorregadios ou com manchas?",
     rotulo: "paredes escorregadias ou manchadas",
     termos: ["algicida", "alga", "escova", "cloro"],
+    categorias: [TRATAMENTO, LIMPEZA],
   },
   {
     texto: "Os olhos ou a pele ardem, ou o cheiro de cloro está muito forte?",
     rotulo: "equilibrar o pH da água",
     termos: ["ph", "redutor", "elevador", "equilibrio"],
+    categorias: [TRATAMENTO],
   },
   {
     texto: "Tem folhas e sujeira no fundo ou boiando?",
     rotulo: "retirar folhas e sujeira",
     termos: ["peneira", "aspirador", "escova", "3 em 1"],
+    categorias: [LIMPEZA],
   },
   {
     texto: "O filtro ou a bomba parecem fracos, com pouca circulação?",
     rotulo: "melhorar a filtragem",
     termos: ["filtro", "bomba", "areia", "cartucho", "refil"],
+    categorias: [FILTRACAO],
   },
   {
     texto: "Choveu muito ou a piscina teve muito uso nos últimos dias?",
     rotulo: "depois de chuva ou muito uso",
     termos: ["cloro", "choque", "algicida"],
+    categorias: [TRATAMENTO],
   },
 ];
 
 /** Sem nenhum "Sim": produtos de manutenção do dia a dia. */
 export const TERMOS_SEM_PROBLEMA = ["manutencao", "3 em 1", "ph"];
 
-/** Um produto recomendado e os rótulos dos "Sim" que o fizeram pontuar (vazio = só preenche a vaga). */
+/** Pontos de um "Sim": palavra no produto ou na categoria dele vale mais que só estar na categoria geral. */
+const PONTOS_PALAVRA = 2;
+const PONTOS_CATEGORIA_GERAL = 1;
+
+/**
+ * Um produto recomendado e os rótulos dos "Sim" que o fizeram pontuar, do que
+ * mais pontuou pro que menos (vazio = só preenche a vaga).
+ */
 export interface Recomendacao {
   produto: Produto;
   motivos: string[];
 }
 
+interface Grupo {
+  rotulo: string;
+  termos: string[];
+  categorias: string[];
+}
+
 // "Propool 3em1" tem que casar com "3 em 1": compara também sem os espaços
-function casa(produto: Produto, termos: string[]) {
-  const texto = normalizar(`${produto.nome} ${produto.descricao ?? ""}`);
-  const textoJunto = texto.replace(/\s+/g, "");
+function casaTexto(texto: string, termos: string[]) {
+  const normal = normalizar(texto);
+  const junto = normal.replace(/\s+/g, "");
   return termos.some((termo) => {
     const alvo = normalizar(termo);
-    return texto.includes(alvo) || textoJunto.includes(alvo.replace(/\s+/g, ""));
+    return normal.includes(alvo) || junto.includes(alvo.replace(/\s+/g, ""));
   });
+}
+
+/** Pontos de um "Sim" pro produto: palavra no produto, senão palavra na categoria, senão categoria geral. */
+function pontuar(produto: Produto, nomeCategoria: string, grupo: Grupo) {
+  if (casaTexto(`${produto.nome} ${produto.descricao ?? ""}`, grupo.termos)) return PONTOS_PALAVRA;
+  if (!nomeCategoria) return 0;
+  if (casaTexto(nomeCategoria, grupo.termos)) return PONTOS_PALAVRA;
+  const categoria = normalizar(nomeCategoria);
+  return grupo.categorias.some((nome) => normalizar(nome) === categoria) ? PONTOS_CATEGORIA_GERAL : 0;
 }
 
 /**
  * Até 4 produtos pro resultado do Piscinator, conforme as respostas (true =
- * "Sim"). Cada "Sim" dá 1 ponto aos produtos que casam com as palavras da
- * pergunta; ganham os de maior pontuação (empate: ordem do catálogo). Depois
- * completa com a categoria "Tratamento da água" e, por fim, com qualquer
- * produto ativo. Sem repetir, e com estoque antes dos esgotados.
+ * "Sim"). Cada "Sim" dá 2 pontos aos produtos cujo nome/descrição ou nome da
+ * categoria casa com as palavras da pergunta, ou 1 ponto se o produto só está
+ * numa das categorias gerais da pergunta; ganham os de maior pontuação
+ * (empate: ordem do catálogo). Os motivos vêm do "Sim" que mais pontuou
+ * (empate: ordem do questionário). Depois completa com a categoria
+ * "Tratamento da água" e, por fim, com qualquer produto ativo. Sem repetir, e
+ * com estoque antes dos esgotados.
  * Sem nenhum "Sim", os candidatos são os produtos de manutenção do dia a dia.
  */
 export function recomendarComMotivos(respostas: boolean[], produtos: Produto[], categorias: Categoria[]): Recomendacao[] {
@@ -83,21 +131,28 @@ export function recomendarComMotivos(respostas: boolean[], produtos: Produto[], 
   const comEstoque = ativos.filter((produto) => produto.estoque > 0);
 
   const sims = respostas.flatMap((sim, indice) => (sim && PERGUNTAS[indice] ? [PERGUNTAS[indice]] : []));
-  const grupos = sims.length > 0 ? sims : [{ rotulo: "", termos: TERMOS_SEM_PROBLEMA }];
+  // sem nenhum "Sim": só as palavras de manutenção, sem categoria geral
+  const grupos: Grupo[] = sims.length > 0 ? sims : [{ rotulo: "", termos: TERMOS_SEM_PROBLEMA, categorias: [] }];
+  const nomesCategoria = new Map(categorias.map((categoria) => [categoria.id, categoria.nome]));
 
   const pontuados = ativos
-    .map((produto) => ({
-      produto,
-      motivos: grupos.filter((grupo) => casa(produto, grupo.termos)).map((grupo) => grupo.rotulo),
-    }))
-    .filter((item) => item.motivos.length > 0)
+    .map((produto) => {
+      const nomeCategoria = nomesCategoria.get(produto.categoria_id) ?? "";
+      const acertos = grupos
+        .map((grupo) => ({ rotulo: grupo.rotulo, pontos: pontuar(produto, nomeCategoria, grupo) }))
+        .filter((acerto) => acerto.pontos > 0)
+        // o sort é estável: perguntas que empatam mantêm a ordem do questionário
+        .sort((a, b) => b.pontos - a.pontos);
+      return { produto, acertos, total: acertos.reduce((soma, acerto) => soma + acerto.pontos, 0) };
+    })
+    .filter((item) => item.total > 0)
     // o sort é estável: quem empata mantém a ordem do catálogo
-    .sort((a, b) => b.motivos.length - a.motivos.length);
+    .sort((a, b) => b.total - a.total);
 
   const candidatos: Recomendacao[] = pontuados.map((item) => ({
     produto: item.produto,
     // sem nenhum "Sim" o rótulo é "" e não vira motivo
-    motivos: item.motivos.filter(Boolean),
+    motivos: item.acertos.map((acerto) => acerto.rotulo).filter(Boolean),
   }));
   // a reserva da categoria recebe só os com estoque: senão um esgotado tomaria a vaga de outro
   const reserva = [...produtosRecomendados(comEstoque, categorias), ...ativos].map((produto) => ({
