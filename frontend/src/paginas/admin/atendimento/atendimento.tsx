@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { mensagemDeErro } from "../../../api/cliente";
 import { useAtendimento } from "../../../crud/atendimentos/useAtendimento";
@@ -67,7 +66,6 @@ export function PaginaAdminAtendimento() {
   if (!os.atendimento) {
     return (
       <>
-        <NavAdmin />
         <section className="pagina-admin-atendimento">
           <Container>
             {os.carregando ? (
@@ -201,7 +199,6 @@ function ConteudoOs({ atendimento, salvando, mudarStatus, salvarOs, marcarPago }
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-atendimento">
         <Container>

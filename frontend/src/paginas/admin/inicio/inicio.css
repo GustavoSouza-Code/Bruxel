@@ -2,7 +2,17 @@
   padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0 var(--space-section);
 }
 
-.pagina-admin-inicio__titulo {
+/* "Olá" à esquerda e o Exportar à direita; no celular o botão desce se não couber */
+.pagina-admin-inicio__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+}
+
+.pagina-admin-inicio__ola {
   font-weight: 600;
   font-size: var(--font-size-h2);
   color: var(--color-primary);
@@ -12,102 +22,113 @@
 .pagina-admin-inicio__subtitulo {
   font-size: var(--font-size-small);
   color: var(--color-text-muted);
-  margin: 0 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+  margin: 0;
 }
 
-/* Celular (padrão): uma área por linha, como uma lista de atalhos */
-.pagina-admin-inicio__areas {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.pagina-admin-inicio__area {
-  display: flex;
+.pagina-admin-inicio__exportar {
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 12px;
-  background-color: #f7f7fa;
-  color: var(--color-text);
+  gap: 0.4rem;
   text-decoration: none;
 }
 
-a.pagina-admin-inicio__area:hover {
-  border-color: var(--color-accent);
+.pagina-admin-inicio__exportar:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.pagina-admin-inicio__icone {
+/* um bloco por linha; os dois gráficos dividem a linha em telas largas */
+.pagina-admin-inicio__blocos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagina-admin-inicio__graficos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 1200px) {
+  .pagina-admin-inicio__graficos {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+.pagina-admin-inicio__bloco {
+  min-width: 0;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  /* o Exportar e o número da receita rolam até aqui; a margem desconta a NavAdmin grudada no topo */
+  scroll-margin-top: calc(var(--altura-nav-admin, 64px) + 1rem);
+}
+
+.pagina-admin-inicio__cabecalho {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.pagina-admin-inicio__titulo {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
   color: var(--color-primary);
 }
 
-/* min-width: 0 deixa o texto encolher e quebrar em vez de alargar a linha */
-.pagina-admin-inicio__texto {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.pagina-admin-inicio__texto strong {
-  font-size: var(--font-size-body);
-}
-
-.pagina-admin-inicio__texto span {
-  font-size: var(--font-size-small);
+.pagina-admin-inicio__dica,
+.pagina-admin-inicio__nota {
+  margin: 0;
   color: var(--color-text-muted);
+  font-size: var(--font-size-small);
 }
 
-.pagina-admin-inicio__seta {
-  flex-shrink: 0;
+/* guarda a altura do gráfico enquanto carrega, pra a página não pular */
+.pagina-admin-inicio__nota--grafico {
+  min-height: 240px;
 }
 
-/* no celular a seta ">" já indica o clique */
-.pagina-admin-inicio__acessar {
-  display: none;
+.pagina-admin-inicio__meses {
+  display: flex;
+  gap: 0.4rem;
 }
 
-/* Desktop: grade de cartões, com o ícone em cima e o "Acessar →" embaixo */
-@media (min-width: 900px) {
-  .pagina-admin-inicio__areas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
-  }
+.pagina-admin-inicio__mes {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+}
 
-  .pagina-admin-inicio__area {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1.5rem;
-  }
+.pagina-admin-inicio__mes:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
 
-  .pagina-admin-inicio__icone {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background-color: var(--color-store-button);
-  }
+.pagina-admin-inicio__mes[aria-pressed="true"] {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
 
-  .pagina-admin-inicio__texto strong {
-    color: var(--color-primary);
-  }
+.pagina-admin-inicio__mes:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
-  .pagina-admin-inicio__acessar {
-    display: block;
-    margin-top: auto; /* alinha o "Acessar →" no rodapé de cartões de alturas diferentes */
-    font-size: var(--font-size-small);
-    font-weight: 600;
-    color: var(--color-accent);
-  }
-
-  .pagina-admin-inicio__seta {
-    display: none;
-  }
+/* a rosca fica centralizada e sem esticar até a largura do bloco */
+.pagina-admin-inicio__rosca {
+  max-width: 420px;
+  margin: 0 auto;
 }

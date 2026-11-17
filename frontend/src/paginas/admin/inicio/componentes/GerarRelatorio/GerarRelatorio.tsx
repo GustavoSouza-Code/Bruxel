@@ -40,9 +40,10 @@ export function GerarRelatorio() {
   const restantes = relatorio ? relatorio.linhas.length - visiveis.length : 0;
 
   return (
-    <section className="pagina-admin-relatorios__bloco" aria-label="Gerar relatório">
-      <div className="pagina-admin-relatorios__cabecalho">
-        <h2 className="pagina-admin-relatorios__titulo">Gerar relatório</h2>
+    // o "Exportar" do topo da dashboard rola até aqui pelo id
+    <section id="gerar-relatorio" className="pagina-admin-inicio__bloco" aria-label="Gerar relatório">
+      <div className="pagina-admin-inicio__cabecalho">
+        <h2 className="pagina-admin-inicio__titulo">Gerar relatório</h2>
       </div>
 
       <div className="gerar-relatorio__abas" role="tablist" aria-label="Tipo de relatório">
@@ -110,7 +111,7 @@ export function GerarRelatorio() {
       )}
 
       {carregando && !relatorio ? (
-        <p className="pagina-admin-relatorios__nota">Carregando…</p>
+        <p className="pagina-admin-inicio__nota">Carregando…</p>
       ) : relatorio ? (
         <>
           <div className="gerar-relatorio__rolagem">
@@ -142,7 +143,7 @@ export function GerarRelatorio() {
               </tbody>
             </table>
           </div>
-          {restantes > 0 && <p className="pagina-admin-relatorios__nota">… mais {restantes}</p>}
+          {restantes > 0 && <p className="pagina-admin-inicio__nota">… mais {restantes}</p>}
 
           {relatorio.totais.length > 0 && (
             <dl className="gerar-relatorio__totais">

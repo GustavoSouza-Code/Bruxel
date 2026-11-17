@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
 import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
@@ -171,7 +170,6 @@ export function PaginaAdminProdutos() {
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-produtos">
         <Container>

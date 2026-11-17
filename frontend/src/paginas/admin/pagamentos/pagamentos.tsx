@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
 import { ChipsFiltro } from "../../../componentes/ui/ChipsFiltro/ChipsFiltro";
@@ -110,7 +109,6 @@ export function PaginaAdminPagamentos() {
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-pagamentos">
         <Container>

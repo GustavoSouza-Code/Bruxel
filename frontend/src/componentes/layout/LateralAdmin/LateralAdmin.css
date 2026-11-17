@@ -1,0 +1,120 @@
+/* Celular (padrão): gaveta que entra pela esquerda, por cima do conteúdo.
+   Fechada ela sai da tela e fica invisível (visibility), pro Tab não cair nos links escondidos */
+.lateral-admin {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 40;
+  width: min(280px, 85vw);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 0.75rem;
+  background-color: #f3f3f8;
+  overflow-y: auto;
+  visibility: hidden;
+  transform: translateX(-100%);
+  transition:
+    transform var(--t-ui) var(--ease-saida),
+    visibility 0s linear var(--t-ui);
+}
+
+.lateral-admin--aberta {
+  visibility: visible;
+  transform: none;
+  box-shadow: 0 0 32px rgba(10, 13, 77, 0.25); /* só a gaveta, que flutua por cima da página */
+  transition: transform var(--t-ui) var(--ease-out);
+}
+
+/* fundo escuro atrás da gaveta; clicar nele fecha */
+.lateral-admin__fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background-color: rgba(10, 13, 77, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-ui) var(--ease-out);
+}
+
+.lateral-admin__fundo--visivel {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lateral-admin__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lateral-admin__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.lateral-admin__item svg {
+  flex-shrink: 0;
+}
+
+.lateral-admin__item:hover {
+  background-color: rgba(36, 40, 100, 0.06);
+}
+
+.lateral-admin__item[aria-current="page"] {
+  background-color: var(--color-store-button);
+  font-weight: 700;
+}
+
+.lateral-admin__item:focus-visible,
+.lateral-admin__acao:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* a única ação que cria algo: botão no pé da lista, no padrão de pílula do painel */
+.lateral-admin__acao {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lateral-admin__acao:hover {
+  background-color: #2f6fae;
+}
+
+/* Desktop: coluna fixa ao lado do conteúdo, grudada logo abaixo da NavAdmin (que também gruda no topo) */
+@media (min-width: 900px) {
+  .lateral-admin {
+    position: sticky;
+    top: var(--altura-nav-admin);
+    z-index: auto;
+    width: auto;
+    height: calc(100vh - var(--altura-nav-admin));
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    transition: none;
+  }
+
+  .lateral-admin__fundo {
+    display: none;
+  }
+}

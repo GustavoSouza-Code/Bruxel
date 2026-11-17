@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
 import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
@@ -155,7 +154,6 @@ export function PaginaAdminUsuarios() {
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-usuarios">
         <Container>
