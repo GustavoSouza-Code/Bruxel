@@ -35,10 +35,11 @@ function mesesAtualEAnterior(data: Date) {
 }
 
 /**
- * Faixa de números no topo da home do painel, vinda do /dashboard/kpis: a
+ * Faixa de números no topo da dashboard do painel, vinda do /dashboard/kpis: a
  * receita do mês (com a variação contra o mês anterior), o que falta receber,
  * os atendimentos aguardando e o estoque baixo. Cada número leva à tela onde
- * se resolve. Se a busca falhar, a faixa some.
+ * se resolve (a receita rola até o gráfico logo abaixo). Se a busca falhar, a
+ * faixa some.
  */
 export function NumerosPainel() {
   const { dados, carregando, erro } = useKpis();
@@ -60,7 +61,8 @@ export function NumerosPainel() {
       valor: kpis ? formatarReais(kpis.receitaMes) : null,
       detalhe: "",
       selo: variacao ?? undefined,
-      para: "/admin/relatorios",
+      // o gráfico de receita fica na mesma tela, logo abaixo
+      para: "#receita",
     },
     {
       rotulo: "A receber",
@@ -90,18 +92,31 @@ export function NumerosPainel() {
 
   return (
     <nav className="numeros-painel" aria-label="Resumo do painel">
-      {numeros.map((numero) => (
-        <Link key={numero.rotulo} to={numero.para} className={`numeros-painel__item numeros-painel__item--${numero.tom}`}>
-          <span className="numeros-painel__rotulo">{numero.rotulo}</span>
-          <strong className="numeros-painel__valor">{numero.valor ?? "—"}</strong>
-          <span className="numeros-painel__detalhe">
-            {numero.detalhe}
-            {numero.selo && (
-              <span className={`numeros-painel__selo numeros-painel__selo--${numero.selo.tom}`}>{numero.selo.texto}</span>
-            )}
-          </span>
-        </Link>
-      ))}
+      {numeros.map((numero) => {
+        const classe = `numeros-painel__item numeros-painel__item--${numero.tom}`;
+        const conteudo = (
+          <>
+            <span className="numeros-painel__rotulo">{numero.rotulo}</span>
+            <strong className="numeros-painel__valor">{numero.valor ?? "—"}</strong>
+            <span className="numeros-painel__detalhe">
+              {numero.detalhe}
+              {numero.selo && (
+                <span className={`numeros-painel__selo numeros-painel__selo--${numero.selo.tom}`}>{numero.selo.texto}</span>
+              )}
+            </span>
+          </>
+        );
+        // "#..." é um bloco da própria dashboard: link comum, pro navegador rolar até ele
+        return numero.para.startsWith("#") ? (
+          <a key={numero.rotulo} href={numero.para} className={classe}>
+            {conteudo}
+          </a>
+        ) : (
+          <Link key={numero.rotulo} to={numero.para} className={classe}>
+            {conteudo}
+          </Link>
+        );
+      })}
     </nav>
   );
 }

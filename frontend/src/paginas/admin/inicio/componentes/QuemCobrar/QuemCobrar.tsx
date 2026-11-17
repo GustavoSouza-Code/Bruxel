@@ -27,9 +27,9 @@ export function QuemCobrar() {
   const { dados, erro, recarregar } = useAReceber();
 
   return (
-    <section className="pagina-admin-relatorios__bloco" aria-label="Quem cobrar">
-      <div className="pagina-admin-relatorios__cabecalho">
-        <h2 className="pagina-admin-relatorios__titulo">Quem cobrar</h2>
+    <section className="pagina-admin-inicio__bloco" aria-label="Quem cobrar">
+      <div className="pagina-admin-inicio__cabecalho">
+        <h2 className="pagina-admin-inicio__titulo">Quem cobrar</h2>
         <Link to="/admin/pagamentos" className="quem-cobrar__link">
           Ver pagamentos →
         </Link>
@@ -43,9 +43,9 @@ export function QuemCobrar() {
           </button>
         </div>
       ) : !dados ? (
-        <p className="pagina-admin-relatorios__nota">Carregando…</p>
+        <p className="pagina-admin-inicio__nota">Carregando…</p>
       ) : dados.maisAntigas.length === 0 ? (
-        <p className="pagina-admin-relatorios__nota">Nenhuma cobrança pendente</p>
+        <p className="pagina-admin-inicio__nota">Nenhuma cobrança pendente</p>
       ) : (
         <>
           <div className="quem-cobrar__faixas">
