@@ -1,5 +1,5 @@
 import { requisicao } from "./cliente";
-import type { FormaPagamento, Pedido, StatusPedido } from "../tipos/pedido";
+import type { FormaPagamento, Pedido, StatusAlteravel, StatusPedido } from "../tipos/pedido";
 
 /** Pedido como o backend devolve: decimais em string (Decimal do Prisma) e itens com o nome do produto. */
 export interface PedidoApi {
@@ -12,6 +12,8 @@ export interface PedidoApi {
   valor_total: string | number;
   criado_em: string;
   atualizado_em?: string;
+  /** dono do pedido; o backend só manda isso pro administrador */
+  users?: { nome: string; email: string };
   order_items?: {
     id: string;
     pedido_id: string;
@@ -34,6 +36,7 @@ export function paraPedido(bruto: PedidoApi): Pedido {
   return {
     id: bruto.id,
     usuarioId: bruto.usuario_id,
+    nomeCliente: bruto.users?.nome,
     status: bruto.status,
     formaPagamento: bruto.forma_pagamento,
     enderecoEntrega: bruto.endereco_entrega,
@@ -72,4 +75,10 @@ export async function criarPedido(token: string, corpo: CorpoPedido): Promise<Pe
 export async function listarPedidos(token: string): Promise<Pedido[]> {
   const brutos = await requisicao<PedidoApi[]>("/orders", { token });
   return brutos.map(paraPedido);
+}
+
+/** Muda o status do pedido (só administrador); cancelar devolve os itens ao estoque. */
+export async function alterarStatusPedido(token: string, id: string, status: StatusAlteravel): Promise<Pedido> {
+  const atualizado = await requisicao<PedidoApi>(`/orders/${id}/status`, { metodo: "PATCH", corpo: { status }, token });
+  return paraPedido(atualizado);
 }

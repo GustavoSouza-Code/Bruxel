@@ -105,3 +105,30 @@ describe("mensagemDeErro", () => {
     expect(mensagemDeErro(new Error("x"))).toBe("Algo deu errado. Tente novamente.");
   });
 });
+
+describe("requisicao: FormData", () => {
+  it("manda FormData cru, sem Content-Type", async () => {
+    respondeCom(201, { ok: true });
+    const fd = new FormData();
+    fd.append("imagem", new Blob(["x"]), "a.png");
+
+    await requisicao("/x", { metodo: "POST", corpo: fd, token: "t" });
+
+    const [, init] = vi.mocked(fetch).mock.calls[0];
+    const headers = init?.headers as Record<string, string>;
+    expect(init?.body).toBe(fd);
+    expect(headers).not.toHaveProperty("Content-Type");
+    expect(headers.Authorization).toBe("Bearer t");
+  });
+
+  it("continua mandando JSON para objeto comum", async () => {
+    respondeCom(200, { ok: true });
+
+    await requisicao("/x", { metodo: "POST", corpo: { a: 1 } });
+
+    const [, init] = vi.mocked(fetch).mock.calls[0];
+    const headers = init?.headers as Record<string, string>;
+    expect(headers["Content-Type"]).toBe("application/json");
+    expect(init?.body).toBe('{"a":1}');
+  });
+});

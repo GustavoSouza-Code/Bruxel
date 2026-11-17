@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { mensagemDeErro } from "../../api/cliente";
-import { listarPedidos } from "../../api/pedidos";
-import { listarUsuarios } from "../../api/usuarios";
+import { alterarStatusPedido, listarPedidos } from "../../api/pedidos";
 import { useAutenticacao } from "../../contexto/useAutenticacao";
 import { comNomeDoCliente } from "./filtrarPedidos";
+import type { StatusAlteravel } from "../../tipos/pedido";
 import type { PedidoComCliente } from "./filtrarPedidos";
 
 /**
  * Todos os pedidos da loja, pro painel (GET /orders como administrador), já
- * com o nome de quem comprou: o backend só manda o usuario_id, então os nomes
- * vêm de GET /users. Usado em /admin/pedidos, /admin/pagamentos e na home do painel.
+ * com o nome de quem comprou (vem no próprio GET /orders). `alterarStatus`
+ * muda o status pelo PATCH /orders/:id/status e atualiza o pedido na lista; se a
+ * API recusar, lança o erro pra quem chamou mostrar (não mexe em `erro`).
+ * Usado em /admin/pedidos, /admin/pagamentos e na home do painel.
  */
 export function usePedidosAdmin() {
   const { token } = useAutenticacao();
@@ -25,9 +27,9 @@ export function usePedidosAdmin() {
     // se a tela fechar antes da resposta chegar, o resultado é ignorado
     let cancelado = false;
 
-    Promise.all([listarPedidos(token), listarUsuarios(token)])
-      .then(([lista, usuarios]) => {
-        if (!cancelado) setPedidos(comNomeDoCliente(lista, usuarios));
+    listarPedidos(token)
+      .then((lista) => {
+        if (!cancelado) setPedidos(comNomeDoCliente(lista));
       })
       .catch((falha: unknown) => {
         if (!cancelado) setErro(mensagemDeErro(falha));
@@ -47,5 +49,11 @@ export function usePedidosAdmin() {
     setTentativa((atual) => atual + 1);
   }
 
-  return { pedidos, carregando, erro, recarregar };
+  async function alterarStatus(id: string, status: StatusAlteravel): Promise<PedidoComCliente> {
+    const atualizado = comNomeDoCliente([await alterarStatusPedido(token ?? "", id, status)])[0];
+    setPedidos((atuais) => atuais.map((pedido) => (pedido.id === id ? atualizado : pedido)));
+    return atualizado;
+  }
+
+  return { pedidos, carregando, erro, recarregar, alterarStatus };
 }

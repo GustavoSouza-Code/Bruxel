@@ -51,7 +51,7 @@ export function registrarSessaoExpirada(funcao: () => void): () => void {
 
 interface OpcoesRequisicao {
   metodo?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  /** objeto enviado como JSON no corpo */
+  /** objeto enviado como JSON, ou FormData para arquivo */
   corpo?: unknown;
   /** JWT do usuário logado; vai no header Authorization */
   token?: string | null;
@@ -66,7 +66,9 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
   const { metodo = "GET", corpo, token } = opcoes;
 
   const headers: Record<string, string> = {};
-  if (corpo !== undefined) headers["Content-Type"] = "application/json";
+  // FormData vai cru: o fetch define o Content-Type com o boundary do multipart
+  const ehFormulario = corpo instanceof FormData;
+  if (corpo !== undefined && !ehFormulario) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let resposta: Response;
@@ -74,7 +76,7 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
     resposta = await fetch(`${URL_BASE}${caminho}`, {
       method: metodo,
       headers,
-      body: corpo !== undefined ? JSON.stringify(corpo) : undefined,
+      body: ehFormulario ? corpo : corpo !== undefined ? JSON.stringify(corpo) : undefined,
     });
   } catch {
     // o fetch só lança quando não existe resposta nenhuma (servidor fora do ar, sem rede)

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { paraCorpoPedido, paraPedido, type PedidoApi } from "./pedidos";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { alterarStatusPedido, paraCorpoPedido, paraPedido, type PedidoApi } from "./pedidos";
 
 const bruto: PedidoApi = {
   id: "o1",
@@ -49,6 +49,11 @@ describe("paraPedido", () => {
     expect(pedido.criadoEm).toBe("2026-10-26T13:00:00.000Z");
   });
 
+  it("lê o nome do cliente de users", () => {
+    expect(paraPedido({ ...bruto, users: { nome: "Ana", email: "a@x" } }).nomeCliente).toBe("Ana");
+    expect(paraPedido(bruto).nomeCliente).toBeUndefined();
+  });
+
   it("aceita pedido sem itens na resposta", () => {
     expect(paraPedido({ ...bruto, order_items: undefined }).itens).toEqual([]);
   });
@@ -72,5 +77,26 @@ describe("paraCorpoPedido", () => {
       forma_pagamento: "BOLETO",
       endereco_entrega: "Rua X, 850",
     });
+  });
+});
+
+describe("alterarStatusPedido", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("faz PATCH /orders/:id/status com o novo status e devolve o pedido", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve({ ...bruto, status: "ENVIADO" }) }),
+    );
+
+    const pedido = await alterarStatusPedido("t", "o1", "ENVIADO");
+
+    const [endereco, init] = vi.mocked(fetch).mock.calls[0];
+    expect(String(endereco).endsWith("/orders/o1/status")).toBe(true);
+    expect(init?.method).toBe("PATCH");
+    expect(init?.body).toBe('{"status":"ENVIADO"}');
+    expect(pedido.status).toBe("ENVIADO");
   });
 });
