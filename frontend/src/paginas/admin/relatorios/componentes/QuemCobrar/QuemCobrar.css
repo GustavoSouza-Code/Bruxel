@@ -1,0 +1,101 @@
+.quem-cobrar__link {
+  font-size: var(--font-size-small);
+  color: #2f6fae;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.quem-cobrar__link:hover,
+.quem-cobrar__link:focus-visible {
+  text-decoration: underline;
+}
+
+.quem-cobrar__faixas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.quem-cobrar__faixa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-soft);
+  border-top: 4px solid transparent;
+  border-radius: 10px;
+}
+
+.quem-cobrar__faixa-rotulo,
+.quem-cobrar__faixa-qtd {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.quem-cobrar__faixa-valor {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* a tabela rola dentro do bloco no celular, sem alargar a página */
+.quem-cobrar__rolagem {
+  overflow-x: auto;
+}
+
+.quem-cobrar__tabela {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.quem-cobrar__tabela th,
+.quem-cobrar__tabela td {
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-soft);
+  white-space: nowrap;
+}
+
+.quem-cobrar__tabela th {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.quem-cobrar__tabela .quem-cobrar__direita {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.quem-cobrar__os {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.quem-cobrar__os:hover,
+.quem-cobrar__os:focus-visible {
+  text-decoration: underline;
+}
+
+.quem-cobrar__selo {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background-color: #fdf3d7;
+  color: #8a5a00;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.quem-cobrar__selo--vermelho {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+
+@media (max-width: 599px) {
+  .quem-cobrar__faixas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

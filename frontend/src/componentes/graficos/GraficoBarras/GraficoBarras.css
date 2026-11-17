@@ -1,0 +1,111 @@
+.grafico-barras {
+  position: relative;
+  width: 100%;
+  font-family: "Montserrat", sans-serif;
+}
+
+.grafico-barras svg {
+  display: block;
+  overflow: visible;
+}
+
+.grafico-barras__grade {
+  stroke: var(--color-border-soft);
+  stroke-width: 1;
+}
+
+.grafico-barras__eixo,
+.grafico-barras__mes {
+  font-size: 11px;
+  fill: var(--color-text-muted);
+}
+
+.grafico-barras__mes--atual {
+  font-weight: 700;
+  fill: var(--color-text);
+}
+
+.grafico-barras__loja {
+  fill: var(--color-primary);
+}
+
+.grafico-barras__servicos {
+  fill: var(--color-accent);
+}
+
+.grafico-barras__barra {
+  cursor: pointer;
+  outline: none;
+}
+
+.grafico-barras__barra:focus-visible .grafico-barras__pilha,
+.grafico-barras__barra--ativa .grafico-barras__pilha {
+  filter: brightness(1.12);
+}
+
+.grafico-barras__barra:focus-visible .grafico-barras__mes {
+  fill: var(--color-accent);
+  font-weight: 700;
+}
+
+/* balão: HTML por cima do SVG, centrado na barra e acima do topo dela */
+.grafico-barras__balao {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 8px));
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.7rem;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.1);
+  font-size: 0.75rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grafico-barras__balao strong {
+  text-transform: capitalize;
+}
+
+.grafico-barras__cor {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.4rem;
+  border-radius: 2px;
+}
+
+.grafico-barras__cor--loja {
+  background-color: var(--color-primary);
+}
+
+.grafico-barras__cor--servicos {
+  background-color: var(--color-accent);
+}
+
+.grafico-barras__vazio {
+  margin: 0;
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* as barras crescem a partir da base; sem animação pra quem pede menos movimento */
+@media (prefers-reduced-motion: no-preference) {
+  .grafico-barras__pilha {
+    transform-box: fill-box;
+    transform-origin: bottom;
+    animation: grafico-barras-crescer var(--t-ui, 300ms) var(--ease-out) both;
+  }
+
+  @keyframes grafico-barras-crescer {
+    from {
+      transform: scaleY(0);
+    }
+  }
+}

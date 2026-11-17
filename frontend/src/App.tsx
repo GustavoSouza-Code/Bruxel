@@ -24,6 +24,7 @@ import { PaginaAdminAtendimentos } from "./paginas/admin/atendimentos/atendiment
 import { PaginaAdminAtendimento } from "./paginas/admin/atendimento/atendimento";
 import { PaginaAdminPedidos } from "./paginas/admin/pedidos/pedidos";
 import { PaginaAdminPagamentos } from "./paginas/admin/pagamentos/pagamentos";
+import { PaginaAdminRelatorios } from "./paginas/admin/relatorios/relatorios";
 import { PaginaNaoEncontrada } from "./paginas/portal/nao-encontrada/nao-encontrada";
 import { LimiteDeErro } from "./componentes/ui/LimiteDeErro/LimiteDeErro";
 
@@ -62,6 +63,7 @@ function RotasDoSite() {
           <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
           <Route path="/admin/pedidos" element={<PaginaAdminPedidos />} />
           <Route path="/admin/pagamentos" element={<PaginaAdminPagamentos />} />
+          <Route path="/admin/relatorios" element={<PaginaAdminRelatorios />} />
         </Route>
         {/* qualquer endereço que nenhuma rota acima reconhece */}
         <Route path="*" element={<PaginaNaoEncontrada />} />

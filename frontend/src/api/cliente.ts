@@ -94,6 +94,37 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
   return dados as T;
 }
 
+/**
+ * Baixa um arquivo (CSV, PDF) de uma rota protegida e entrega pro navegador salvar.
+ * Os erros são os mesmos da requisicao(): sem conexão, 401 e corpo de erro do backend.
+ */
+export async function baixarArquivo(caminho: string, token: string, nomeArquivo: string): Promise<void> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${URL_BASE}${caminho}`, { headers: { Authorization: `Bearer ${token}` } });
+  } catch {
+    throw new ErroApi(0, "Não foi possível conectar ao servidor. Verifique se o backend está rodando.");
+  }
+
+  if (!resposta.ok) {
+    const dados: unknown = await resposta.json().catch(() => null);
+    if (resposta.status === 401) aoSessaoExpirar?.();
+    throw paraErroApi(resposta.status, dados);
+  }
+
+  // o arquivo vira uma URL temporária e um link invisível "clica" nela pra disparar o download
+  const blob = await resposta.blob();
+  const endereco = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = endereco;
+  link.download = nomeArquivo;
+  // no iPhone o link precisa estar no documento pro clique baixar; a URL só é liberada depois
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(endereco), 1000);
+}
+
 // monta o ErroApi a partir do corpo de erro do backend: { mensagem, erros? }
 function paraErroApi(status: number, dados: unknown): ErroApi {
   if (dados && typeof dados === "object" && "mensagem" in dados) {
