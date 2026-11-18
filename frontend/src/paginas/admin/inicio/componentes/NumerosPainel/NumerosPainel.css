@@ -12,6 +12,7 @@
 
 /* rótulo em cima, número embaixo, sem ícone */
 .numeros-painel__item {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -38,6 +39,10 @@
 
 /* min-height guarda a linha do detalhe enquanto carrega, pra a faixa não pular */
 .numeros-painel__detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
   min-height: 1.4em;
 }
 
@@ -48,17 +53,54 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* celular: dois por linha */
+/* faixa colorida de 4px no topo e a cor do valor, por tom */
+.numeros-painel__item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.numeros-painel__item--verde::before { background-color: #1e7a3c; }
+.numeros-painel__item--amarelo::before { background-color: #f5a623; }
+.numeros-painel__item--azul::before { background-color: #448dd0; }
+.numeros-painel__item--vermelho::before { background-color: #c0392b; }
+
+.numeros-painel__item--verde .numeros-painel__valor { color: #1e7a3c; }
+.numeros-painel__item--amarelo .numeros-painel__valor { color: #8a5a00; }
+.numeros-painel__item--azul .numeros-painel__valor { color: #2f6fae; }
+.numeros-painel__item--vermelho .numeros-painel__valor { color: #c0392b; }
+
+/* selo ao lado do detalhe (variação, atrasadas) */
+.numeros-painel__selo {
+  display: inline-block;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.numeros-painel__selo--alta { color: #1e7a3c; background-color: #e3f5e8; }
+.numeros-painel__selo--queda { color: #c0392b; background-color: #fdecea; }
+.numeros-painel__selo--neutro { color: var(--color-text-muted); background: none; padding: 0; }
+
+/* celular: coluna única, cada item é um cartão com borda própria */
 @media (max-width: 599px) {
   .numeros-painel {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
   }
 
   .numeros-painel__item {
     padding: 0.85rem 1rem;
-  }
-
-  .numeros-painel__valor {
-    font-size: 1.25rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 12px;
+    overflow: hidden;
   }
 }

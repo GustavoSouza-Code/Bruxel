@@ -1,0 +1,25 @@
+/* altura da NavAdmin (0.75rem em cima e embaixo + pílula de 40px); a lateral gruda logo abaixo dela */
+.layout-admin {
+  --altura-nav-admin: 64px;
+}
+
+/* a barra gruda no topo, pra lateral e o menu do usuário ficarem sempre à mão */
+.layout-admin__topo {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* min-width: 0 deixa tabelas e gráficos encolherem em vez de alargar a página */
+.layout-admin__conteudo {
+  min-width: 0;
+}
+
+/* Desktop: lateral de 232px + conteúdo */
+@media (min-width: 900px) {
+  .layout-admin__corpo {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    align-items: start;
+  }
+}

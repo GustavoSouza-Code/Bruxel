@@ -113,3 +113,15 @@ export async function atualizarProduto(
 export async function excluirProduto(token: string, id: string): Promise<void> {
   await requisicao<unknown>(`/products/${id}`, { metodo: "DELETE", token });
 }
+
+/** Envia a foto do produto (multipart, campo "imagem") e devolve a url_imagem que o backend gerou. */
+export async function enviarImagemProduto(token: string, arquivo: Blob, nomeArquivo: string): Promise<string> {
+  const formulario = new FormData();
+  formulario.append("imagem", arquivo, nomeArquivo);
+  const resposta = await requisicao<{ url_imagem: string }>("/products/images", {
+    metodo: "POST",
+    corpo: formulario,
+    token,
+  });
+  return resposta.url_imagem;
+}

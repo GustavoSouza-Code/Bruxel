@@ -1,132 +1,125 @@
-import { Link } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
+import { useSearchParams } from "react-router-dom";
 import { Container } from "../../../componentes/layout/Container/Container";
+import { GraficoBarras } from "../../../componentes/graficos/GraficoBarras/GraficoBarras";
+import { GraficoRosca } from "../../../componentes/graficos/GraficoRosca/GraficoRosca";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
+import { useReceitaMensal, useReceitaPorCategoria } from "../../../crud/dashboard/useDashboard";
+import { rotuloMes } from "../../../crud/dashboard/graficos";
 import { NumerosPainel } from "./componentes/NumerosPainel/NumerosPainel";
+import { QuemCobrar } from "./componentes/QuemCobrar/QuemCobrar";
+import { GerarRelatorio } from "./componentes/GerarRelatorio/GerarRelatorio";
+import "../lista-admin.css";
 import "./inicio.css";
 
-// áreas do painel; pra uma funcionalidade nova aparecer aqui, é só adicionar um item
-const AREAS_ADMIN = [
-  {
-    id: "produtos",
-    titulo: "Gestão de produtos",
-    descricao: "Cadastrar, editar e excluir produtos",
-    rota: "/admin/produtos",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 8 12 3 3 8v8l9 5 9-5z" />
-        <path d="m3 8 9 5 9-5" />
-        <path d="M12 13v8" />
-      </svg>
-    ),
-  },
-  {
-    id: "clientes",
-    titulo: "Gestão de clientes",
-    descricao: "Ver e editar as contas cadastradas",
-    rota: "/admin/usuarios",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="9" cy="8" r="4" />
-        <path d="M2 21a7 7 0 0 1 14 0" />
-        <path d="M16 3.5a4 4 0 0 1 0 9" />
-        <path d="M22 21a7 7 0 0 0-4-6.3" />
-      </svg>
-    ),
-  },
-  {
-    id: "atendimentos",
-    titulo: "Atendimentos",
-    descricao: "Visitas e ordens de serviço",
-    rota: "/admin/atendimentos",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="8" y="2" width="8" height="4" rx="1" />
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-        <path d="M9 12h6" />
-        <path d="M9 16h4" />
-      </svg>
-    ),
-  },
-  {
-    id: "pedidos",
-    titulo: "Pedidos",
-    descricao: "Compras feitas na loja virtual",
-    rota: "/admin/pedidos",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-        <path d="M3 6h18" />
-        <path d="M16 10a4 4 0 0 1-8 0" />
-      </svg>
-    ),
-  },
-  {
-    id: "pagamentos",
-    titulo: "Pagamentos",
-    descricao: "O que falta receber e o que já entrou",
-    rota: "/admin/pagamentos",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v3" />
-        <path d="M3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
-        <path d="M21 12h-4a2 2 0 0 0 0 4h4z" />
-      </svg>
-    ),
-  },
-  {
-    id: "atendimento",
-    titulo: "Abrir atendimento",
-    descricao: "Para um cliente que está na loja",
-    rota: "/solicitar-atendimento",
-    icone: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5" />
-      </svg>
-    ),
-  },
-];
+const OPCOES_MESES = [3, 6, 12];
+
+// "?meses=" só vale com 3, 6 ou 12; qualquer outra coisa cai em 6
+function mesesDaUrl(valor: string | null): number {
+  const numero = Number(valor);
+  return OPCOES_MESES.includes(numero) ? numero : 6;
+}
 
 /**
- * Tela inicial do painel admin (rota "/admin"): saúda o admin, mostra a faixa
- * de números (NumerosPainel) e as áreas de gestão como atalhos. No desktop as
- * áreas viram uma grade de cartões; no celular, uma lista de linhas (o HTML é
- * o mesmo, só o CSS muda).
+ * Dashboard do painel (rota "/admin"), a tela principal da gestão: a faixa de
+ * números, a receita por mês (3, 6 ou 12 meses, guardado no "?meses=" da URL),
+ * a loja por categoria, quem cobrar e a exportação em CSV/PDF. Cada bloco
+ * busca os próprios dados e mostra o próprio erro. A navegação entre as áreas
+ * fica na lista lateral (LayoutAdmin).
  */
 export function PaginaAdminInicio() {
   const { usuario } = useAutenticacao();
+  const [params, setParams] = useSearchParams();
+  const meses = mesesDaUrl(params.get("meses"));
+  const receita = useReceitaMensal(meses);
+  const categorias = useReceitaPorCategoria();
+  const hoje = new Date();
+  const mesAtual = rotuloMes(`${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`, true);
+
+  function escolherMeses(valor: number) {
+    setParams({ meses: String(valor) }, { replace: true });
+  }
 
   return (
-    <>
-      <NavAdmin />
-
-      <section className="pagina-admin-inicio">
-        <Container>
-          {/* só o primeiro nome, igual ao MenuUsuario */}
-          <h1 className="pagina-admin-inicio__titulo">Olá, {usuario?.nome.split(" ")[0]}</h1>
-          <p className="pagina-admin-inicio__subtitulo">O que você quer gerenciar hoje?</p>
-
-          <NumerosPainel />
-
-          <div className="pagina-admin-inicio__areas">
-            {AREAS_ADMIN.map((area) => (
-              <Link key={area.id} to={area.rota} className="pagina-admin-inicio__area">
-                <span className="pagina-admin-inicio__icone">{area.icone}</span>
-                <span className="pagina-admin-inicio__texto">
-                  <strong>{area.titulo}</strong>
-                  <span>{area.descricao}</span>
-                </span>
-                {/* "Acessar →" aparece no desktop; a seta ">" no celular (ver inicio.css) */}
-                <span className="pagina-admin-inicio__acessar">Acessar →</span>
-                <svg className="pagina-admin-inicio__seta" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m9 18 6-6-6-6" />
-                </svg>
-              </Link>
-            ))}
+    <main className="pagina-admin-inicio">
+      <Container>
+        <div className="pagina-admin-inicio__topo">
+          <div>
+            {/* só o primeiro nome, igual ao MenuUsuario */}
+            <h1 className="pagina-admin-inicio__ola">Olá, {usuario?.nome.split(" ")[0]}</h1>
+            <p className="pagina-admin-inicio__subtitulo">Resumo da loja e dos serviços em {mesAtual}</p>
           </div>
-        </Container>
-      </section>
-    </>
+          <a href="#gerar-relatorio" className="lista-admin__botao pagina-admin-inicio__exportar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 3v12" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M5 21h14" />
+            </svg>
+            Exportar
+          </a>
+        </div>
+
+        <NumerosPainel />
+
+        <div className="pagina-admin-inicio__blocos">
+          <div className="pagina-admin-inicio__graficos">
+            <section id="receita" className="pagina-admin-inicio__bloco" aria-label="Receita por mês">
+              <div className="pagina-admin-inicio__cabecalho">
+                <h2 className="pagina-admin-inicio__titulo">Receita por mês</h2>
+                <div className="pagina-admin-inicio__meses" role="group" aria-label="Período">
+                  {OPCOES_MESES.map((opcao) => (
+                    <button
+                      key={opcao}
+                      type="button"
+                      className="pagina-admin-inicio__mes"
+                      aria-pressed={opcao === meses}
+                      onClick={() => escolherMeses(opcao)}
+                    >
+                      {opcao} meses
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {receita.erro ? (
+                <div className="lista-admin__aviso" role="alert">
+                  {receita.erro}
+                  <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={receita.recarregar}>
+                    Tentar novamente
+                  </button>
+                </div>
+              ) : !receita.dados ? (
+                <p className="pagina-admin-inicio__nota pagina-admin-inicio__nota--grafico">Carregando…</p>
+              ) : (
+                <GraficoBarras linhas={receita.dados} />
+              )}
+            </section>
+
+            <section className="pagina-admin-inicio__bloco" aria-label="Loja por categoria">
+              <div className="pagina-admin-inicio__cabecalho">
+                <h2 className="pagina-admin-inicio__titulo">Loja por categoria</h2>
+                <span className="pagina-admin-inicio__dica">Vendas de {mesAtual}</span>
+              </div>
+              {categorias.erro ? (
+                <div className="lista-admin__aviso" role="alert">
+                  {categorias.erro}
+                  <button type="button" className="lista-admin__botao lista-admin__botao--contorno" onClick={categorias.recarregar}>
+                    Tentar novamente
+                  </button>
+                </div>
+              ) : !categorias.dados ? (
+                <p className="pagina-admin-inicio__nota pagina-admin-inicio__nota--grafico">Carregando…</p>
+              ) : (
+                <div className="pagina-admin-inicio__rosca">
+                  <GraficoRosca linhas={categorias.dados} />
+                </div>
+              )}
+            </section>
+          </div>
+
+          <QuemCobrar />
+          <GerarRelatorio />
+        </div>
+      </Container>
+    </main>
   );
 }
 

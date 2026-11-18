@@ -8,8 +8,11 @@ import categoriesRoutes from "../routes/categoriesRoutes";
 import ordersRoutes from "../routes/ordersRoutes";
 import appointmentsRoutes from "../routes/appointmentsRoutes";
 import authRoutes from "../routes/authRoutes";
+import dashboardRoutes from "../routes/dashboardRoutes";
+import reportsRoutes from "../routes/reportsRoutes";
 import { AppError } from "../errors/AppError";
 import { Prisma } from "../generated/prisma/client";
+import { UPLOAD_DIR, UPLOAD_PUBLIC_PATH } from "../config/uploads";
 
 // inicializa a API e centraliza o tratamento de erros
 const app = express();
@@ -20,9 +23,15 @@ if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET não configurado no ambiente.");
 }
 
+// atrás do proxy do deploy, usa o protocolo e o host originais na URL da imagem
+app.set("trust proxy", 1);
+
 // middlewares globais
 app.use(cors());
 app.use(express.json({ limit: "100kb" }));
+
+// imagens enviadas ficam disponíveis no mesmo /api já encaminhado pelo proxy
+app.use(UPLOAD_PUBLIC_PATH, express.static(UPLOAD_DIR));
 
 // rotas da API
 app.use("/api", userRoutes);
@@ -31,6 +40,8 @@ app.use("/api", categoriesRoutes);
 app.use("/api", ordersRoutes);
 app.use("/api", appointmentsRoutes);
 app.use("/api", authRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api", reportsRoutes);
 
 // converte erros de negócio e do Prisma em respostas HTTP
 app.use((erro: unknown, _req: Request, res: Response, next: NextFunction) => {

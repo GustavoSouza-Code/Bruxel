@@ -51,7 +51,7 @@ export function registrarSessaoExpirada(funcao: () => void): () => void {
 
 interface OpcoesRequisicao {
   metodo?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  /** objeto enviado como JSON no corpo */
+  /** objeto enviado como JSON, ou FormData para arquivo */
   corpo?: unknown;
   /** JWT do usuário logado; vai no header Authorization */
   token?: string | null;
@@ -66,7 +66,9 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
   const { metodo = "GET", corpo, token } = opcoes;
 
   const headers: Record<string, string> = {};
-  if (corpo !== undefined) headers["Content-Type"] = "application/json";
+  // FormData vai cru: o fetch define o Content-Type com o boundary do multipart
+  const ehFormulario = corpo instanceof FormData;
+  if (corpo !== undefined && !ehFormulario) headers["Content-Type"] = "application/json";
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   let resposta: Response;
@@ -74,7 +76,7 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
     resposta = await fetch(`${URL_BASE}${caminho}`, {
       method: metodo,
       headers,
-      body: corpo !== undefined ? JSON.stringify(corpo) : undefined,
+      body: ehFormulario ? corpo : corpo !== undefined ? JSON.stringify(corpo) : undefined,
     });
   } catch {
     // o fetch só lança quando não existe resposta nenhuma (servidor fora do ar, sem rede)
@@ -90,6 +92,37 @@ export async function requisicao<T>(caminho: string, opcoes: OpcoesRequisicao = 
     throw paraErroApi(resposta.status, dados);
   }
   return dados as T;
+}
+
+/**
+ * Baixa um arquivo (CSV, PDF) de uma rota protegida e entrega pro navegador salvar.
+ * Os erros são os mesmos da requisicao(): sem conexão, 401 e corpo de erro do backend.
+ */
+export async function baixarArquivo(caminho: string, token: string, nomeArquivo: string): Promise<void> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(`${URL_BASE}${caminho}`, { headers: { Authorization: `Bearer ${token}` } });
+  } catch {
+    throw new ErroApi(0, "Não foi possível conectar ao servidor. Verifique se o backend está rodando.");
+  }
+
+  if (!resposta.ok) {
+    const dados: unknown = await resposta.json().catch(() => null);
+    if (resposta.status === 401) aoSessaoExpirar?.();
+    throw paraErroApi(resposta.status, dados);
+  }
+
+  // o arquivo vira uma URL temporária e um link invisível "clica" nela pra disparar o download
+  const blob = await resposta.blob();
+  const endereco = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = endereco;
+  link.download = nomeArquivo;
+  // no iPhone o link precisa estar no documento pro clique baixar; a URL só é liberada depois
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(endereco), 1000);
 }
 
 // monta o ErroApi a partir do corpo de erro do backend: { mensagem, erros? }

@@ -27,4 +27,13 @@ export class OrdersController {
             next(error);
         }
     };
+
+    updateStatus = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.ordersService.updateStatus(String(req.params.id), req.body);
+            return res.status(200).json(result);
+        } catch (error) {
+            next(error);
+        }
+    };
 }

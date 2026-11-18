@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
 import { PainelFiltros } from "../../../componentes/ui/PainelFiltros/PainelFiltros";
@@ -110,7 +109,6 @@ export function PaginaAdminAtendimentos() {
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-atendimentos">
         <Container>

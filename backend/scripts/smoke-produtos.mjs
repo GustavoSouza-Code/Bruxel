@@ -10,6 +10,8 @@
  *   npm run test:smoke:produtos (em outro)
  */
 import "dotenv/config";
+import fs from "node:fs";
+import path from "node:path";
 import pg from "pg";
 
 const BASE = process.env.API_URL ?? "http://localhost:3000/api";
@@ -27,6 +29,12 @@ const db = new pg.Client({ connectionString: process.env.DATABASE_URL });
 const linhas = [];
 let falhas = 0;
 let conectado = false;
+let arquivoEnviado = null;
+
+const PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64"
+);
 
 function anotar(caso, esperado, resposta, nota = "") {
   const ok =
@@ -122,11 +130,46 @@ async function main() {
     token: tokenCliente,
   }));
 
+  const formularioCliente = new FormData();
+  formularioCliente.append("imagem", new Blob([PNG], { type: "image/png" }), "smoke.png");
+  const uploadCliente = await fetch(`${BASE}/products/images`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${tokenCliente}` },
+    body: formularioCliente,
+  });
+  anotar("POST /products/images com token de CLIENTE", 403, {
+    status: uploadCliente.status,
+    corpo: await uploadCliente.text(),
+  });
+
   // promove o usuário de teste e entra de novo
   await db.query("update users set perfil = 'ADMINISTRADOR' where email = $1", [EMAIL]);
   const loginAdmin = await chamar("POST", "/auth/login", { corpo: { email: EMAIL, senha: SENHA } });
   const token = loginAdmin.corpo.token;
   if (!token) throw new Error(`Falha no login de admin: ${JSON.stringify(loginAdmin.corpo)}`);
+
+  // ------------------------------------------------------------- imagem
+  const formulario = new FormData();
+  formulario.append("imagem", new Blob([PNG], { type: "image/png" }), "smoke.png");
+  const upload = await fetch(`${BASE}/products/images`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formulario,
+  });
+  const uploadCorpo = await upload.json();
+  anotar("POST /products/images com admin", 201, { status: upload.status, corpo: uploadCorpo });
+  arquivoEnviado = uploadCorpo.url_imagem ?? null;
+
+  if (arquivoEnviado) {
+    const imagem = await fetch(arquivoEnviado);
+    const imagemBytes = Buffer.from(await imagem.arrayBuffer());
+    anotar("GET da imagem enviada", 200, {
+      status: imagem.status,
+      corpo: `${imagem.headers.get("content-type")} (${imagemBytes.length} bytes)`,
+    }, imagemBytes.equals(PNG) ? "" : "o conteúdo salvo é diferente do enviado");
+  } else {
+    anotar("GET da imagem enviada", 200, { status: 0, corpo: "upload não devolveu url_imagem" });
+  }
 
   const completo = {
     categoria_id: categoriaId,
@@ -135,7 +178,7 @@ async function main() {
     descricao: "descricao de teste",
     preco: 21.5,
     estoque: 7,
-    url_imagem: "/produtos/smoke-a.png",
+    url_imagem: arquivoEnviado,
     ativo: false,
   };
 
@@ -264,6 +307,10 @@ try {
   process.exitCode = 1;
 } finally {
   try {
+    if (arquivoEnviado) {
+      const pasta = path.resolve(process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads"), "produtos");
+      fs.rmSync(path.join(pasta, arquivoEnviado.split("/").pop()), { force: true });
+    }
     if (conectado) {
       await db.query("delete from products where codigo like $1", [`smoke-%-${SUFIXO}`]);
       await db.query("delete from categories where nome = $1", [CATEGORIA]);

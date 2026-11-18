@@ -16,7 +16,7 @@ interface PiscinatorResultadoProps {
 
 /**
  * Etapa 3 do Piscinator: faixa azul com o diagnóstico (texto + medidor de 0 a 8 sinais,
- * com cor por gravidade) e, abaixo, os produtos recomendados com os motivos em etiquetas.
+ * com cor por gravidade) e, abaixo, os produtos recomendados com o motivo principal em etiqueta.
  */
 export function PiscinatorResultado({
   respostas,
@@ -72,16 +72,12 @@ export function PiscinatorResultado({
               {recomendacoes.map(({ produto, motivos }) => (
                 <div key={produto.id} className="piscinator-resultado__item">
                   <CardProduto produto={produto} />
-                  {/* só aparece quando o produto pontuou; o de preenchimento fica sem as etiquetas */}
+                  {/* só aparece quando o produto pontuou; mostra só o primeiro motivo (o que mais pontuou), sem citar as perguntas */}
                   {motivos.length > 0 && (
                     <div className="piscinator-resultado__motivos">
                       <span className="piscinator-resultado__motivos-rotulo">Indicado para</span>
                       <ul className="piscinator-resultado__etiquetas">
-                        {motivos.map((motivo) => (
-                          <li key={motivo} className="piscinator-resultado__etiqueta">
-                            {motivo}
-                          </li>
-                        ))}
+                        <li className="piscinator-resultado__etiqueta">{motivos[0]}</li>
                       </ul>
                     </div>
                   )}

@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { NavAdmin } from "../../../componentes/layout/NavAdmin/NavAdmin";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { Modal } from "../../../componentes/ui/Modal/Modal";
 import { BarraBusca } from "../../../componentes/ui/BarraBusca/BarraBusca";
@@ -43,11 +42,11 @@ function resumoDosItens(pedido: PedidoComCliente) {
 /**
  * Pedidos da loja virtual no painel (rota "/admin/pedidos"): todas as compras
  * (GET /orders), com o nome de quem comprou, busca, filtros e a lista em cards
- * ou compacta. Clicar abre o detalhe num modal. Só leitura: mudar o status do
- * pedido depende de uma rota nova no backend (ver o recado no spec).
+ * ou compacta. Clicar abre o detalhe num modal, onde dá pra marcar o pedido
+ * como enviado ou entregue e cancelar (PATCH /orders/:id/status).
  */
 export function PaginaAdminPedidos() {
-  const { pedidos, carregando, erro, recarregar } = usePedidosAdmin();
+  const { pedidos, carregando, erro, recarregar, alterarStatus } = usePedidosAdmin();
   const prontos = !carregando && !erro;
   const [filtros, setFiltros] = useState<FiltrosPedido>(FILTROS_PEDIDO_INICIAIS);
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
@@ -76,7 +75,6 @@ export function PaginaAdminPedidos() {
 
   return (
     <>
-      <NavAdmin />
 
       <section className="pagina-admin-pedidos">
         <Container>
@@ -227,7 +225,12 @@ export function PaginaAdminPedidos() {
 
       {aberto && (
         <Modal titulo={`Pedido #${codigoPedido(aberto.id)}`} onFechar={() => setParametros({})} largo>
-          <DetalhePedido pedido={aberto} />
+          <DetalhePedido
+            pedido={aberto}
+            onAlterar={(status) => alterarStatus(aberto.id, status)}
+            onRecarregar={recarregar}
+            carregando={carregando}
+          />
         </Modal>
       )}
     </>

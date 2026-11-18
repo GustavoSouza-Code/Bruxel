@@ -1,9 +1,8 @@
 import type { FormaPagamento, Pedido } from "../../tipos/pedido";
-import type { Usuario } from "../../tipos/usuario";
 import { contemTexto } from "../busca";
 import { codigoPedido } from "./opcoesPedido";
 
-/** Pedido com o nome de quem comprou (o GET /orders só manda o usuario_id). */
+/** Pedido com o nome de quem comprou (vem do GET /orders). */
 export type PedidoComCliente = Pedido & { cliente: string };
 
 export type OrdemPedido = "recentes" | "antigos" | "maior-valor";
@@ -23,9 +22,8 @@ export const FILTROS_PEDIDO_INICIAIS: FiltrosPedido = {
 };
 
 /** Junta o nome do cliente em cada pedido; conta apagada vira "Cliente removido". */
-export function comNomeDoCliente(pedidos: Pedido[], usuarios: Usuario[]): PedidoComCliente[] {
-  const nomes = new Map(usuarios.map((usuario) => [usuario.id, usuario.nome]));
-  return pedidos.map((pedido) => ({ ...pedido, cliente: nomes.get(pedido.usuarioId) ?? "Cliente removido" }));
+export function comNomeDoCliente(pedidos: Pedido[]): PedidoComCliente[] {
+  return pedidos.map((pedido) => ({ ...pedido, cliente: pedido.nomeCliente ?? "Cliente removido" }));
 }
 
 const COMPARAR: Record<OrdemPedido, (a: Pedido, b: Pedido) => number> = {

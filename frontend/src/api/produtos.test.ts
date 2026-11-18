@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { ordenarProdutos, paraCorpoProduto, paraProduto, type DadosProduto, type ProdutoApi } from "./produtos";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { enviarImagemProduto, ordenarProdutos, paraCorpoProduto, paraProduto, type DadosProduto, type ProdutoApi } from "./produtos";
 
 const base: ProdutoApi = {
   id: "p1",
@@ -60,6 +60,12 @@ describe("paraCorpoProduto", () => {
     expect(corpo.url_imagem).toBeNull();
   });
 
+  it("remover imagem manda null e manter a imagem manda a url de antes", () => {
+    expect(paraCorpoProduto({ ...dados, url_imagem: "" }).url_imagem).toBeNull();
+    const url = "http://h/api/uploads/produtos/a.webp";
+    expect(paraCorpoProduto({ ...dados, url_imagem: url }).url_imagem).toBe(url);
+  });
+
   it("não manda o estoque quando ele não mudou", () => {
     expect("estoque" in paraCorpoProduto(dados, 5)).toBe(false);
   });
@@ -98,5 +104,29 @@ describe("ordenarProdutos", () => {
     ];
     ordenarProdutos(lista);
     expect(lista[0].id).toBe("b");
+  });
+});
+
+describe("enviarImagemProduto", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("faz POST /products/images com o campo imagem e devolve a url", async () => {
+    const url = "http://h/api/uploads/produtos/a.webp";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: true, status: 201, json: () => Promise.resolve({ url_imagem: url }) }),
+    );
+
+    const resultado = await enviarImagemProduto("t", new Blob(["x"]), "foto.webp");
+
+    expect(resultado).toBe(url);
+    const [endereco, init] = vi.mocked(fetch).mock.calls[0];
+    expect(String(endereco).endsWith("/products/images")).toBe(true);
+    expect(init?.method).toBe("POST");
+    const arquivo = (init?.body as FormData).get("imagem") as File;
+    expect(arquivo).toBeInstanceOf(File);
+    expect(arquivo.name).toBe("foto.webp");
   });
 });

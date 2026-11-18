@@ -94,9 +94,11 @@ describe("recomendarComMotivos (pontuação)", () => {
     // verde (0) e chuva/uso (7) apontam os dois pro algicida; o floculante só casa com turva
     const lista = recomendarComMotivos(sim(0, 1, 7), CATALOGO_NOVO, CATEGORIAS);
     expect(lista[0].produto.id).toBe("alg");
-    expect(lista[0].motivos).toEqual(["água verde", "chuva ou muito uso"]);
+    // por palavra (2 pontos) primeiro; a turva só pontua 1 pela categoria geral e fica por último
+    expect(lista[0].motivos).toEqual(["piscinas verdes", "depois de chuva ou muito uso", "água turva"]);
     expect(lista[1].produto.id).toBe("floc");
-    expect(lista[1].motivos).toEqual(["água turva"]);
+    // o floculante também pontua 1 por ser de "Tratamento da água", mas o motivo principal é a turva
+    expect(lista[1].motivos[0]).toBe("água turva");
   });
 
   it("empate mantém a ordem do catálogo", () => {
@@ -135,5 +137,61 @@ describe("recomendarComMotivos (pontuação)", () => {
 
   it("aceita respostas curtas (só as 3 primeiras)", () => {
     expect(recomendarComMotivos([true], CATALOGO, CATEGORIAS)).toHaveLength(4);
+  });
+});
+
+describe("recomendarComMotivos (categorias)", () => {
+  const CATEGORIAS_COM_NOVAS: Categoria[] = [
+    ...CATEGORIAS,
+    { id: "algs", nome: "Algicidas" },
+    { id: "filt", nome: "Filtração e circulação" },
+  ];
+
+  it("categoria nova com nome descritivo pontua pela palavra da pergunta", () => {
+    const catalogo = [
+      produto({ id: "cadeira", nome: "Cadeira de praia", categoria_id: "lazer" }),
+      produto({ id: "maxalg", nome: "Max Verde 1L", categoria_id: "algs" }),
+    ];
+    const lista = recomendarComMotivos(sim(0), catalogo, CATEGORIAS_COM_NOVAS);
+    expect(lista[0].produto.id).toBe("maxalg");
+    expect(lista[0].motivos[0]).toBe("piscinas verdes");
+  });
+
+  it("produto específico vence genérico da mesma categoria ampla", () => {
+    const catalogo = [
+      produto({ id: "generico", nome: "Estabilizante 1kg" }),
+      produto({ id: "alg", nome: "Algicida 1L" }),
+    ];
+    const lista = recomendarComMotivos(sim(0), catalogo, CATEGORIAS);
+    expect(ids(lista.map((r) => r.produto))).toEqual(["alg", "generico"]);
+  });
+
+  it("categoria geral sozinha pontua (1 ponto) e gera motivo", () => {
+    const catalogo = [
+      produto({ id: "cadeira", nome: "Cadeira de praia", categoria_id: "lazer" }),
+      produto({ id: "motor", nome: "Motor 1/2 cv", categoria_id: "filt" }),
+    ];
+    const lista = recomendarComMotivos(sim(6), catalogo, CATEGORIAS_COM_NOVAS);
+    expect(lista[0].produto.id).toBe("motor");
+    expect(lista[0].motivos).toEqual(["melhorar a filtragem"]);
+    expect(lista[1].motivos).toEqual([]);
+  });
+
+  it("palavra conta 2 e categoria geral 1: quem casa por palavra fica na frente", () => {
+    const catalogo = [
+      produto({ id: "motor", nome: "Motor 1/2 cv", categoria_id: "filt" }),
+      produto({ id: "areia", nome: "Areia para filtro", categoria_id: "filt" }),
+    ];
+    expect(ids(recomendarPorDiagnostico(sim(6), catalogo, CATEGORIAS_COM_NOVAS)).slice(0, 2)).toEqual(["areia", "motor"]);
+  });
+
+  it("motivo principal é a pergunta que mais pontuou no produto", () => {
+    // verde: categoria geral (1); turva: palavra "clarificante" (2)
+    const catalogo = [produto({ id: "clar", nome: "Clarificante 1L" })];
+    expect(recomendarComMotivos(sim(0, 1), catalogo, CATEGORIAS)[0].motivos[0]).toBe("água turva");
+  });
+
+  it("cada pergunta liga pelo menos uma categoria geral", () => {
+    for (const pergunta of PERGUNTAS) expect(pergunta.categorias.length).toBeGreaterThan(0);
   });
 });

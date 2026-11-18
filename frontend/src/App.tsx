@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import "./App.css";
 import { ProvedorAutenticacao } from "./contexto/ContextoAutenticacao";
 import { ProvedorCarrinho } from "./contexto/ContextoCarrinho";
@@ -24,8 +24,15 @@ import { PaginaAdminAtendimentos } from "./paginas/admin/atendimentos/atendiment
 import { PaginaAdminAtendimento } from "./paginas/admin/atendimento/atendimento";
 import { PaginaAdminPedidos } from "./paginas/admin/pedidos/pedidos";
 import { PaginaAdminPagamentos } from "./paginas/admin/pagamentos/pagamentos";
+import { LayoutAdmin } from "./componentes/layout/LayoutAdmin/LayoutAdmin";
 import { PaginaNaoEncontrada } from "./paginas/portal/nao-encontrada/nao-encontrada";
 import { LimiteDeErro } from "./componentes/ui/LimiteDeErro/LimiteDeErro";
+
+/** "/admin/relatorios?meses=12" → "/admin?meses=12" (o período vai junto). */
+function RedirecionarRelatorios() {
+  const { search } = useLocation();
+  return <Navigate to={`/admin${search}`} replace />;
+}
 
 /**
  * Rotas dentro do LimiteDeErro. Fica separado do App porque o useLocation só
@@ -52,16 +59,20 @@ function RotasDoSite() {
           <Route path="/pedido/:id" element={<PaginaPedido />} />
           <Route path="/minha-conta/atendimentos/:id" element={<PaginaMinhaOs />} />
         </Route>
-        {/* painel de gestão (usa o NavAdmin, a barra própria do painel, no lugar do Cabecalho);
-            o RotaAdmin só deixa passar quem está logado como administrador */}
+        {/* painel de gestão: o RotaAdmin só deixa passar quem está logado como administrador
+            e o LayoutAdmin põe a NavAdmin e a lista lateral em volta de cada página */}
         <Route element={<RotaAdmin />}>
-          <Route path="/admin" element={<PaginaAdminInicio />} />
-          <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
-          <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
-          <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
-          <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
-          <Route path="/admin/pedidos" element={<PaginaAdminPedidos />} />
-          <Route path="/admin/pagamentos" element={<PaginaAdminPagamentos />} />
+          <Route element={<LayoutAdmin />}>
+            <Route path="/admin" element={<PaginaAdminInicio />} />
+            <Route path="/admin/usuarios" element={<PaginaAdminUsuarios />} />
+            <Route path="/admin/produtos" element={<PaginaAdminProdutos />} />
+            <Route path="/admin/atendimentos" element={<PaginaAdminAtendimentos />} />
+            <Route path="/admin/atendimentos/:id" element={<PaginaAdminAtendimento />} />
+            <Route path="/admin/pedidos" element={<PaginaAdminPedidos />} />
+            <Route path="/admin/pagamentos" element={<PaginaAdminPagamentos />} />
+          </Route>
+          {/* os relatórios agora estão na dashboard; links antigos continuam funcionando */}
+          <Route path="/admin/relatorios" element={<RedirecionarRelatorios />} />
         </Route>
         {/* qualquer endereço que nenhuma rota acima reconhece */}
         <Route path="*" element={<PaginaNaoEncontrada />} />
