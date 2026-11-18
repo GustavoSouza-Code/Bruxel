@@ -1,6 +1,8 @@
-import type { Recomendacao } from "../../../../../crud/produtos/recomendacaoPiscinator";
 import { Container } from "../../../../../componentes/layout/Container/Container";
 import { CardProduto } from "../../../../../componentes/produto/CardProduto/CardProduto";
+import { diagnosticoPorPontuacao } from "../../../../../crud/produtos/diagnosticoPiscinator";
+import { PERGUNTAS } from "../../../../../crud/produtos/recomendacaoPiscinator";
+import type { Recomendacao } from "../../../../../crud/produtos/recomendacaoPiscinator";
 import "./PiscinatorResultado.css";
 
 interface PiscinatorResultadoProps {
@@ -13,42 +15,9 @@ interface PiscinatorResultadoProps {
 }
 
 /**
- * Converte a pontuação (nº de respostas "Sim", de 0 a 8) no texto do
- * diagnóstico: 0 = tudo certo, 1-2 = sinais leves, 3-4 = moderado, 5 ou mais = grave.
+ * Etapa 3 do Piscinator: faixa azul com o diagnóstico (texto + medidor de 0 a 8 sinais,
+ * com cor por gravidade) e, abaixo, os produtos recomendados com os motivos em etiquetas.
  */
-function getDiagnosis(score: number) {
-  if (score === 0) {
-    return {
-      title: "Sua piscina está em bom estado!",
-      description:
-        "Não identificamos sinais de alerta. Continue com a manutenção regular e o monitoramento do cloro e do pH para manter a água sempre equilibrada.",
-    };
-  }
-
-  if (score <= 2) {
-    return {
-      title: "Sinais leves de desequilíbrio",
-      description:
-        "Sua piscina apresenta sinais leves de desequilíbrio na água. Um ajuste no tratamento e uma limpeza pontual já devem resolver o problema.",
-    };
-  }
-
-  if (score <= 4) {
-    return {
-      title: "Desequilíbrio moderado identificado",
-      description:
-        "Sua piscina apresenta desequilíbrio moderado, com possível presença de algas ou cloro insuficiente. Recomendamos um choque de cloro e reforço na filtração.",
-    };
-  }
-
-  return {
-    title: "Forte presença de algas e sujeira",
-    description:
-      "Sua piscina apresenta forte presença de algas e acúmulo de sujeira na água. Recomendamos um tratamento de choque completo, seguido de manutenção preventiva regular.",
-  };
-}
-
-/** Etapa 3 do Piscinator: mostra o diagnóstico, o botão de refazer e os produtos recomendados. */
 export function PiscinatorResultado({
   respostas,
   recomendacoes,
@@ -56,40 +25,73 @@ export function PiscinatorResultado({
 }: PiscinatorResultadoProps) {
   // pontuação = quantas respostas foram "Sim" (true)
   const score = respostas.filter(Boolean).length;
-  const diagnosis = getDiagnosis(score);
+  const diagnosis = diagnosticoPorPontuacao(score);
 
   return (
-    <section className="piscinator-resultado">
-      <Container>
-        <span className="piscinator-resultado__rotulo">Diagnóstico</span>
-        <h1 className="piscinator-resultado__titulo">{diagnosis.title}</h1>
-        <p className="piscinator-resultado__descricao">
-          {diagnosis.description}
-        </p>
+    <>
+      <section className="piscinator-resultado">
+        <Container>
+          <span className="piscinator-resultado__rotulo">Diagnóstico</span>
+          <h1 className="piscinator-resultado__titulo">{diagnosis.titulo}</h1>
+          <p className="piscinator-resultado__descricao">{diagnosis.descricao}</p>
 
-        <button className="piscinator-resultado__recomecar" onClick={onRecomecar}>
-          Refazer diagnóstico
-        </button>
+          {/* medidor: um segmento por pergunta, os respondidos "Sim" acendem na cor do nível */}
+          <div
+            className={`piscinator-resultado__medidor piscinator-resultado__medidor--${diagnosis.nivel}`}
+            role="img"
+            aria-label={`${score} de ${PERGUNTAS.length} sinais de problema identificados`}
+          >
+            <div className="piscinator-resultado__segmentos">
+              {PERGUNTAS.map((pergunta, indice) => (
+                <span
+                  key={pergunta.rotulo}
+                  className={
+                    "piscinator-resultado__segmento" +
+                    (indice < score ? " piscinator-resultado__segmento--cheio" : "")
+                  }
+                />
+              ))}
+            </div>
+            <span className="piscinator-resultado__legenda">
+              {score} de {PERGUNTAS.length} sinais
+            </span>
+          </div>
 
-        {/* sem produtos recomendados, a seção inteira some */}
-        {recomendacoes.length > 0 && (
-          <div className="piscinator-resultado__produtos">
+          <button className="piscinator-resultado__recomecar" onClick={onRecomecar}>
+            Refazer diagnóstico
+          </button>
+        </Container>
+      </section>
+
+      {/* sem produtos recomendados, a seção inteira some */}
+      {recomendacoes.length > 0 && (
+        <section className="piscinator-resultado__produtos">
+          <Container>
             <h2>Recomendados para o seu diagnóstico</h2>
             <div className="piscinator-resultado__grade">
               {recomendacoes.map(({ produto, motivos }) => (
                 <div key={produto.id} className="piscinator-resultado__item">
                   <CardProduto produto={produto} />
-                  {/* só aparece quando o produto pontuou; mostra só o primeiro motivo, sem citar as perguntas */}
+                  {/* só aparece quando o produto pontuou; o de preenchimento fica sem as etiquetas */}
                   {motivos.length > 0 && (
-                    <p className="piscinator-resultado__motivo">Indicado para {motivos[0]}</p>
+                    <div className="piscinator-resultado__motivos">
+                      <span className="piscinator-resultado__motivos-rotulo">Indicado para</span>
+                      <ul className="piscinator-resultado__etiquetas">
+                        {motivos.map((motivo) => (
+                          <li key={motivo} className="piscinator-resultado__etiqueta">
+                            {motivo}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
-      </Container>
-    </section>
+          </Container>
+        </section>
+      )}
+    </>
   );
 }
 

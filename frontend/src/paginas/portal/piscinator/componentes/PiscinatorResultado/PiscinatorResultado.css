@@ -1,11 +1,16 @@
+/* faixa azul no topo, com a mesma base curva da introdução e das perguntas */
 .piscinator-resultado {
-  padding: var(--space-section) 0;
+  background-color: #153673;
+  color: var(--color-white);
+  border-radius: 0 0 50% 50% / 0 0 40px 40px;
+  overflow: hidden;
+  padding: clamp(1.75rem, 1.5rem + 1.5vw, 3rem) 0 clamp(2.25rem, 1.75rem + 2vw, 3.5rem);
   text-align: center;
 }
 
 .piscinator-resultado__rotulo {
   display: inline-block;
-  color: var(--color-accent);
+  color: var(--color-accent-light);
   font-weight: 600;
   font-size: var(--font-size-small);
   text-transform: uppercase;
@@ -14,37 +19,82 @@
 }
 
 .piscinator-resultado__titulo {
-  font-weight: 600;
-  font-size: var(--font-size-h2);
+  font-weight: 700;
+  font-size: var(--font-size-hero-title);
+  line-height: 1.2;
   margin: 0 0 1rem;
 }
 
 .piscinator-resultado__descricao {
   max-width: 640px;
-  margin: 0 auto 2rem;
-  color: var(--color-text-muted);
+  margin: 0 auto 1.5rem;
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
   line-height: 1.7;
 }
 
+/* medidor de gravidade: a cor do nível vem de --cor-nivel */
+.piscinator-resultado__medidor {
+  --cor-nivel: var(--color-accent-light);
+  max-width: 420px;
+  margin: 0 auto 1.5rem;
+}
+
+/* cores só deste medidor (azul = tudo certo, depois amarelo, laranja e vermelho) */
+.piscinator-resultado__medidor--leve {
+  --cor-nivel: #ffd166;
+}
+
+.piscinator-resultado__medidor--moderado {
+  --cor-nivel: #ff9f45;
+}
+
+.piscinator-resultado__medidor--grave {
+  --cor-nivel: #ff6b5e;
+}
+
+.piscinator-resultado__segmentos {
+  display: flex;
+  gap: 6px;
+}
+
+.piscinator-resultado__segmento {
+  flex: 1 1 0;
+  height: 10px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.piscinator-resultado__segmento--cheio {
+  background-color: var(--cor-nivel);
+}
+
+.piscinator-resultado__legenda {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-weight: 600;
+  font-size: var(--font-size-small);
+  color: var(--cor-nivel);
+}
+
 .piscinator-resultado__recomecar {
   background: none;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: var(--color-white);
   border-radius: 999px;
   padding: 0.7rem 1.6rem;
   font-weight: 600;
   font-size: var(--font-size-small);
   cursor: pointer;
-  margin-bottom: var(--space-section);
 }
 
 .piscinator-resultado__recomecar:hover {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  background-color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .piscinator-resultado__produtos {
+  padding: clamp(1.75rem, 1.5rem + 1.5vw, 3rem) 0 var(--space-section);
   text-align: left;
 }
 
@@ -83,17 +133,43 @@
   }
 }
 
-/* card + a linha "Indicado para..." abaixo dele */
+/* card + as etiquetas "Indicado para" abaixo dele */
 .piscinator-resultado__item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
   min-width: 0;
 }
 
-.piscinator-resultado__motivo {
-  margin: 0;
-  font-size: var(--font-size-small);
-  line-height: 1.4;
+.piscinator-resultado__motivos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.piscinator-resultado__motivos-rotulo {
   color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.piscinator-resultado__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.piscinator-resultado__etiqueta {
+  background-color: var(--color-surface-light);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1.3;
 }

@@ -75,6 +75,13 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* "8 perguntas · cerca de 1 minuto" logo abaixo do botão */
+.piscinator-introducao__dica {
+  margin: 1rem 0 0;
+  opacity: 0.75;
+  font-size: var(--font-size-small);
+}
+
 /* telas estreitas: mascote em cima, texto embaixo */
 @media (max-width: 800px) {
   .piscinator-introducao__conteudo {
