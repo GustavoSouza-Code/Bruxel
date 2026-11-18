@@ -1,4 +1,5 @@
 import { Container } from "../../../../../componentes/layout/Container/Container";
+import { PERGUNTAS } from "../../../../../crud/produtos/recomendacaoPiscinator";
 import mascoteImg from "../../../../../assets/images/mascote/mascote-bruxel.png";
 import "./PiscinatorIntroducao.css";
 
@@ -50,6 +51,9 @@ export function PiscinatorIntroducao({ onComecar }: PiscinatorIntroducaoProps) {
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </button>
+
+            {/* quantas perguntas e quanto tempo leva: dá segurança a quem vai começar */}
+            <p className="piscinator-introducao__dica">{PERGUNTAS.length} perguntas de Sim ou Não · cerca de 1 minuto</p>
           </div>
         </div>
       </Container>
