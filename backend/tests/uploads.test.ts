@@ -17,13 +17,22 @@ beforeAll(async () => {
 
     ({ AppError } = await import("../src/errors/AppError"));
     const { receberImagemProduto } = await import("../src/middleware/uploadProductImage");
-    const { urlDaImagem } = await import("../src/config/uploads");
+    const { receberImagemAtendimento } = await import("../src/middleware/uploadAppointmentImage");
+    const { urlDaImagem, urlDaImagemAtendimento, ehUrlDeImagemAtendimento } = await import("../src/config/uploads");
 
     app = express();
     app.post("/products/images", receberImagemProduto, (req: Request, res: Response) => {
         const arquivo = req.file;
         if (!arquivo) return res.status(400).json({ mensagem: "Envie uma imagem." });
         return res.status(201).json({ url_imagem: urlDaImagem(arquivo.filename, "http://localhost:3000") });
+    });
+    app.post("/appointments/images", receberImagemAtendimento, (req: Request, res: Response) => {
+        const arquivo = req.file;
+        if (!arquivo) return res.status(400).json({ mensagem: "Envie uma imagem." });
+        return res.status(201).json({ foto_url: urlDaImagemAtendimento(arquivo.filename, "http://localhost:3000") });
+    });
+    app.get("/appointments/images/valida", (req: Request, res: Response) => {
+        return res.status(200).json({ valida: ehUrlDeImagemAtendimento(String(req.query.url ?? "")) });
     });
     app.use((erro: unknown, _req: Request, res: Response, _next: NextFunction) => {
         if (erro instanceof AppError) {
@@ -73,5 +82,33 @@ describe("upload de imagem do produto", () => {
 
         expect(resposta.status).toBe(400);
         expect(resposta.body.mensagem).toContain("5 MB");
+    });
+
+    it("salva a imagem do atendimento na pasta própria", async () => {
+        const conteudo = Buffer.from("foto-do-atendimento");
+        const resposta = await request(app)
+            .post("/appointments/images")
+            .attach("imagem", conteudo, { filename: "problema.png", contentType: "image/png" });
+
+        expect(resposta.status).toBe(201);
+        expect(resposta.body.foto_url).toMatch(
+            /^https:\/\/bruxel\.exemplo\.com\/api\/uploads\/atendimentos\/[0-9a-f-]+\.png$/
+        );
+
+        const nomeArquivo = resposta.body.foto_url.split("/").pop();
+        const salvo = path.join(pastaTemporaria, "atendimentos", nomeArquivo);
+        expect(fs.readFileSync(salvo)).toEqual(conteudo);
+    });
+
+    it("só reconhece como foto da OS uma URL da pasta de atendimentos", async () => {
+        const valida = await request(app)
+            .get("/appointments/images/valida")
+            .query({ url: "https://bruxel.exemplo.com/api/uploads/atendimentos/11111111-1111-4111-8111-111111111111.png" });
+        const invalida = await request(app)
+            .get("/appointments/images/valida")
+            .query({ url: "https://exemplo.com/foto.jpg" });
+
+        expect(valida.body.valida).toBe(true);
+        expect(invalida.body.valida).toBe(false);
     });
 });

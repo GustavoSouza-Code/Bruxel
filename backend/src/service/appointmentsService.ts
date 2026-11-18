@@ -1,3 +1,4 @@
+import { ehUrlDeImagemAtendimento } from "../config/uploads";
 import { AppError } from "../errors/AppError";
 import { status_agendamento, tipo_servico } from "../generated/prisma/enums";
 import {
@@ -200,6 +201,27 @@ export class AppointmentsService {
         return this.appointmentsRepository.updateOs(atendimento.id, dadosOs, itens);
     }
 
+    // cliente dono ou administrador troca a foto única da OS
+    async trocarImagem(usuario: UsuarioAutenticado, id: string, fotoUrl: string) {
+        const atendimento = await this.buscarPorId(id);
+
+        if (usuario.perfil !== "ADMINISTRADOR" && atendimento.usuario_id !== usuario.id) {
+            throw new AppError(403, "Não autorizado.");
+        }
+
+        const novaFoto = this.validarFotoUrl(fotoUrl);
+        if (!novaFoto) {
+            throw new AppError(400, "Envie uma imagem para a ordem de serviço.");
+        }
+
+        const atualizado = await this.appointmentsRepository.updateFoto(atendimento.id, novaFoto);
+
+        return {
+            foto_url: atualizado.foto_url,
+            foto_anterior: atendimento.foto_url,
+        };
+    }
+
     // registra o pagamento de uma OS concluída
     async marcarPago(id: string) {
         const atendimento = await this.buscarPorId(id);
@@ -330,14 +352,17 @@ export class AppointmentsService {
     private validarFotoUrl(valor: unknown): string | null {
         if (valor === undefined || valor === null || valor === "") return null;
         if (typeof valor !== "string") {
-            throw this.erroCampo("foto_url", "A foto deve ser um link.");
+            throw this.erroCampo("foto_url", "A foto deve ser enviada pelo upload da ordem de serviço.");
         }
 
         const url = valor.trim();
         if (url.length > FOTO_URL_MAX) {
-            throw this.erroCampo("foto_url", `O link da foto pode ter até ${FOTO_URL_MAX} caracteres.`);
+            throw this.erroCampo("foto_url", `O endereço da foto pode ter até ${FOTO_URL_MAX} caracteres.`);
         }
-        return url === "" ? null : url;
+        if (!ehUrlDeImagemAtendimento(url)) {
+            throw this.erroCampo("foto_url", "A foto deve ser enviada pelo upload da ordem de serviço.");
+        }
+        return url;
     }
 
     private validarTextoOpcional(valor: unknown, campo: string, rotulo: string, maximo: number): string | null {

@@ -70,6 +70,15 @@ export class AppointmentsRepository {
         });
     }
 
+    // troca a única foto da OS; a URL anterior fica com o service para limpeza
+    async updateFoto(id: string, fotoUrl: string) {
+        return prisma.appointments.update({
+            where: { id },
+            data: { foto_url: fotoUrl },
+            select: { foto_url: true },
+        });
+    }
+
     // impede dois atendimentos no mesmo horário com o mesmo técnico
     async getConflitoDeHorario(tecnicoId: string, dataHora: Date) {
         return prisma.appointments.findFirst({

@@ -39,12 +39,12 @@ export class AuthService {
         // confere e-mail e senha contra o hash salvo
         const user = await this.userRepository.getByEmail(email);
         if (!user) {
-            throw new AppError(400, CREDENCIAIS_INVALIDAS);
+            throw new AppError(401, CREDENCIAIS_INVALIDAS);
         }
 
         const verificaSenha = await bcrypt.compare(senha, user.senha);
         if (!verificaSenha) {
-            throw new AppError(400, CREDENCIAIS_INVALIDAS);
+            throw new AppError(401, CREDENCIAIS_INVALIDAS);
         }
 
         // o token carrega id, e-mail e perfil por 5 dias
