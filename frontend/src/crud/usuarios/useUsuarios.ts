@@ -76,10 +76,16 @@ export function useUsuarios() {
     setUsuarios((atuais) => atuais.map((usuario) => (usuario.id === id ? atualizado : usuario)));
   }
 
+  // troca de perfil à parte do PUT: o perfil não passa pelo formulário do /perfil
+  async function alterarPerfil(id: string, perfil: Usuario["perfil"]) {
+    const atualizado = await comToken((t) => apiUsuarios.alterarPerfil(t, id, perfil));
+    setUsuarios((atuais) => atuais.map((usuario) => (usuario.id === id ? atualizado : usuario)));
+  }
+
   async function excluirUsuario(id: string) {
     await comToken((t) => apiUsuarios.excluirUsuario(t, id));
     setUsuarios((atuais) => atuais.filter((usuario) => usuario.id !== id));
   }
 
-  return { usuarios, carregando, erro, recarregar, criarUsuario, atualizarUsuario, excluirUsuario };
+  return { usuarios, carregando, erro, recarregar, criarUsuario, atualizarUsuario, alterarPerfil, excluirUsuario };
 }
