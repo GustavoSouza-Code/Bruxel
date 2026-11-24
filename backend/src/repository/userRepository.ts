@@ -1,5 +1,6 @@
 import { CreateUserDTO, UpdateUserDTO } from "../models/user";
 import { prisma } from "../database/prisma";
+import { perfil_usuario } from "../generated/prisma/enums";
 import bcrypt from "bcrypt";
 
 // campos que podem sair da API
@@ -104,6 +105,20 @@ export class UserRepository {
             });
         } catch (error) {
             console.error(`Erro ao atualizar usuário: ${id}:`, error);
+            throw error;
+        }
+    }
+
+    // troca de perfil feita por um administrador (a regra fica no service)
+    async updatePerfil(id: string, perfil: perfil_usuario) {
+        try {
+            return await prisma.users.update({
+                where: { id },
+                data: { perfil },
+                select: camposPublicosUsuario,
+            });
+        } catch (error) {
+            console.error(`Erro ao atualizar perfil do usuário: ${id}:`, error);
             throw error;
         }
     }

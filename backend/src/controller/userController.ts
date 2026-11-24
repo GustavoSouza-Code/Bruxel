@@ -57,6 +57,20 @@ export class UserController {
         }
     };
 
+    // troca de perfil restrita ao admin
+    updatePerfil = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.userService.alterarPerfil(
+                String(req.params.id),
+                req.body,
+                req.usuario.id
+            );
+            return res.status(200).json(result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     // exclusão restrita ao admin
     delete = async (req: Request, res: Response, next: NextFunction) => {
         try {
