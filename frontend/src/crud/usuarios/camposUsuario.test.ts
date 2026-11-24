@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { validarEndereco, validarUfCep } from "./camposUsuario";
+import type { Usuario } from "../../tipos/usuario";
+import { paraCamposAtualizacao, validarEndereco, validarUfCep } from "./camposUsuario";
 
 describe("validarUfCep", () => {
   it("aceita UF e CEP vazios ou nulos", () => {
@@ -42,5 +43,19 @@ describe("validarEndereco", () => {
   it("recusa UF com 1 ou 3 letras", () => {
     expect(validarEndereco({ estado: "R" })).toBe("A UF deve ter 2 letras (ex.: RS).");
     expect(validarEndereco({ estado: "RSX" })).toBe("A UF deve ter 2 letras (ex.: RS).");
+  });
+});
+
+describe("paraCamposAtualizacao", () => {
+  it("nunca envia o perfil no PUT (a troca tem rota própria)", () => {
+    const usuario: Usuario = {
+      id: "u1",
+      nome: "Ana",
+      email: "ana@teste.com",
+      cpf: "12345678901",
+      perfil: "ADMINISTRADOR",
+    };
+
+    expect(paraCamposAtualizacao(usuario)).not.toHaveProperty("perfil");
   });
 });
