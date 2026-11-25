@@ -64,28 +64,93 @@
   color: var(--color-white);
 }
 
+/* a grade de 30 min fica em blocos por turno; cada linha se ajusta ao espaço */
+.seletor-dia-horario__grade {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.seletor-dia-horario__turno-titulo {
+  margin: 0 0 0.45rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
 .seletor-dia-horario__horarios {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
   gap: 0.5rem;
 }
 
-/* cada horário é uma pílula, no mesmo estilo dos turnos de antes */
+/* cada horário é uma pílula compacta, no mesmo estilo dos turnos de antes */
 .seletor-dia-horario__horario {
   position: relative;
   border: 1px solid var(--color-primary);
   border-radius: 999px;
-  padding: 0.6rem 1.3rem;
+  padding: 0.55rem 0.5rem;
   background-color: var(--color-white);
   color: var(--color-primary);
   font-weight: 600;
   font-size: var(--font-size-small);
+  text-align: center;
   cursor: pointer;
+}
+
+.seletor-dia-horario__horario:hover:not(.seletor-dia-horario__horario--indisponivel) {
+  border-color: var(--color-accent);
 }
 
 .seletor-dia-horario__horario--ativo {
   background-color: var(--color-primary);
   color: var(--color-white);
+}
+
+/* horário que outro cliente já reservou: continua visível, mas não dá pra escolher */
+.seletor-dia-horario__horario--indisponivel {
+  border-color: var(--color-border-soft);
+  background-color: #f1f1f5;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.seletor-dia-horario__aviso {
+  margin: 0 0 0.75rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+/* modo administrador: data e hora livres, no mesmo padrão dos campos do formulário */
+.seletor-dia-horario__livre {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.seletor-dia-horario__livre label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--color-primary);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.seletor-dia-horario__livre input {
+  width: 100%;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+}
+
+.seletor-dia-horario__livre input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 /* foco do teclado nos radios escondidos aparece no dia ou na pílula */
@@ -108,4 +173,11 @@
   margin-top: 1rem;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
+}
+
+/* celular: data e hora livres em 1 coluna */
+@media (max-width: 640px) {
+  .seletor-dia-horario__livre {
+    grid-template-columns: 1fr;
+  }
 }

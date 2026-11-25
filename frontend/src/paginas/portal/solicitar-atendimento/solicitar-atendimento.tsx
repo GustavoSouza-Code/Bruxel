@@ -5,7 +5,7 @@ import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
 import { errosPorCampo, mensagemDeErro } from "../../../api/cliente";
-import { criarAtendimento } from "../../../api/atendimentos";
+import { criarAtendimento, listarHorariosOcupados } from "../../../api/atendimentos";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
 import { contatoDoUsuario, validarContato } from "../../../crud/atendimentos/contatoAtendimento";
@@ -13,7 +13,7 @@ import { DESCRICAO_MAX, validarSolicitacao } from "../../../crud/atendimentos/va
 import type { ErrosSolicitacao, RascunhoSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
 import { diasDaAgenda, formatarAgendamento } from "../../../crud/atendimentos/agenda";
 import { validarClienteDaLoja } from "../../../crud/atendimentos/clienteDaLoja";
-import type { ContatoAtendimento, HorarioVisita } from "../../../tipos/atendimento";
+import type { ContatoAtendimento } from "../../../tipos/atendimento";
 import type { Usuario } from "../../../tipos/usuario";
 import { usePerfil } from "../perfil/usePerfil";
 import { SeletorCliente } from "./componentes/SeletorCliente/SeletorCliente";
@@ -69,6 +69,11 @@ export function PaginaSolicitarAtendimento() {
   // dias da faixa (amanhã em diante, sem domingo): calculados na montagem (o render não pode chamar
   // new Date()) e de novo no envio, caso a página tenha ficado aberta de um dia pro outro
   const [dias, setDias] = useState(() => diasDaAgenda(new Date()));
+  // horários já reservados no dia escolhido (cliente); a grade os mostra indisponíveis
+  const [ocupados, setOcupados] = useState<string[]>([]);
+  const [carregandoOcupados, setCarregandoOcupados] = useState(false);
+  // qual dia pediu a última busca: uma resposta atrasada de outro dia não sobrescreve a atual
+  const diaOcupadoRef = useRef("");
   // trava contra duplo clique: um segundo submit enquanto o primeiro está indo não cria outro atendimento
   const enviandoRef = useRef(false);
   // true enquanto o POST está em andamento (o botão mostra "Enviando…")
@@ -112,10 +117,33 @@ export function PaginaSolicitarAtendimento() {
     limparErro(campo);
   }
 
-  // outro dia, outros horários: o horário escolhido antes é limpo
+  // busca os horários já reservados do dia escolhido (o admin não usa a grade)
+  async function carregarOcupados(dia: string) {
+    diaOcupadoRef.current = dia;
+    if (ehAdmin || !token || !dia) {
+      setOcupados([]);
+      setCarregandoOcupados(false);
+      return;
+    }
+
+    setCarregandoOcupados(true);
+    try {
+      const horarios = await listarHorariosOcupados(token, dia);
+      if (diaOcupadoRef.current === dia) setOcupados(horarios);
+    } catch {
+      // sem a lista, a grade continua livre; o backend recusa no envio se o horário já tiver sido reservado
+      if (diaOcupadoRef.current === dia) setOcupados([]);
+    } finally {
+      if (diaOcupadoRef.current === dia) setCarregandoOcupados(false);
+    }
+  }
+
+  // outro dia, outros horários: o horário escolhido antes é limpo (o admin pode manter o horário)
   function escolherDia(data: string) {
-    setRascunho((atual) => ({ ...atual, data, horario: null }));
+    setRascunho((atual) => ({ ...atual, data, ...(ehAdmin ? {} : { horario: null }) }));
     limparErro("data");
+    setOcupados([]);
+    void carregarOcupados(data);
   }
 
   function atualizarContato(campo: keyof ContatoAtendimento, valor: string) {
@@ -170,7 +198,7 @@ export function PaginaSolicitarAtendimento() {
     const hoje = new Date();
     const diasDeHoje = diasDaAgenda(hoje);
     let rascunhoAtual = rascunho;
-    if (diasDeHoje[0] !== dias[0]) {
+    if (!ehAdmin && diasDeHoje[0] !== dias[0]) {
       setDias(diasDeHoje);
       if (rascunhoAtual.data !== "" && !diasDeHoje.includes(rascunhoAtual.data)) {
         rascunhoAtual = { ...rascunhoAtual, data: "", horario: null };
@@ -178,7 +206,7 @@ export function PaginaSolicitarAtendimento() {
       }
     }
     const completo: RascunhoSolicitacao = { ...rascunhoAtual, contato };
-    const encontrados = validarSolicitacao(completo, hoje);
+    const encontrados = validarSolicitacao(completo, hoje, { horarioLivre: ehAdmin });
     // pela loja, o cliente também precisa estar escolhido
     const problemaCliente = ehAdmin ? validarClienteDaLoja(cliente) : null;
     setErroCliente(problemaCliente);
@@ -340,11 +368,16 @@ export function PaginaSolicitarAtendimento() {
                 dias={dias}
                 data={rascunho.data}
                 horario={rascunho.horario}
+                modo={ehAdmin ? "livre" : "cliente"}
+                ocupados={ocupados}
+                carregandoOcupados={carregandoOcupados}
                 onChangeData={escolherDia}
-                onChangeHorario={(horario: HorarioVisita) => atualizarCampo("horario", horario)}
+                onChangeHorario={(horario) => atualizarCampo("horario", horario)}
               />
               <p className="pagina-atendimento__dica">
-                A Bruxel confirma o horário e quem vai fazer a visita com você.
+                {ehAdmin
+                  ? "Você escolhe a data e o horário do atendimento."
+                  : "Horários já reservados ficam indisponíveis. A Bruxel confirma a visita com você."}
               </p>
               {erros.data && (
                 <p className="pagina-atendimento__erro" role="alert">

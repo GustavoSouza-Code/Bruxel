@@ -7,8 +7,25 @@
 /** Tipo de serviço escolhido no bloco 1 do formulário. */
 export type TipoServico = "limpeza" | "bomba-filtro" | "vazamento" | "instalacao" | "outro";
 
-/** Início de um bloco de visita de 2h na agenda do atendente. */
-export type HorarioVisita = "08:00" | "10:00" | "13:30" | "15:30";
+/** Início de uma visita na grade de 30 minutos da agenda do atendente. */
+export type HorarioVisita =
+  | "08:00"
+  | "08:30"
+  | "09:00"
+  | "09:30"
+  | "10:00"
+  | "10:30"
+  | "11:00"
+  | "11:30"
+  | "13:30"
+  | "14:00"
+  | "14:30"
+  | "15:00"
+  | "15:30"
+  | "16:00"
+  | "16:30"
+  | "17:00"
+  | "17:30";
 
 /** Situação do atendimento; também vira o sufixo da classe CSS da etiqueta de status. */
 export type StatusAtendimento =
@@ -100,6 +117,7 @@ export interface DadosSolicitacao {
   clienteId: string | null;
   /** "aaaa-mm-dd" */
   data: string;
-  horario: HorarioVisita;
+  /** "hh:mm"; pode ser qualquer horário quando quem abre é o admin */
+  horario: string;
   contato: ContatoAtendimento;
 }
