@@ -92,6 +92,10 @@ describe("validarContato", () => {
 });
 
 describe("formatarTelefoneDigitado", () => {
+  // uma tecla por vez, como no campo: cada tecla entra no fim do texto já formatado
+  const digitar = (teclas: string) =>
+    [...teclas].reduce((valor, tecla) => formatarTelefoneDigitado(valor + tecla), "");
+
   it("monta o celular de 11 dígitos com DDD", () => {
     expect(formatarTelefoneDigitado("51999990000")).toBe("(51) 99999-0000");
   });
@@ -106,6 +110,14 @@ describe("formatarTelefoneDigitado", () => {
 
   it("remove o +55 quando o número é colado inteiro", () => {
     expect(formatarTelefoneDigitado("+55 51 99999-0000")).toBe("(51) 99999-0000");
+  });
+
+  it("remove o 55 do país quando o número é digitado com o código", () => {
+    expect(digitar("+5551999990000")).toBe("(51) 99999-0000");
+  });
+
+  it("um dígito a mais não apaga o DDD 55", () => {
+    expect(digitar("559999900001")).toBe("(55) 99999-0000");
   });
 
   it("não passa de 11 dígitos", () => {

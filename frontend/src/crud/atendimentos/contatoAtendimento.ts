@@ -41,7 +41,9 @@ const somenteDigitos = (texto: string) => texto.replace(/\D/g, "");
  */
 export function formatarTelefoneDigitado(texto: string) {
   let digitos = somenteDigitos(texto);
-  if (digitos.length > 11 && digitos.startsWith("55")) digitos = digitos.slice(2);
+  // "(55) 9…" já formatado é o DDD 55 (Santa Maria) com uma tecla a mais, não o código do país
+  const dddEh55 = texto.startsWith("(55) 9");
+  if (digitos.length > 11 && digitos.startsWith("55") && !dddEh55) digitos = digitos.slice(2);
   digitos = digitos.slice(0, 11);
   if (!digitos) return "";
 

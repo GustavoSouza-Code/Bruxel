@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Cabecalho } from "../../../componentes/layout/Cabecalho/Cabecalho";
 import { Rodape } from "../../../componentes/layout/Rodape/Rodape";
 import { Container } from "../../../componentes/layout/Container/Container";
-import { errosPorCampo, mensagemDeErro } from "../../../api/cliente";
+import { ErroApi, errosPorCampo, mensagemDeErro } from "../../../api/cliente";
 import { criarAtendimento, listarHorariosOcupados } from "../../../api/atendimentos";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
@@ -248,6 +248,14 @@ export function PaginaSolicitarAtendimento() {
       });
       if (usuario_id) setErroCliente(usuario_id);
       setErroEnvio(mensagemDeErro(falha));
+      // alguém reservou antes: solta o horário e busca a grade de novo. Se a pessoa trocou de dia
+      // ou de horário enquanto o pedido ia, a escolha nova fica como está
+      if (!ehAdmin && data_hora && falha instanceof ErroApi && falha.status === 409) {
+        setRascunho((atual) =>
+          atual.data === completo.data && atual.horario === horario ? { ...atual, horario: null } : atual
+        );
+        if (diaOcupadoRef.current === completo.data) void carregarOcupados(completo.data);
+      }
       if (Object.keys(porCampo).length > 0) rolarAtePrimeiroErro();
       return;
     } finally {
