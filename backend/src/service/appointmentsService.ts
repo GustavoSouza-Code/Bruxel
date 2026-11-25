@@ -66,6 +66,15 @@ export class AppointmentsService {
         const dataHora = this.validarDataHora(corpo.data_hora);
         const tecnicoId = await this.validarTecnico(corpo.tecnico_id);
 
+        // o cliente só pede horários livres; o admin tem liberdade para encaixar qualquer horário
+        if (usuario.perfil !== "ADMINISTRADOR") {
+            const reservado = await this.appointmentsRepository.getConflitoNoHorario(dataHora);
+            if (reservado) {
+                const mensagem = "Esse horário já foi reservado. Escolha outro.";
+                throw new AppError(409, mensagem, [{ campo: "data_hora", mensagem }]);
+            }
+        }
+
         if (tecnicoId) {
             const conflito = await this.appointmentsRepository.getConflitoDeHorario(tecnicoId, dataHora);
             if (conflito) {
@@ -104,6 +113,14 @@ export class AppointmentsService {
 
         const atendimentos = await this.appointmentsRepository.getAllByUsuario(usuario.id, filtros);
         return atendimentos.map((atendimento) => this.respostaDoCliente(atendimento));
+    }
+
+    // horários já reservados num intervalo; a tela do cliente esconde esses horários
+    async listarHorariosOcupados(consulta: unknown) {
+        const { inicio, fim } = this.validarIntervalo(consulta);
+        const horarios = await this.appointmentsRepository.getHorariosOcupados(inicio, fim);
+
+        return { horarios: horarios.map((dataHora) => dataHora.toISOString()) };
     }
 
     // detalhe: o cliente só acessa a própria ordem
@@ -297,6 +314,36 @@ export class AppointmentsService {
             throw this.erroCampo("descricao", `A descrição pode ter até ${DESCRICAO_MAX} caracteres.`);
         }
         return descricao;
+    }
+
+    // intervalo em ISO usado para buscar os horários ocupados; no máximo um mês por consulta
+    private validarIntervalo(valor: unknown) {
+        const dados = this.validarCorpo(valor as object);
+        const { inicio, fim } = dados as Record<string, unknown>;
+
+        const converter = (instante: unknown, campo: string) => {
+            if (typeof instante !== "string" || instante.trim() === "") {
+                throw this.erroCampo(campo, "Informe o intervalo de horários.");
+            }
+
+            const data = new Date(instante);
+            if (Number.isNaN(data.getTime())) {
+                throw this.erroCampo(campo, "Intervalo de horários inválido.");
+            }
+            return data;
+        };
+
+        const inicioData = converter(inicio, "inicio");
+        const fimData = converter(fim, "fim");
+
+        if (fimData <= inicioData) {
+            throw this.erroCampo("fim", "O fim do intervalo precisa ser depois do início.");
+        }
+        if (fimData.getTime() - inicioData.getTime() > 31 * 24 * 60 * 60 * 1000) {
+            throw this.erroCampo("fim", "Consulte no máximo 31 dias por vez.");
+        }
+
+        return { inicio: inicioData, fim: fimData };
     }
 
     private validarDataHora(valor: unknown): Date {

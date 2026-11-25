@@ -42,6 +42,14 @@ export function atualizarUsuario(token: string, id: string, campos: CamposAtuali
 }
 
 /**
+ * Troca o perfil de outro usuário (PATCH /users/:id/perfil). Só administrador;
+ * o backend recusa alterar a própria conta e rebaixar o último admin.
+ */
+export function alterarPerfil(token: string, id: string, perfil: Usuario["perfil"]) {
+  return requisicao<Usuario>(`/users/${id}/perfil`, { metodo: "PATCH", corpo: { perfil }, token });
+}
+
+/**
  * Troca a senha da própria conta (PUT /users/:id). O backend confere a senha
  * atual e responde 400 "Senha atual incorreta." se ela não bater.
  */

@@ -59,8 +59,16 @@ function cidadeUf(usuario: Usuario) {
  * cuida da tela.
  */
 export function PaginaAdminUsuarios() {
-  const { usuarios, carregando, erro, recarregar, criarUsuario, atualizarUsuario, excluirUsuario } =
-    useUsuarios();
+  const {
+    usuarios,
+    carregando,
+    erro,
+    recarregar,
+    criarUsuario,
+    atualizarUsuario,
+    alterarPerfil,
+    excluirUsuario,
+  } = useUsuarios();
   // admin logado: a conta dele não pode ser excluída
   const { usuario: usuarioLogado } = useAutenticacao();
   const { avisar } = useAvisos();
@@ -109,8 +117,13 @@ export function PaginaAdminUsuarios() {
   }
 
   // se a API recusar, o erro sobe pro FormularioEdicaoUsuario, que mostra a mensagem e deixa o modal aberto
-  async function saveEdit(campos: CamposAtualizacaoUsuario) {
-    if (!editingId) return;
+  async function saveEdit(campos: CamposAtualizacaoUsuario, perfil: Usuario["perfil"]) {
+    if (!editingId || !editingUser) return;
+
+    // o perfil tem rota própria; só chama quando realmente mudou
+    if (perfil !== editingUser.perfil) {
+      await alterarPerfil(editingId, perfil);
+    }
     await atualizarUsuario(editingId, campos);
     setEditingId(null);
     avisar({ tipo: "sucesso", mensagem: "Usuário salvo." });
@@ -360,6 +373,7 @@ export function PaginaAdminUsuarios() {
           <FormularioEdicaoUsuario
             key={editingUser.id}
             usuario={editingUser}
+            podeAlterarPerfil={editingUser.id !== usuarioLogado?.id}
             onSalvar={saveEdit}
             onCancelar={() => setEditingId(null)}
           />

@@ -91,6 +91,31 @@ export class AppointmentsRepository {
         });
     }
 
+    // horário já reservado por qualquer atendimento ativo (o cliente não escolhe de novo)
+    async getConflitoNoHorario(dataHora: Date) {
+        return prisma.appointments.findFirst({
+            where: {
+                data_hora: dataHora,
+                status: { notIn: STATUS_LIVRES },
+            },
+            select: { id: true },
+        });
+    }
+
+    // horários ativos de um intervalo, usados para esconder os já reservados na tela
+    async getHorariosOcupados(inicio: Date, fim: Date) {
+        const registros = await prisma.appointments.findMany({
+            where: {
+                data_hora: { gte: inicio, lt: fim },
+                status: { notIn: STATUS_LIVRES },
+            },
+            select: { data_hora: true },
+            orderBy: { data_hora: "asc" },
+        });
+
+        return registros.map((registro) => registro.data_hora);
+    }
+
     async updateStatus(id: string, status: status_agendamento, mensagemCliente?: string | null) {
         return prisma.appointments.update({
             where: { id },

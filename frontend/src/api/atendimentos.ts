@@ -191,6 +191,28 @@ export async function criarAtendimento(token: string, dados: DadosSolicitacao): 
   return paraAtendimento(criado);
 }
 
+/**
+ * Horários já reservados num dia (a tela do cliente esconde esses horários).
+ * A faixa do dia é montada no fuso local de quem está usando.
+ */
+export async function listarHorariosOcupados(token: string, data: string): Promise<string[]> {
+  const [ano, mes, dia] = data.split("-").map(Number);
+  const inicio = new Date(ano, mes - 1, dia);
+  const fim = new Date(ano, mes - 1, dia + 1);
+  const consulta = new URLSearchParams({
+    inicio: inicio.toISOString(),
+    fim: fim.toISOString(),
+  });
+
+  const resposta = await requisicao<{ horarios: string[] }>(
+    `/appointments/horarios-ocupados?${consulta.toString()}`,
+    { token }
+  );
+
+  // cada instante volta em ISO; a tela trabalha com "hh:mm" local
+  return [...new Set(resposta.horarios.map((instante) => paraHorario(new Date(instante))))];
+}
+
 /** Envia a foto do problema (multipart, campo "imagem") e devolve a URL gerada. */
 export async function enviarImagemAtendimento(token: string, arquivo: Blob, nomeArquivo: string): Promise<string> {
   const formulario = new FormData();

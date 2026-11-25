@@ -20,7 +20,8 @@
   min-width: 0;
 }
 
-.formulario-edicao-usuario input {
+.formulario-edicao-usuario input,
+.formulario-edicao-usuario select {
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   padding: 0.6rem 0.8rem;
@@ -30,13 +31,21 @@
   min-width: 0;
 }
 
-.formulario-edicao-usuario input:focus {
+.formulario-edicao-usuario input:focus,
+.formulario-edicao-usuario select:focus {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-.formulario-edicao-usuario input:disabled {
+.formulario-edicao-usuario input:disabled,
+.formulario-edicao-usuario select:disabled {
   background-color: #f7f7fa;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.formulario-edicao-usuario__ajuda {
+  font-weight: 400;
   color: var(--color-text-muted);
 }
 

@@ -1,9 +1,30 @@
 import type { HorarioVisita } from "../../tipos/atendimento";
 import { formatarData, paraDataIso } from "./datasAtendimento";
 
-// blocos de 2h dentro do horário de funcionamento (o mesmo do rodapé)
-const HORARIOS_SEMANA: HorarioVisita[] = ["08:00", "10:00", "13:30", "15:30"];
-const HORARIOS_SABADO: HorarioVisita[] = ["08:00", "10:00"];
+// grade de 30 min dentro do horário de funcionamento (o mesmo do rodapé):
+// manhã 08:00–11:30 e tarde 13:30–17:30; no sábado só a manhã
+const HORARIOS_MANHA: HorarioVisita[] = [
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+];
+const HORARIOS_TARDE: HorarioVisita[] = [
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+];
+const HORARIOS_SEMANA: HorarioVisita[] = [...HORARIOS_MANHA, ...HORARIOS_TARDE];
 
 // abreviação de cada dia da semana; a posição é o número do Date.getDay() (0 = domingo)
 const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -25,11 +46,28 @@ export function diasDaAgenda(hoje: Date, quantidade = 14): string[] {
   return dias;
 }
 
-/** Horários de visita de um dia: 4 de segunda a sexta, 2 no sábado e nenhum no domingo. */
+/** Horários de visita de um dia: a grade de 30 min de segunda a sexta, só a manhã no sábado e nenhum no domingo. */
 export function horariosDoDia(data: string): HorarioVisita[] {
   const diaSemana = diaDaSemana(data);
   if (diaSemana === 0) return [];
-  return diaSemana === 6 ? HORARIOS_SABADO : HORARIOS_SEMANA;
+  return diaSemana === 6 ? HORARIOS_MANHA : HORARIOS_SEMANA;
+}
+
+/** Turno de um horário, pra separar a grade em "Manhã" e "Tarde" na tela. */
+export function periodoDoHorario(horario: string): "manha" | "tarde" {
+  return Number(horario.split(":")[0]) < 12 ? "manha" : "tarde";
+}
+
+/** Os horários do dia separados por turno (o da tarde fica vazio no sábado). */
+export function horariosPorTurno(data: string) {
+  const manha: HorarioVisita[] = [];
+  const tarde: HorarioVisita[] = [];
+
+  for (const horario of horariosDoDia(data)) {
+    (periodoDoHorario(horario) === "manha" ? manha : tarde).push(horario);
+  }
+
+  return { manha, tarde };
 }
 
 /** "21/10/2026 às 13:30 com Carlos"; sem técnico definido, só "21/10/2026 às 13:30". */

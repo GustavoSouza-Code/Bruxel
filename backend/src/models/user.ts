@@ -47,6 +47,11 @@ export interface UpdateUserDTO {
     cep?: string | null;
 }
 
+// entrada da troca de perfil (somente administrador)
+export interface UpdatePerfilDTO {
+    perfil: perfil_usuario;
+}
+
 // entrada do login
 export interface LoginDTO {
     email: string;

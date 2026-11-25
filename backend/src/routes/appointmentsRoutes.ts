@@ -13,6 +13,8 @@ router.post("/appointments", verificaToken, appointmentsController.create);
 router.post("/appointments/images", verificaToken, receberImagemAtendimento, appointmentsController.uploadImage);
 router.put("/appointments/:id/imagem", verificaToken, receberImagemAtendimento, appointmentsController.replaceImage);
 router.get("/appointments", verificaToken, appointmentsController.getAll);
+// precisa vir antes de "/appointments/:id", senão "horarios-ocupados" vira um id
+router.get("/appointments/horarios-ocupados", verificaToken, appointmentsController.getHorariosOcupados);
 router.get("/appointments/:id", verificaToken, appointmentsController.getById);
 router.patch("/appointments/:id/status", verificaToken, verificaAdmin, appointmentsController.updateStatus);
 router.put("/appointments/:id/os", verificaToken, verificaAdmin, appointmentsController.updateOs);

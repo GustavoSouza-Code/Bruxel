@@ -1,4 +1,4 @@
-import { CreateUserDTO, UpdateUserDTO } from "../models/user";
+import { CreateUserDTO, UpdatePerfilDTO, UpdateUserDTO } from "../models/user";
 import { UserRepository } from "../repository/userRepository";
 import { RegraValidacao, validarCamposObrigatorios } from "../utils/validaObrigatorios";
 import { AppError } from "../errors/AppError";
@@ -134,6 +134,33 @@ export class UserService {
         }
 
         return this.userRepository.update(id, dados);
+    }
+
+    // troca de perfil: não altera a própria conta nem deixa o sistema sem administrador
+    async alterarPerfil(id: string, dados: UpdatePerfilDTO, solicitanteId: string) {
+        const corpo = (dados ?? {}) as UpdatePerfilDTO;
+        if (corpo.perfil !== "CLIENTE" && corpo.perfil !== "ADMINISTRADOR") {
+            throw this.erroCampo("perfil", "Informe um perfil válido.");
+        }
+
+        // rebaixar a si mesmo tiraria o próprio acesso ao painel no meio da sessão
+        if (id === solicitanteId) {
+            throw new AppError(400, "Você não pode alterar o próprio perfil.");
+        }
+
+        const usuario = await this.getById(id);
+        if (usuario.perfil === corpo.perfil) {
+            return usuario;
+        }
+
+        if (usuario.perfil === "ADMINISTRADOR") {
+            const totalAdmins = await this.userRepository.countAdmins();
+            if (totalAdmins <= 1) {
+                throw new AppError(409, "Não é possível rebaixar o último administrador.");
+            }
+        }
+
+        return this.userRepository.updatePerfil(id, corpo.perfil);
     }
 
     // exclusão: bloqueia a própria conta e a saída do último administrador

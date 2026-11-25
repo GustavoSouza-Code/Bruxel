@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diasDaAgenda, formatarAgendamento, formatarDiaCurto, horariosDoDia, partesDoDia } from "./agenda";
+import { diasDaAgenda, formatarAgendamento, formatarDiaCurto, horariosDoDia, horariosPorTurno, partesDoDia } from "./agenda";
 
 // 12/10/2026, uma segunda-feira (no Date o mês começa em 0)
 const HOJE = new Date(2026, 9, 12);
@@ -31,16 +31,58 @@ describe("diasDaAgenda", () => {
 });
 
 describe("horariosDoDia", () => {
-  it("segunda a sexta tem 4 horários", () => {
-    expect(horariosDoDia("2026-10-13")).toEqual(["08:00", "10:00", "13:30", "15:30"]);
+  it("segunda a sexta tem a grade de 30 min de manhã e à tarde", () => {
+    expect(horariosDoDia("2026-10-13")).toEqual([
+      "08:00",
+      "08:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "13:30",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+    ]);
   });
 
-  it("sábado só tem os da manhã", () => {
-    expect(horariosDoDia("2026-10-17")).toEqual(["08:00", "10:00"]);
+  it("sábado só tem a manhã", () => {
+    expect(horariosDoDia("2026-10-17")).toEqual([
+      "08:00",
+      "08:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+    ]);
   });
 
   it("domingo não tem nenhum", () => {
     expect(horariosDoDia("2026-10-18")).toEqual([]);
+  });
+});
+
+describe("horariosPorTurno", () => {
+  it("separa a grade da semana em manhã e tarde", () => {
+    const turnos = horariosPorTurno("2026-10-13");
+    expect(turnos.manha).toHaveLength(8);
+    expect(turnos.manha[0]).toBe("08:00");
+    expect(turnos.tarde).toHaveLength(9);
+    expect(turnos.tarde[0]).toBe("13:30");
+    expect(turnos.tarde[turnos.tarde.length - 1]).toBe("17:30");
+  });
+
+  it("no sábado a tarde fica vazia", () => {
+    expect(horariosPorTurno("2026-10-17").tarde).toEqual([]);
   });
 });
 

@@ -61,6 +61,16 @@ export class AppointmentsController {
         }
     };
 
+    // horários já reservados num intervalo (a tela do cliente esconde esses horários)
+    getHorariosOcupados = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const result = await this.appointmentsService.listarHorariosOcupados(req.query);
+            return res.status(200).json(result);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     // detalhe de uma ordem
     getById = async (req: Request, res: Response, next: NextFunction) => {
         try {
