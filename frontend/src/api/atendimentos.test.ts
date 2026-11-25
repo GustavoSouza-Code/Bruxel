@@ -188,7 +188,8 @@ describe("listarHorariosOcupados", () => {
   });
 });
 
-describe("enviarImagemAtendimento", () => {  afterEach(() => {
+describe("enviarImagemAtendimento", () => {
+  afterEach(() => {
     vi.unstubAllGlobals();
   });
 

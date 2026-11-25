@@ -162,7 +162,7 @@ export function SeletorDiaHorario({
                             value={opcao}
                             checked={ativo}
                             onChange={() => onChangeHorario(opcao)}
-                            disabled={reservado}
+                            disabled={reservado || carregandoOcupados}
                             className="seletor-dia-horario__radio"
                             aria-label={reservado ? `${opcao} (reservado)` : opcao}
                           />

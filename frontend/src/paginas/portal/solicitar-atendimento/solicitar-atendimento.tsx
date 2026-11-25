@@ -413,7 +413,7 @@ export function PaginaSolicitarAtendimento() {
                       onChange={(e) =>
                         atualizarContato("telefone", formatarTelefoneDigitado(e.target.value))
                       }
-                      maxLength={15}
+                      maxLength={20}
                       aria-invalid={Boolean(erros.telefone)}
                     />
                     {erros.telefone && (
