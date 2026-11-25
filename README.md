@@ -15,9 +15,15 @@ Backend em TypeScript com Express, PostgreSQL via Prisma ORM, autenticação com
 ```
 backend/    API REST
 frontend/   Portal do cliente e painel administrativo
+deploy/     Scripts de deploy, backup e verificação do volume de imagens
+docs/       Documentação do projeto
 ```
 
-Cada pasta tem seu próprio `package.json` e roda de forma independente.
+Cada pasta de código tem seu próprio `package.json` e roda de forma independente.
+
+## Documentação
+
+A documentação final fica em [`docs/`](docs/README.md): [PRD](docs/01-prd.md), [requisitos](docs/02-requisitos.md), [modelagem de dados](docs/03-modelagem-de-dados.md), [casos de uso e fluxos](docs/04-casos-de-uso-e-fluxos.md), [referência da API](docs/05-api.md) e [arquitetura e implantação](docs/06-arquitetura-e-implantacao.md).
 
 ## Como rodar o projeto
 
