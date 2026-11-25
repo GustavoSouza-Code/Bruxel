@@ -181,7 +181,7 @@ describe("listarHorariosOcupados", () => {
 
     expect(horarios).toEqual(["08:30", "13:30"]);
     const [endereco] = vi.mocked(fetch).mock.calls[0];
-    const url = new URL(String(endereco));
+    const url = new URL(String(endereco), "http://localhost");
     expect(url.pathname.endsWith("/appointments/horarios-ocupados")).toBe(true);
     expect(url.searchParams.get("inicio")).toBe(new Date(2026, 9, 20).toISOString());
     expect(url.searchParams.get("fim")).toBe(new Date(2026, 9, 21).toISOString());
