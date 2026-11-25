@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Usuario } from "../../tipos/usuario";
 import type { ContatoAtendimento } from "../../tipos/atendimento";
-import { CONTATO_VAZIO, contatoDoUsuario, validarContato } from "./contatoAtendimento";
+import { CONTATO_VAZIO, contatoDoUsuario, formatarTelefoneDigitado, validarContato } from "./contatoAtendimento";
 
 const CONTATO_OK: ContatoAtendimento = {
   telefone: "51999990000",
@@ -90,3 +90,40 @@ describe("validarContato", () => {
     });
   });
 });
+
+describe("formatarTelefoneDigitado", () => {
+  it("monta o celular de 11 dígitos com DDD", () => {
+    expect(formatarTelefoneDigitado("51999990000")).toBe("(51) 99999-0000");
+  });
+
+  it("monta o fixo de 10 dígitos com DDD", () => {
+    expect(formatarTelefoneDigitado("5137140000")).toBe("(51) 3714-0000");
+  });
+
+  it("descarta caracteres que não são dígitos", () => {
+    expect(formatarTelefoneDigitado("(51) 99999-0000")).toBe("(51) 99999-0000");
+  });
+
+  it("remove o +55 quando o número é colado inteiro", () => {
+    expect(formatarTelefoneDigitado("+55 51 99999-0000")).toBe("(51) 99999-0000");
+  });
+
+  it("não passa de 11 dígitos", () => {
+    expect(formatarTelefoneDigitado("519999900009999")).toBe("(51) 99999-0000");
+  });
+
+  it("formata conforme a digitação avança", () => {
+    expect(formatarTelefoneDigitado("5")).toBe("(5");
+    expect(formatarTelefoneDigitado("51")).toBe("(51");
+    expect(formatarTelefoneDigitado("519")).toBe("(51) 9");
+    expect(formatarTelefoneDigitado("519999")).toBe("(51) 9999");
+    expect(formatarTelefoneDigitado("5199999")).toBe("(51) 9999-9");
+    expect(formatarTelefoneDigitado("5199999000")).toBe("(51) 9999-9000");
+  });
+
+  it("apagar o campo volta para vazio e letras não viram número", () => {
+    expect(formatarTelefoneDigitado("")).toBe("");
+    expect(formatarTelefoneDigitado("abc")).toBe("");
+  });
+});
+

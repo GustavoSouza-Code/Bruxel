@@ -8,7 +8,11 @@ import { errosPorCampo, mensagemDeErro } from "../../../api/cliente";
 import { criarAtendimento, listarHorariosOcupados } from "../../../api/atendimentos";
 import { useAutenticacao } from "../../../contexto/useAutenticacao";
 import { CAMPOS_ENDERECO, formatarEndereco } from "../../../crud/usuarios/camposUsuario";
-import { contatoDoUsuario, validarContato } from "../../../crud/atendimentos/contatoAtendimento";
+import {
+  contatoDoUsuario,
+  formatarTelefoneDigitado,
+  validarContato,
+} from "../../../crud/atendimentos/contatoAtendimento";
 import { DESCRICAO_MAX, validarSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
 import type { ErrosSolicitacao, RascunhoSolicitacao } from "../../../crud/atendimentos/validarSolicitacao";
 import { diasDaAgenda, formatarAgendamento } from "../../../crud/atendimentos/agenda";
@@ -406,8 +410,10 @@ export function PaginaSolicitarAtendimento() {
                       type="tel"
                       placeholder="(51) 99999-0000"
                       value={contato.telefone}
-                      onChange={(e) => atualizarContato("telefone", e.target.value)}
-                      maxLength={20}
+                      onChange={(e) =>
+                        atualizarContato("telefone", formatarTelefoneDigitado(e.target.value))
+                      }
+                      maxLength={15}
                       aria-invalid={Boolean(erros.telefone)}
                     />
                     {erros.telefone && (

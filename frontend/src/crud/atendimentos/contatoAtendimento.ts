@@ -34,6 +34,26 @@ export function contatoDoUsuario(usuario: Usuario | null): ContatoAtendimento {
 
 const somenteDigitos = (texto: string) => texto.replace(/\D/g, "");
 
+/**
+ * Máscara do telefone enquanto a pessoa digita: mantém só os dígitos, descarta
+ * um "+55" colado na frente e para em 11 dígitos (DDD + número). O resultado sai
+ * no padrão brasileiro, ex.: "51999990000" → "(51) 99999-0000".
+ */
+export function formatarTelefoneDigitado(texto: string) {
+  let digitos = somenteDigitos(texto);
+  if (digitos.length > 11 && digitos.startsWith("55")) digitos = digitos.slice(2);
+  digitos = digitos.slice(0, 11);
+  if (!digitos) return "";
+
+  const ddd = digitos.slice(0, 2);
+  const numero = digitos.slice(2);
+  if (digitos.length <= 2) return `(${ddd}`;
+  if (!numero) return `(${ddd})`;
+  if (numero.length <= 4) return `(${ddd}) ${numero}`;
+  if (numero.length <= 8) return `(${ddd}) ${numero.slice(0, 4)}-${numero.slice(4)}`;
+  return `(${ddd}) ${numero.slice(0, 5)}-${numero.slice(5)}`;
+}
+
 // dígitos do telefone sem o código do país: "+55 51 99999-0000" colado vira "51999990000"
 function digitosTelefone(telefone: string) {
   const digitos = somenteDigitos(telefone);
