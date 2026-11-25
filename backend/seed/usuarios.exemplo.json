@@ -1,0 +1,22 @@
+[
+  {
+    "nome": "Nome Completo do Cliente",
+    "email": "cliente@exemplo.com",
+    "senha": "TroqueEstaSenha123",
+    "cpf": "00000000000",
+    "telefone": "51999999999",
+    "rua": "Rua Exemplo",
+    "numero": "100",
+    "bairro": "Centro",
+    "cidade": "Lajeado",
+    "estado": "RS",
+    "cep": "95900000",
+    "perfil": "CLIENTE"
+  },
+  {
+    "nome": "Nome do Administrador",
+    "email": "admin@exemplo.com",
+    "cpf": "00000000001",
+    "perfil": "ADMINISTRADOR"
+  }
+]
