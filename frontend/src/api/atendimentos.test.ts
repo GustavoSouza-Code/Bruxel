@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   enviarImagemAtendimento,
+  listarHorariosOcupados,
   paraAtendimento,
   paraCorpoAtendimento,
   type AtendimentoApi,
@@ -154,8 +155,40 @@ describe("paraCorpoAtendimento", () => {
   });
 });
 
-describe("enviarImagemAtendimento", () => {
+describe("listarHorariosOcupados", () => {
   afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("busca o dia no fuso local e devolve hh:mm sem repetir", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            horarios: [
+              new Date(2026, 9, 20, 8, 30).toISOString(),
+              new Date(2026, 9, 20, 8, 30).toISOString(),
+              new Date(2026, 9, 20, 13, 30).toISOString(),
+            ],
+          }),
+      })
+    );
+
+    const horarios = await listarHorariosOcupados("t", "2026-10-20");
+
+    expect(horarios).toEqual(["08:30", "13:30"]);
+    const [endereco] = vi.mocked(fetch).mock.calls[0];
+    const url = new URL(String(endereco));
+    expect(url.pathname.endsWith("/appointments/horarios-ocupados")).toBe(true);
+    expect(url.searchParams.get("inicio")).toBe(new Date(2026, 9, 20).toISOString());
+    expect(url.searchParams.get("fim")).toBe(new Date(2026, 9, 21).toISOString());
+  });
+});
+
+describe("enviarImagemAtendimento", () => {  afterEach(() => {
     vi.unstubAllGlobals();
   });
 

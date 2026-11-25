@@ -64,10 +64,45 @@ describe("validarSolicitacao", () => {
   });
 
   it("horário que o dia não oferece é recusado", () => {
-    // 24/10 é sábado: só tem 08:00 e 10:00
+    // 24/10 é sábado: só tem horários de manhã
     expect(
       validarSolicitacao(rascunho({ data: "2026-10-24", horario: "15:30" }), HOJE).horario
     ).toBe("Escolha um horário da lista.");
+  });
+
+  it("aceita a grade de 30 min de segunda a sexta", () => {
+    expect(validarSolicitacao(rascunho({ horario: "08:30" }), HOJE).horario).toBeUndefined();
+    expect(validarSolicitacao(rascunho({ horario: "17:30" }), HOJE).horario).toBeUndefined();
+  });
+
+  it("no sábado aceita 11:30 e recusa 12:00", () => {
+    expect(
+      validarSolicitacao(rascunho({ data: "2026-10-24", horario: "11:30" }), HOJE).horario
+    ).toBeUndefined();
+    expect(
+      validarSolicitacao(rascunho({ data: "2026-10-24", horario: "12:00" }), HOJE).horario
+    ).toBe("Escolha um horário da lista.");
+  });
+
+  it("modo livre do admin aceita qualquer data e horário", () => {
+    const livre = { horarioLivre: true };
+    expect(
+      validarSolicitacao(rascunho({ data: "2026-12-25", horario: "09:15" }), HOJE, livre)
+    ).toEqual({});
+    // hoje e fora da grade continuam valendo
+    expect(
+      validarSolicitacao(rascunho({ data: "2026-10-12", horario: "07:05" }), HOJE, livre).data
+    ).toBeUndefined();
+  });
+
+  it("modo livre ainda recusa data ou horário inválido", () => {
+    const livre = { horarioLivre: true };
+    expect(validarSolicitacao(rascunho({ data: "2026-02-30" }), HOJE, livre).data).toBe(
+      "Informe uma data válida."
+    );
+    expect(validarSolicitacao(rascunho({ horario: "25:00" }), HOJE, livre).horario).toBe(
+      "Informe um horário válido (hh:mm)."
+    );
   });
 
   it("link de foto inválido aparece no campo da foto", () => {
