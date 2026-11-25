@@ -1,0 +1,263 @@
+[
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "cloro-granulado-10kg",
+    "nome": "Cloro Granulado Estabilizado 10 kg",
+    "descricao": "Cloro granulado de dissolução rápida para tratamento e choque da água. Indicado para piscinas de alvenaria, vinil e fibra. Balde de 10 kg.",
+    "preco": "289.90",
+    "estoque": 18,
+    "imagem_busca": "pool chlorine granules"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "cloro-pastilha-200g-5kg",
+    "nome": "Cloro em Pastilhas 200 g (5 kg)",
+    "descricao": "Pastilhas de cloro de dissolução lenta para uso em dosador flutuante ou skimmer. Mantém o cloro residual por vários dias. Balde de 5 kg.",
+    "preco": "249.90",
+    "estoque": 22,
+    "imagem_busca": "chlorine tablets swimming pool"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "algicida-manutencao-1l",
+    "nome": "Algicida de Manutenção 1 L",
+    "descricao": "Previne o surgimento de algas e mantém as paredes e o fundo livres de manchas esverdeadas. Aplicação semanal, sem formar espuma.",
+    "preco": "34.90",
+    "estoque": 40,
+    "imagem_busca": "pool algaecide bottle"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "clarificante-1l",
+    "nome": "Clarificante Líquido 1 L",
+    "descricao": "Agrupa as partículas em suspensão para que o filtro as retenha, deixando a água cristalina. Ideal para água turva.",
+    "preco": "29.90",
+    "estoque": 35,
+    "imagem_busca": "swimming pool water clear blue"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "floculante-decantador-2kg",
+    "nome": "Floculante Decantador 2 kg",
+    "descricao": "Decanta a sujeira para o fundo da piscina para ser retirada com aspirador. Indicado para água muito turva ou após festas.",
+    "preco": "44.90",
+    "estoque": 20,
+    "imagem_busca": "pool flocculant"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "redutor-ph-2kg",
+    "nome": "Redutor de pH 2 kg",
+    "descricao": "Reduz o pH quando está acima de 7,6, evitando ardência nos olhos e na pele e aumentando a eficácia do cloro.",
+    "preco": "42.90",
+    "estoque": 25,
+    "imagem_busca": "pool chemicals ph"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "elevador-alcalinidade-2kg",
+    "nome": "Elevador de Alcalinidade e pH 2 kg",
+    "descricao": "Eleva a alcalinidade total e estabiliza o pH, evitando variações bruscas e corrosão de metais e equipamentos.",
+    "preco": "39.90",
+    "estoque": 16,
+    "imagem_busca": "pool chemicals bucket"
+  },
+  {
+    "categoria": "Tratamento da água",
+    "codigo": "kit-teste-cloro-ph",
+    "nome": "Kit Teste de Cloro e pH",
+    "descricao": "Kit com reagentes e cubeta para medir cloro livre e pH da água. Resultado por comparação de cor, para uso semanal.",
+    "preco": "59.90",
+    "estoque": 30,
+    "imagem_busca": "pool water test kit"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "peneira-fina-cabo-curto",
+    "nome": "Peneira de Superfície com Rede Fina",
+    "descricao": "Rede fina para retirar folhas, insetos e partículas da superfície. Armação de plástico reforçado com encaixe para cabo telescópico.",
+    "preco": "39.90",
+    "estoque": 28,
+    "imagem_busca": "pool skimmer net leaf"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "cabo-telescopico-4-8m",
+    "nome": "Cabo Telescópico de Alumínio 4,8 m",
+    "descricao": "Cabo em alumínio com regulagem de comprimento até 4,8 m. Compatível com peneiras, escovas e aspiradores de encaixe universal.",
+    "preco": "119.90",
+    "estoque": 14,
+    "imagem_busca": "pool telescopic pole"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "escova-parede-45cm",
+    "nome": "Escova de Parede e Fundo 45 cm",
+    "descricao": "Escova de cerdas firmes para soltar algas e sujeira das paredes e do fundo. Encaixe universal para cabo telescópico.",
+    "preco": "54.90",
+    "estoque": 24,
+    "imagem_busca": "pool brush wall"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "aspirador-manual-cabeca",
+    "nome": "Aspirador Manual de Piscina com Rodízios",
+    "descricao": "Cabeça de aspiração com escovas laterais e rodízios para aspirar o fundo. Conecta à mangueira e ao cabo telescópico.",
+    "preco": "89.90",
+    "estoque": 17,
+    "imagem_busca": "pool vacuum head"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "mangueira-flutuante-7-5m",
+    "nome": "Mangueira Flutuante 7,5 m",
+    "descricao": "Mangueira flexível e flutuante de 38 mm com conexões para aspiração. Indicada para piscinas de até 7 metros.",
+    "preco": "149.90",
+    "estoque": 12,
+    "imagem_busca": "pool hose"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "kit-limpeza-3-em-1",
+    "nome": "Kit Limpeza 3 em 1 (Peneira, Escova e Cabo)",
+    "descricao": "Kit básico para manutenção semanal com peneira, escova e cabo telescópico. Tudo o que é necessário para começar a cuidar da piscina.",
+    "preco": "159.90",
+    "estoque": 15,
+    "imagem_busca": "pool cleaning kit"
+  },
+  {
+    "categoria": "Limpeza da Piscina",
+    "codigo": "aspirador-automatico-robo",
+    "nome": "Aspirador Automático para Piscina",
+    "descricao": "Robô de limpeza que aspira fundo e paredes sem intervenção. Cobre piscinas de até 10 metros e possui filtro lavável.",
+    "preco": "1899.00",
+    "estoque": 4,
+    "imagem_busca": "robotic pool cleaner"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "filtro-areia-6m3",
+    "nome": "Filtro de Areia 6 m³/h",
+    "descricao": "Filtro com tanque em fibra e válvula seletora de 6 vias. Atende piscinas de até 30 mil litros. Vendido sem a areia filtrante.",
+    "preco": "1290.00",
+    "estoque": 6,
+    "imagem_busca": "pool sand filter"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "areia-filtrante-25kg",
+    "nome": "Areia Filtrante para Piscina 25 kg",
+    "descricao": "Areia de quartzo selecionada, granulometria própria para filtros de piscina. Saco de 25 kg.",
+    "preco": "39.90",
+    "estoque": 50,
+    "imagem_busca": "filter sand bag"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "moto-bomba-1-2cv",
+    "nome": "Moto Bomba 1/2 cv com Pré-Filtro",
+    "descricao": "Moto bomba autoescorvante de 1/2 cv com pré-filtro integrado. Indicada para piscinas de até 40 mil litros.",
+    "preco": "899.00",
+    "estoque": 8,
+    "imagem_busca": "swimming pool pump"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "moto-bomba-1-3cv",
+    "nome": "Moto Bomba 1/3 cv com Pré-Filtro",
+    "descricao": "Moto bomba de 1/3 cv, silenciosa e econômica, para piscinas pequenas e médias de até 25 mil litros.",
+    "preco": "689.00",
+    "estoque": 9,
+    "imagem_busca": "pool pump motor"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "cartucho-refil-filtro",
+    "nome": "Cartucho Refil para Filtro de Piscina",
+    "descricao": "Cartucho de reposição em poliéster pregueado para filtros de cartucho. Lavável e reutilizável.",
+    "preco": "129.90",
+    "estoque": 20,
+    "imagem_busca": "pool filter cartridge"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "dispositivo-retorno-jato",
+    "nome": "Dispositivo de Retorno (Jato) para Piscina",
+    "descricao": "Dispositivo de retorno direcionável para circulação da água. Para piscinas de alvenaria, instalação com rosca de 1.1/2 pol.",
+    "preco": "24.90",
+    "estoque": 45,
+    "imagem_busca": "pool return jet fitting"
+  },
+  {
+    "categoria": "Filtração e circulação",
+    "codigo": "skimmer-embutir",
+    "nome": "Skimmer de Embutir",
+    "descricao": "Skimmer de ABS com cesto removível para captação de sujeira da superfície e conexão à bomba.",
+    "preco": "219.90",
+    "estoque": 7,
+    "imagem_busca": "pool skimmer"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "boia-circular-inflavel-90cm",
+    "nome": "Boia Circular Inflável 90 cm",
+    "descricao": "Boia de vinil resistente com válvula de segurança e 90 cm de diâmetro. Para crianças acima de 3 anos, com supervisão.",
+    "preco": "34.90",
+    "estoque": 33,
+    "imagem_busca": "inflatable pool float ring"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "boia-colchao-inflavel",
+    "nome": "Colchão Inflável para Piscina",
+    "descricao": "Colchão inflável de vinil reforçado com apoio para a cabeça e porta-copos. Medidas aproximadas de 180 x 70 cm.",
+    "preco": "89.90",
+    "estoque": 19,
+    "imagem_busca": "inflatable pool lounger"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "termometro-flutuante",
+    "nome": "Termômetro Flutuante para Piscina",
+    "descricao": "Termômetro analógico flutuante com cordão de fixação. Escala de 0 a 50 graus Celsius.",
+    "preco": "27.90",
+    "estoque": 38,
+    "imagem_busca": "floating pool thermometer"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "dosador-flutuante-cloro",
+    "nome": "Dosador Flutuante para Pastilhas de Cloro",
+    "descricao": "Dosador flutuante com regulagem de saída para pastilhas de cloro de 200 g. Capacidade para até 5 pastilhas.",
+    "preco": "32.90",
+    "estoque": 42,
+    "imagem_busca": "floating chlorine dispenser"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "escada-inox-3-degraus",
+    "nome": "Escada de Inox para Piscina 3 Degraus",
+    "descricao": "Escada em aço inox com degraus antiderrapantes, para fixação no deck da piscina. Suporta até 150 kg.",
+    "preco": "749.00",
+    "estoque": 5,
+    "imagem_busca": "pool ladder stainless"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "capa-termica-5x3",
+    "nome": "Capa Térmica para Piscina 5 x 3 m",
+    "descricao": "Capa térmica em polietileno que reduz a evaporação e ajuda a manter a temperatura da água. Sob medida de 5 x 3 metros.",
+    "preco": "389.00",
+    "estoque": 6,
+    "imagem_busca": "pool cover"
+  },
+  {
+    "categoria": "Acessórios & Lazer",
+    "codigo": "bola-inflavel-40cm",
+    "nome": "Bola Inflável para Piscina",
+    "descricao": "Bola inflável colorida de vinil para brincadeiras na água. Diâmetro de aproximadamente 40 cm.",
+    "preco": "19.90",
+    "estoque": 60,
+    "imagem_busca": "inflatable beach ball pool"
+  }
+]

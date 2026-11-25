@@ -91,6 +91,36 @@ Se você já estava logado com essa conta, saia e entre de novo para o site reco
 | `npm run preview` | Serve a build de produção localmente, para conferência |
 | `npm run lint` | Roda o ESLint |
 
+## Backup e restauração
+
+O script `deploy/backup.sh` gera, a cada execução, um dump do PostgreSQL (`db_AAAAMMDD_HHMMSS.dump`, formato custom do `pg_dump`) e um `tar.gz` do volume de imagens (`uploads_AAAAMMDD_HHMMSS.tar.gz`). Os arquivos ficam em `/home/univates/backups` com permissão 600, os mais antigos que 7 dias são apagados e o script recusa rodar com menos de 500 MB livres. Cada arquivo é validado antes de ser gravado (`pg_restore -l` e `tar tzf`), então um backup quebrado nunca substitui um bom.
+
+Agendamento (crontab do root, todo dia às 03:10):
+
+```
+10 3 * * * /home/univates/bruxel/deploy/backup.sh >> /home/univates/backups/cron.log 2>&1
+```
+
+Conferir o volume de imagens (montado, gravável, com espaço): `sudo ./deploy/verificar-uploads.sh`.
+
+Restaurar o banco (apaga e recria os dados do banco `bruxel`):
+
+```
+sudo docker compose exec -T db pg_restore -U bruxel -d bruxel --clean --if-exists --no-owner < /home/univates/backups/db_AAAAMMDD_HHMMSS.dump
+```
+
+Restaurar as imagens:
+
+```
+sudo docker compose exec -T backend tar xzf - -C /app/uploads < /home/univates/backups/uploads_AAAAMMDD_HHMMSS.tar.gz
+```
+
+O backup fica na mesma VM. Para proteger contra perda da VM, copie periodicamente a pasta de backups para outra máquina (por exemplo com `scp`). Testes do script: `bash deploy/test/backup.test.sh` (precisa de `pg_dump` e de um Postgres local, veja o cabeçalho do arquivo).
+
+## Dados de demonstração da loja
+
+`backend/seed/catalogo.json` traz 29 produtos de piscina (nome, descrição, preço, estoque, categoria). As imagens não vão para o Git: `backend/scripts/baixar-imagens.mjs` baixa fotos com licença livre (Openverse) para `backend/seed/imagens/` e grava os créditos em `CREDITOS.md`; um arquivo colocado manualmente como `<codigo>.jpg` tem prioridade. `backend/scripts/seed-loja.mjs` grava produtos (idempotente por `codigo`), copia as imagens para o volume `uploads` e cria usuários a partir de `backend/seed/usuarios.local.json` (ignorado pelo Git; use `usuarios.exemplo.json` como modelo). Usuários existentes não são alterados e senhas ausentes no arquivo são geradas e mostradas uma única vez.
+
 ## Banco de dados
 
 O schema tem oito tabelas: `users`, `products`, `categories`, `favorites`, `orders`, `order_items`, `appointments` e `appointment_items`. `appointments` guarda o pedido de atendimento e os dados da Ordem de Serviço (OS), e `appointment_items` guarda os produtos usados nela. O DDL completo está versionado nas migrações em `prisma/migrations`.
