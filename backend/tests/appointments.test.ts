@@ -31,6 +31,99 @@ const atendimentoDoBanco = {
 const FOTO_ANTIGA = "https://bruxel.exemplo.com/api/uploads/atendimentos/11111111-1111-4111-8111-111111111111.png";
 const FOTO_NOVA = "https://bruxel.exemplo.com/api/uploads/atendimentos/22222222-2222-4222-8222-222222222222.png";
 
+const PEDIDO = {
+    tipo: "LIMPEZA" as const,
+    descricao: "Limpeza completa da piscina.",
+    data_hora: "2026-10-20T11:00:00.000Z",
+};
+
+describe("AppointmentsService reservas", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it("cliente não reserva um horário que já tem atendimento ativo", async () => {
+        const conflito = vi
+            .spyOn(AppointmentsRepository.prototype, "getConflitoNoHorario")
+            .mockResolvedValue({ id: "outro" } as never);
+        const criar = vi.spyOn(AppointmentsRepository.prototype, "create");
+
+        await expect(new AppointmentsService().create(CLIENTE, PEDIDO)).rejects.toMatchObject({
+            statusCode: 409,
+            message: "Esse horário já foi reservado. Escolha outro.",
+            detalhes: [{ campo: "data_hora", mensagem: "Esse horário já foi reservado. Escolha outro." }],
+        });
+
+        expect(conflito).toHaveBeenCalledWith(new Date(PEDIDO.data_hora));
+        expect(criar).not.toHaveBeenCalled();
+    });
+
+    it("cliente reserva quando o horário está livre", async () => {
+        const conflito = vi
+            .spyOn(AppointmentsRepository.prototype, "getConflitoNoHorario")
+            .mockResolvedValue(null);
+        vi.spyOn(AppointmentsRepository.prototype, "create").mockResolvedValue(
+            atendimentoDoBanco as never
+        );
+
+        await expect(new AppointmentsService().create(CLIENTE, PEDIDO)).resolves.toBeDefined();
+        expect(conflito).toHaveBeenCalled();
+    });
+
+    it("administrador pode encaixar um horário já ocupado", async () => {
+        const conflito = vi.spyOn(AppointmentsRepository.prototype, "getConflitoNoHorario");
+        const criar = vi
+            .spyOn(AppointmentsRepository.prototype, "create")
+            .mockResolvedValue(atendimentoDoBanco as never);
+
+        await new AppointmentsService().create({ ...CLIENTE, perfil: "ADMINISTRADOR" }, PEDIDO);
+
+        expect(conflito).not.toHaveBeenCalled();
+        expect(criar).toHaveBeenCalled();
+    });
+});
+
+describe("AppointmentsService horários ocupados", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    const INICIO = new Date("2026-10-20T03:00:00.000Z");
+    const FIM = new Date("2026-10-21T03:00:00.000Z");
+
+    it("devolve os horários ativos do intervalo em ISO", async () => {
+        const buscar = vi
+            .spyOn(AppointmentsRepository.prototype, "getHorariosOcupados")
+            .mockResolvedValue([new Date(PEDIDO.data_hora)] as never);
+
+        const resultado = await new AppointmentsService().listarHorariosOcupados({
+            inicio: INICIO.toISOString(),
+            fim: FIM.toISOString(),
+        });
+
+        expect(resultado).toEqual({ horarios: [PEDIDO.data_hora] });
+        expect(buscar).toHaveBeenCalledWith(INICIO, FIM);
+    });
+
+    it("recusa intervalo invertido", async () => {
+        await expect(
+            new AppointmentsService().listarHorariosOcupados({
+                inicio: FIM.toISOString(),
+                fim: INICIO.toISOString(),
+            })
+        ).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it("recusa intervalo maior que 31 dias", async () => {
+        await expect(
+            new AppointmentsService().listarHorariosOcupados({
+                inicio: "2026-10-01T00:00:00.000Z",
+                fim: "2026-11-02T00:00:00.000Z",
+            })
+        ).rejects.toMatchObject({ statusCode: 400 });
+    });
+});
+
 describe("AppointmentsService para o cliente", () => {
     afterEach(() => {
         vi.restoreAllMocks();
